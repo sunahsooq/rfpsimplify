@@ -242,22 +242,21 @@ export default function OpportunityDetail() {
             <div className="md:col-span-8">
               {/* Tabs bar */}
               <div className="rounded-t-xl bg-[#1a2540] shadow-card">
-                <div className="flex items-center gap-1 overflow-x-auto px-2 py-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                <div className="flex flex-wrap items-center gap-1 overflow-x-auto px-3 py-3 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                   {tabs.map((tab) => {
-                    const active = tab.key === activeTab;
+                    const active = activeTab === tab.key;
                     return (
                       <button
                         key={tab.key}
                         type="button"
                         onClick={() => handleTabClick(tab.key)}
-                        className={`shrink-0 border-b-2 px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
-                          active
-                            ? "border-[#3b82f6] bg-[#2a334f] text-white"
-                            : "border-transparent text-[#94a3b8] hover:bg-[#2a334f] hover:text-foreground"
-                        }`}
+                        className={`rounded-xl px-3 py-2 text-sm font-semibold transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring
+                          ${active ? "bg-background/10 text-foreground" : "text-muted-foreground"}`}
                         aria-current={active ? "page" : undefined}
                       >
-                        {tab.label}
+                        <span className={active ? "border-b-2 border-primary pb-1" : "pb-1"}>
+                          {tab.label}
+                        </span>
                       </button>
                     );
                   })}
