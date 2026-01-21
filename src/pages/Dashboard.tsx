@@ -67,15 +67,15 @@ const insights = [
   },
   {
     tone: "destructive" as const,
-    prefix: "🛑",
+    prefix: "⚠️",
     text: "You may want to reconsider bidding on VA Cloud Migration",
   },
 ];
 
 const insightToneClass: Record<"warning" | "success" | "destructive", string> = {
-  warning: "bg-warning/15 text-warning",
-  success: "bg-success/15 text-success",
-  destructive: "bg-destructive/15 text-destructive",
+  warning: "bg-warning/20 text-warning",
+  success: "bg-success/20 text-success",
+  destructive: "bg-destructive/20 text-destructive",
 };
 
 export default function Dashboard() {
@@ -172,9 +172,9 @@ export default function Dashboard() {
         </section>
 
         {/* Second row */}
-        <section className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-5">
+        <section className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-5">
           {/* Recent Opportunities (60%) */}
-          <div className="rounded-xl border border-border bg-card shadow-card transition-all hover:scale-[1.01] hover:shadow-glow lg:col-span-3">
+          <div className="rounded-xl border border-border bg-card shadow-card transition-all hover:scale-[1.01] hover:shadow-glow md:col-span-3">
             <div className="p-6">
               <h2 className="text-[20px] font-bold text-foreground">Recent Opportunities</h2>
             </div>
@@ -207,14 +207,14 @@ export default function Dashboard() {
           </div>
 
           {/* AI Insights (40%) */}
-          <div className="rounded-xl border border-border bg-card p-6 shadow-card transition-all hover:scale-[1.01] hover:shadow-glow lg:col-span-2">
+          <div className="rounded-xl border border-border bg-card p-6 shadow-card transition-all hover:scale-[1.01] hover:shadow-glow md:col-span-2">
             <h2 className="text-[20px] font-bold text-foreground">AI Insights</h2>
 
             <div className="mt-4 space-y-3">
               {insights.map((i) => (
                 <div
                   key={i.text}
-                  className={`flex items-start gap-3 rounded-lg p-4 ${insightToneClass[i.tone]}`}
+                  className={`flex items-start gap-3 rounded-xl p-4 ${insightToneClass[i.tone]}`}
                 >
                   <span className="mt-0.5">{i.prefix}</span>
                   <p className="text-sm font-medium">{i.text}</p>
