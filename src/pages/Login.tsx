@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { Eye, EyeOff, Mail, Lock } from "lucide-react";
-import Logo from "@/components/ui/Logo";
+import { Eye, EyeOff, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,30 +11,94 @@ const Login = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle login logic here
     console.log("Login attempt:", { email, password });
   };
 
-  return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-background">
-      {/* Background gradient effects */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 -left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 -right-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
-      </div>
+  const comparisonData = [
+    { task: "Parse 100-page RFP", before: "6 hours", after: "30 sec" },
+    { task: "Find teaming partner", before: "2 weeks", after: "90 sec" },
+    { task: "Build compliance matrix", before: "6 hours", after: "30 sec" },
+  ];
 
-      {/* Login Card */}
-      <div className="relative w-full max-w-md animate-fade-in">
-        <div className="bg-card border border-border rounded-2xl p-8 shadow-card shadow-glow">
+  return (
+    <div className="min-h-screen flex">
+      {/* Left Side - Marketing */}
+      <div className="hidden lg:flex lg:w-[55%] bg-gradient-to-br from-[#1e40af] to-[#3b82f6] p-12 flex-col justify-between relative overflow-hidden">
+        {/* Background decoration */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-24 -right-24 w-96 h-96 bg-white/5 rounded-full blur-3xl" />
+          <div className="absolute bottom-1/4 -left-24 w-72 h-72 bg-white/5 rounded-full blur-3xl" />
+        </div>
+
+        {/* Content */}
+        <div className="relative z-10">
           {/* Logo */}
-          <div className="flex justify-center mb-6">
-            <Logo size="lg" />
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
+              <Zap className="w-6 h-6 text-white" fill="white" />
+            </div>
+            <span className="text-2xl font-bold text-white">rfpSimplify</span>
           </div>
 
           {/* Tagline */}
-          <p className="text-center text-muted-foreground mb-8">
+          <p className="text-white/80 text-lg mb-16">
             From RFP to Teaming in 10 Seconds
           </p>
+
+          {/* Headline */}
+          <h1 className="text-[42px] font-bold text-white leading-tight mb-6">
+            Win More Federal Contracts
+          </h1>
+
+          {/* Subtext */}
+          <p className="text-white/80 text-lg max-w-md mb-12">
+            AI-powered capture management for small GovCon businesses. Find opportunities, discover partners, and make smarter bid decisions.
+          </p>
+
+          {/* Comparison Box */}
+          <div className="bg-black/20 backdrop-blur-sm rounded-2xl p-6 max-w-md border border-white/10">
+            <div className="flex items-center gap-2 mb-4">
+              <span className="text-white/60 text-lg">2 Weeks</span>
+              <span className="text-white text-lg">→</span>
+              <span className="text-white font-semibold text-lg">4 Minutes</span>
+            </div>
+
+            <div className="space-y-3">
+              {comparisonData.map((item, index) => (
+                <div key={index} className="flex items-center justify-between text-sm">
+                  <span className="text-white/90 flex-1">{item.task}</span>
+                  <span className="text-white/50 w-20 text-right line-through">{item.before}</span>
+                  <span className="text-emerald-400 w-20 text-right font-medium">{item.after}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Footer decoration */}
+        <div className="relative z-10">
+          <p className="text-white/40 text-sm">
+            Trusted by 500+ GovCon professionals
+          </p>
+        </div>
+      </div>
+
+      {/* Right Side - Login Form */}
+      <div className="w-full lg:w-[45%] bg-background flex items-center justify-center p-8">
+        <div className="w-full max-w-md">
+          {/* Mobile Logo */}
+          <div className="lg:hidden flex items-center gap-3 mb-8 justify-center">
+            <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center">
+              <Zap className="w-6 h-6 text-white" fill="white" />
+            </div>
+            <span className="text-2xl font-bold text-gradient">rfpSimplify</span>
+          </div>
+
+          {/* Welcome Text */}
+          <div className="mb-8">
+            <h2 className="text-3xl font-bold text-foreground mb-2">Welcome Back</h2>
+            <p className="text-muted-foreground">Sign in to your account</p>
+          </div>
 
           {/* Login Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -44,17 +107,14 @@ const Login = () => {
               <Label htmlFor="email" className="text-foreground/80">
                 Email
               </Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="pl-10 h-12 bg-secondary/50 border-border focus:border-primary focus:ring-primary/20"
-                />
-              </div>
+              <Input
+                id="email"
+                type="email"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="h-12 bg-card border-border focus:border-primary focus:ring-primary/20"
+              />
             </div>
 
             {/* Password Field */}
@@ -63,14 +123,13 @@ const Login = () => {
                 Password
               </Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10 pr-10 h-12 bg-secondary/50 border-border focus:border-primary focus:ring-primary/20"
+                  className="h-12 pr-10 bg-card border-border focus:border-primary focus:ring-primary/20"
                 />
                 <button
                   type="button"
@@ -95,7 +154,7 @@ const Login = () => {
             {/* Sign In Button */}
             <Button
               type="submit"
-              className="w-full h-12 text-base font-semibold gradient-primary hover:opacity-90 transition-opacity"
+              className="w-full h-12 text-base font-semibold bg-gradient-to-r from-[#3b82f6] to-[#60a5fa] hover:from-[#2563eb] hover:to-[#3b82f6] transition-all"
             >
               Sign In
             </Button>
@@ -107,18 +166,18 @@ const Login = () => {
               <div className="w-full border-t border-border" />
             </div>
             <div className="relative flex justify-center">
-              <span className="bg-card px-4 text-sm text-muted-foreground">or</span>
+              <span className="bg-background px-4 text-sm text-muted-foreground">or</span>
             </div>
           </div>
 
-          {/* Create Account Link */}
+          {/* Register Link */}
           <p className="text-center text-muted-foreground">
             Don't have an account?{" "}
             <a
               href="#"
               className="text-primary font-medium hover:text-primary/80 transition-colors"
             >
-              Create Account
+              Register with your UEI
             </a>
           </p>
         </div>
