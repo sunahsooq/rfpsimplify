@@ -136,14 +136,14 @@ export default function OpportunityDetail() {
     <div className="min-h-screen w-full bg-background">
       <AppTopNav />
 
-      <main className="mx-auto w-full max-w-[1600px] px-8 py-6">
+      <main className="mx-auto w-full max-w-[1600px] px-6 pb-10 pt-6 md:px-8">
         {/* Back link */}
         <div className="mb-4">
           <Link
             to="/opportunities"
-            className="inline-flex items-center text-sm font-semibold text-primary transition-colors hover:text-primary/90"
+            className="inline-flex items-center gap-1 text-sm font-medium text-primary transition-colors hover:text-primary/80"
           >
-            {"\u2190"} Back to Opportunities
+            ← Back to Opportunities
           </Link>
         </div>
 
@@ -157,7 +157,7 @@ export default function OpportunityDetail() {
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center rounded-lg bg-success px-4 py-2 text-sm font-bold text-white shadow-card">
+            <span className="inline-flex items-center rounded-lg bg-[#22c55e] px-4 py-2 text-sm font-bold text-white shadow-card">
               {data.match}% Match
             </span>
             <span
@@ -173,7 +173,7 @@ export default function OpportunityDetail() {
         <section className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
           <div>
             <span className="text-muted-foreground">Due Date: </span>
-            <span className={data.urgent ? "font-semibold text-red-500" : "text-foreground"}>{data.due}</span>
+            <span className={data.urgent ? "font-semibold text-[#ef4444]" : "text-foreground"}>{data.due}</span>
           </div>
           <div>
             <span className="text-muted-foreground">Est. Value: </span>
@@ -194,8 +194,9 @@ export default function OpportunityDetail() {
           <div className="grid grid-cols-1 gap-6 md:grid-cols-12">
             {/* Main content */}
             <div className="md:col-span-8">
-              <div className="rounded-t-2xl bg-nav shadow-card">
-                <div className="flex items-center gap-1 overflow-x-auto px-3 py-3 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {/* Tabs bar */}
+              <div className="rounded-t-xl bg-[#1a2540] shadow-card">
+                <div className="flex items-center gap-1 overflow-x-auto px-2 py-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                   {(
                     [
                       "Overview",
@@ -212,44 +213,46 @@ export default function OpportunityDetail() {
                         key={label}
                         type="button"
                         onClick={() => setActiveTab(label)}
-                        className={`shrink-0 rounded-xl px-3 py-2 text-sm font-semibold transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
-                          active ? "bg-background/10 text-foreground" : "text-muted-foreground"
+                        className={`shrink-0 rounded-lg px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                          active
+                            ? "bg-[#2a334f] text-foreground"
+                            : "text-muted-foreground hover:bg-[#2a334f]/50 hover:text-foreground"
                         }`}
                         aria-current={active ? "page" : undefined}
                       >
-                        <span className={active ? "border-b-2 border-primary pb-1" : "pb-1"}>{label}</span>
+                        {label}
                       </button>
                     );
                   })}
                 </div>
               </div>
 
-              <div className="rounded-b-2xl bg-nav p-6 shadow-card">
+              {/* Tab content */}
+              <div className="rounded-b-xl bg-[#1a2540] p-6 shadow-card">
                 {activeTab === "Overview" ? (
                   <OpportunityOverviewTab data={data} />
                 ) : activeTab === "Requirements" ? (
                   <OpportunityRequirementsTab />
                 ) : (
-                  <div className="space-y-2">
-                    <p className="text-sm font-semibold text-muted-foreground">Tab content placeholder</p>
-                    <p className="text-sm text-muted-foreground">Content for “{activeTab}” coming soon.</p>
+                  <div className="rounded-lg border border-[#334155] bg-background/5 p-6">
+                    <p className="text-base font-semibold text-foreground">{activeTab}</p>
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      Content for this tab is coming soon. This section will include detailed information
+                      relevant to {activeTab.toLowerCase()} for this opportunity.
+                    </p>
                   </div>
                 )}
               </div>
 
               {/* Mobile: AI panel below content */}
-              <div className="mt-6">
-                <div className="md:hidden">
-                  <OpportunityAiPanel variant="mobile" />
-                </div>
+              <div className="mt-6 md:hidden">
+                <OpportunityAiPanel variant="mobile" />
               </div>
             </div>
 
             {/* Desktop: right rail AI panel */}
-            <div className="md:col-span-4">
-              <div className="hidden md:block">
-                <OpportunityAiPanel variant="desktop" />
-              </div>
+            <div className="hidden md:col-span-4 md:block">
+              <OpportunityAiPanel variant="desktop" />
             </div>
           </div>
         </section>
