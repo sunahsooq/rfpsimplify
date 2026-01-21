@@ -1,10 +1,30 @@
-import { useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useEffect, useMemo } from "react";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import { AppTopNav } from "@/components/AppTopNav";
 import { OpportunityOverviewTab } from "@/components/opportunity/OpportunityOverviewTab";
 import { OpportunityRequirementsTab } from "@/components/opportunity/OpportunityRequirementsTab";
 import { OpportunityAiPanel } from "@/components/opportunity/OpportunityAiPanel";
 import { OpportunityGapsRisksTab } from "@/components/opportunity/OpportunityGapsRisksTab";
+
+type TabName = "Overview" | "Requirements" | "Gaps & Risks" | "Teaming Partners" | "Compliance Matrix" | "AI Recommendations";
+
+const tabUrlMap: Record<string, TabName> = {
+  overview: "Overview",
+  requirements: "Requirements",
+  "gaps-risks": "Gaps & Risks",
+  "teaming-partners": "Teaming Partners",
+  "compliance-matrix": "Compliance Matrix",
+  "ai-recommendations": "AI Recommendations",
+};
+
+const tabToUrl: Record<TabName, string> = {
+  Overview: "overview",
+  Requirements: "requirements",
+  "Gaps & Risks": "gaps-risks",
+  "Teaming Partners": "teaming-partners",
+  "Compliance Matrix": "compliance-matrix",
+  "AI Recommendations": "ai-recommendations",
+};
 
 type Stage = "Identified" | "Qualified" | "Pursuing" | "Submitted";
 
@@ -106,9 +126,24 @@ const demoById: Record<string, OpportunityDetailData> = {
 
 export default function OpportunityDetail() {
   const { id } = useParams<{ id: string }>();
-  const [activeTab, setActiveTab] = useState<
-    "Overview" | "Requirements" | "Gaps & Risks" | "Teaming Partners" | "Compliance Matrix" | "AI Recommendations"
-  >("Overview");
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Derive active tab from URL, default to "Overview"
+  const tabParam = searchParams.get("tab") || "overview";
+  const activeTab: TabName = tabUrlMap[tabParam] || "Overview";
+
+  // Sync URL when tab changes via click
+  const handleTabClick = (tab: TabName) => {
+    const urlValue = tabToUrl[tab];
+    if (searchParams.get("tab") !== urlValue) {
+      setSearchParams({ tab: urlValue }, { replace: false });
+    }
+  };
+
+  // Handle browser back/forward - URL is already the source of truth
+  useEffect(() => {
+    // This effect ensures component re-renders when searchParams change
+  }, [searchParams]);
 
   const data = useMemo<OpportunityDetailData>(() => {
     if (id && demoById[id]) return demoById[id];
@@ -213,7 +248,7 @@ export default function OpportunityDetail() {
                       <button
                         key={label}
                         type="button"
-                        onClick={() => setActiveTab(label)}
+                        onClick={() => handleTabClick(label)}
                         className={`shrink-0 border-b-2 px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                           active
                             ? "border-[#3b82f6] bg-[#2a334f] text-white"
