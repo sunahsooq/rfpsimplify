@@ -4,6 +4,7 @@ import { AppTopNav } from "@/components/AppTopNav";
 import { OpportunityOverviewTab } from "@/components/opportunity/OpportunityOverviewTab";
 import { OpportunityRequirementsTab } from "@/components/opportunity/OpportunityRequirementsTab";
 import { OpportunityAiPanel } from "@/components/opportunity/OpportunityAiPanel";
+import { OpportunityGapsRisksTab } from "@/components/opportunity/OpportunityGapsRisksTab";
 
 type Stage = "Identified" | "Qualified" | "Pursuing" | "Submitted";
 
@@ -233,6 +234,8 @@ export default function OpportunityDetail() {
                   <OpportunityOverviewTab data={data} />
                 ) : activeTab === "Requirements" ? (
                   <OpportunityRequirementsTab />
+                ) : activeTab === "Gaps & Risks" ? (
+                  <OpportunityGapsRisksTab />
                 ) : (
                   <div className="rounded-lg border border-[#334155] bg-background/5 p-6">
                     <p className="text-base font-semibold text-foreground">{activeTab}</p>
