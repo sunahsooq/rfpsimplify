@@ -15,15 +15,15 @@ const Login = () => {
   };
 
   const comparisonData = [
-    { task: "Parse 100-page RFP", before: "6 hours", after: "30 sec" },
-    { task: "Find teaming partner", before: "2 weeks", after: "90 sec" },
-    { task: "Build compliance matrix", before: "6 hours", after: "30 sec" },
+    { task: "Parse 100-page RFP", manual: "6 hours", fast: "30 sec" },
+    { task: "Find teaming partner", manual: "2 weeks", fast: "90 sec" },
+    { task: "Build compliance matrix", manual: "6 hours", fast: "30 sec" },
   ];
 
   return (
-    <div className="min-h-screen flex">
-      {/* Left Side - Marketing */}
-      <div className="hidden lg:flex lg:w-[55%] bg-gradient-to-br from-[#1e40af] to-[#3b82f6] p-12 flex-col justify-between relative overflow-hidden">
+    <div className="h-screen flex overflow-hidden">
+      {/* Left Side - Marketing Panel */}
+      <div className="hidden lg:flex lg:w-[55%] bg-gradient-to-br from-[#1e40af] to-[#3b82f6] p-[60px] flex-col relative overflow-hidden">
         {/* Background decoration */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute -top-24 -right-24 w-96 h-96 bg-white/5 rounded-full blur-3xl" />
@@ -31,55 +31,57 @@ const Login = () => {
         </div>
 
         {/* Content */}
-        <div className="relative z-10">
+        <div className="relative z-10 flex-1">
           {/* Logo */}
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
-              <Zap className="w-6 h-6 text-white" fill="white" />
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#3b82f6] to-[#fbbf24] flex items-center justify-center">
+              <Zap className="w-5 h-5 text-white" fill="white" />
             </div>
-            <span className="text-2xl font-bold text-white">rfpSimplify</span>
+            <span className="text-[28px] font-bold text-white">rfpSimplify</span>
           </div>
 
           {/* Tagline */}
-          <p className="text-white/80 text-lg mb-16">
+          <p className="text-white/60 text-sm">
             From RFP to Teaming in 10 Seconds
           </p>
 
-          {/* Headline */}
-          <h1 className="text-[42px] font-bold text-white leading-tight mb-6">
+          {/* Main Headline */}
+          <h1 className="text-[44px] font-bold text-white leading-tight mt-10">
             Win More Federal Contracts
           </h1>
 
-          {/* Subtext */}
-          <p className="text-white/80 text-lg max-w-md mb-12">
+          {/* Description */}
+          <p className="text-white/80 text-lg max-w-[500px] mt-4">
             AI-powered capture management for small GovCon businesses. Find opportunities, discover partners, and make smarter bid decisions.
           </p>
 
           {/* Comparison Box */}
-          <div className="bg-black/20 backdrop-blur-sm rounded-2xl p-6 max-w-md border border-white/10">
-            <div className="flex items-center gap-2 mb-4">
-              <span className="text-white/60 text-lg">2 Weeks</span>
-              <span className="text-white text-lg">→</span>
-              <span className="text-white font-semibold text-lg">4 Minutes</span>
+          <div className="bg-black/20 rounded-2xl p-6 max-w-[520px] mt-10">
+            <h3 className="text-white font-bold text-xl mb-1">
+              2 Weeks → 4 Minutes
+            </h3>
+            <p className="text-white/60 text-sm mb-5">
+              What used to take days now takes seconds
+            </p>
+
+            {/* Table Header */}
+            <div className="grid grid-cols-[1fr_100px_120px] gap-2 text-sm text-white/50 mb-3 pb-2 border-b border-white/10">
+              <span>Task</span>
+              <span className="text-right">Manual</span>
+              <span className="text-right">With rfpSimplify</span>
             </div>
 
+            {/* Table Rows */}
             <div className="space-y-3">
               {comparisonData.map((item, index) => (
-                <div key={index} className="flex items-center justify-between text-sm">
-                  <span className="text-white/90 flex-1">{item.task}</span>
-                  <span className="text-white/50 w-20 text-right line-through">{item.before}</span>
-                  <span className="text-emerald-400 w-20 text-right font-medium">{item.after}</span>
+                <div key={index} className="grid grid-cols-[1fr_100px_120px] gap-2 text-sm">
+                  <span className="text-white">{item.task}</span>
+                  <span className="text-white/70 text-right">{item.manual}</span>
+                  <span className="text-[#22c55e] text-right font-medium">{item.fast}</span>
                 </div>
               ))}
             </div>
           </div>
-        </div>
-
-        {/* Footer decoration */}
-        <div className="relative z-10">
-          <p className="text-white/40 text-sm">
-            Trusted by 500+ GovCon professionals
-          </p>
         </div>
       </div>
 
