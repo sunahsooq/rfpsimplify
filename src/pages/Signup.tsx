@@ -1,0 +1,399 @@
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { Eye, EyeOff, Zap, Info } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+
+const Signup = () => {
+  const [uei, setUei] = useState("");
+  const [ueiVerified, setUeiVerified] = useState(false);
+  const [companyName, setCompanyName] = useState("");
+  const [cageCode, setCageCode] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
+
+  const handleVerifyUei = () => {
+    console.log("Verifying UEI:", uei);
+    // Simulate verification
+    if (uei.length === 12) {
+      setUeiVerified(true);
+      setCompanyName("Example Company LLC");
+      setCageCode("ABC12");
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log("Signup attempt:", { uei, fullName, email, password });
+  };
+
+  const comparisonData = [
+    { task: "Parse 100-page RFP", manual: "6 hours", fast: "30 sec" },
+    { task: "Find teaming partner", manual: "2 weeks", fast: "90 sec" },
+    { task: "Build compliance matrix", manual: "6 hours", fast: "30 sec" },
+  ];
+
+  return (
+    <div style={{ display: 'flex', minHeight: '100vh', width: '100%' }}>
+      {/* COLUMN 1 - LEFT - MARKETING (55%) */}
+      <div 
+        style={{ 
+          width: '55%', 
+          minHeight: '100vh',
+          background: 'linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)',
+          padding: '60px',
+          display: 'flex',
+          flexDirection: 'column',
+          position: 'relative',
+          overflow: 'hidden'
+        }}
+        className="hidden lg:flex"
+      >
+        {/* Background decoration */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-24 -right-24 w-96 h-96 bg-white/5 rounded-full blur-3xl" />
+          <div className="absolute bottom-1/4 -left-24 w-72 h-72 bg-white/5 rounded-full blur-3xl" />
+        </div>
+
+        {/* Content */}
+        <div className="relative z-10 flex-1">
+          {/* Logo */}
+          <div className="flex items-center gap-3 mb-2">
+            <div 
+              className="flex items-center justify-center"
+              style={{
+                width: '36px',
+                height: '36px',
+                borderRadius: '8px',
+                background: 'linear-gradient(135deg, #3b82f6, #fbbf24)'
+              }}
+            >
+              <Zap className="w-5 h-5 text-white" fill="white" />
+            </div>
+            <span style={{ fontSize: '28px', fontWeight: 700, color: 'white' }}>rfpSimplify</span>
+          </div>
+
+          {/* Tagline */}
+          <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '14px' }}>
+            From RFP to Teaming in 10 Seconds
+          </p>
+
+          {/* Main Headline */}
+          <h1 style={{ 
+            fontSize: '44px', 
+            fontWeight: 700, 
+            color: 'white', 
+            lineHeight: 1.2,
+            marginTop: '40px'
+          }}>
+            Win More Federal Contracts
+          </h1>
+
+          {/* Description */}
+          <p style={{ 
+            color: 'rgba(255,255,255,0.8)', 
+            fontSize: '18px', 
+            maxWidth: '500px',
+            marginTop: '16px',
+            lineHeight: 1.6
+          }}>
+            AI-powered capture management for small GovCon businesses. Find opportunities, discover partners, and make smarter bid decisions.
+          </p>
+
+          {/* Comparison Box */}
+          <div style={{ 
+            background: 'rgba(0,0,0,0.2)', 
+            borderRadius: '16px', 
+            padding: '24px',
+            maxWidth: '520px',
+            marginTop: '40px'
+          }}>
+            <h3 style={{ color: 'white', fontWeight: 700, fontSize: '20px', marginBottom: '4px' }}>
+              2 Weeks → 4 Minutes
+            </h3>
+            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '14px', marginBottom: '20px' }}>
+              What used to take days now takes seconds
+            </p>
+
+            {/* Table Header */}
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: '1fr 100px 120px', 
+              gap: '8px',
+              fontSize: '14px',
+              color: 'rgba(255,255,255,0.5)',
+              marginBottom: '12px',
+              paddingBottom: '8px',
+              borderBottom: '1px solid rgba(255,255,255,0.1)'
+            }}>
+              <span>Task</span>
+              <span style={{ textAlign: 'right' }}>Manual</span>
+              <span style={{ textAlign: 'right' }}>With rfpSimplify</span>
+            </div>
+
+            {/* Table Rows */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {comparisonData.map((item, index) => (
+                <div key={index} style={{ 
+                  display: 'grid', 
+                  gridTemplateColumns: '1fr 100px 120px', 
+                  gap: '8px',
+                  fontSize: '14px'
+                }}>
+                  <span style={{ color: 'white' }}>{item.task}</span>
+                  <span style={{ color: 'rgba(255,255,255,0.7)', textAlign: 'right' }}>{item.manual}</span>
+                  <span style={{ color: '#22c55e', textAlign: 'right', fontWeight: 500 }}>{item.fast}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* COLUMN 2 - RIGHT - SIGNUP FORM (45%) */}
+      <div 
+        style={{ 
+          width: '45%',
+          minHeight: '100vh',
+          backgroundColor: '#0c1222',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '32px',
+          overflowY: 'auto'
+        }}
+        className="w-full lg:w-[45%]"
+      >
+        <div className="w-full max-w-md">
+          {/* Mobile Logo */}
+          <div className="lg:hidden flex items-center gap-3 mb-8 justify-center">
+            <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center">
+              <Zap className="w-6 h-6 text-white" fill="white" />
+            </div>
+            <span className="text-2xl font-bold text-gradient">rfpSimplify</span>
+          </div>
+
+          {/* Welcome Text */}
+          <div className="mb-6">
+            <h2 className="text-[28px] font-bold text-foreground mb-2">Create Your Account</h2>
+            <p className="text-muted-foreground text-sm">Register using your SAM.gov UEI</p>
+          </div>
+
+          {/* Signup Form */}
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* UEI Section */}
+            <div className="space-y-2">
+              <Label htmlFor="uei" className="text-foreground/80">
+                Unique Entity ID (UEI)
+              </Label>
+              <Input
+                id="uei"
+                type="text"
+                placeholder="Enter your 12-character UEI"
+                value={uei}
+                onChange={(e) => setUei(e.target.value.toUpperCase())}
+                maxLength={12}
+                className="h-12 bg-card border-border focus:border-primary focus:ring-primary/20"
+              />
+              <a
+                href="https://sam.gov"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-primary hover:text-primary/80 transition-colors"
+              >
+                Find your UEI at SAM.gov
+              </a>
+            </div>
+
+            {/* Verify UEI Button */}
+            <Button
+              type="button"
+              onClick={handleVerifyUei}
+              disabled={uei.length !== 12}
+              className="w-full h-12 text-base font-semibold bg-gradient-to-r from-[#3b82f6] to-[#60a5fa] hover:from-[#2563eb] hover:to-[#3b82f6] transition-all disabled:opacity-50"
+            >
+              Verify UEI
+            </Button>
+
+            {/* Info Box */}
+            <div 
+              className="flex items-start gap-3"
+              style={{
+                background: 'rgba(59, 130, 246, 0.1)',
+                borderLeft: '3px solid #3b82f6',
+                padding: '12px 16px',
+                borderRadius: '0 8px 8px 0'
+              }}
+            >
+              <Info className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-foreground/80">
+                Your company information will be auto-populated from SAM.gov after verification
+              </p>
+            </div>
+
+            {/* Company Fields (Disabled) */}
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="companyName" className="text-foreground/80">
+                  Company Name
+                </Label>
+                <Input
+                  id="companyName"
+                  type="text"
+                  placeholder="Auto-filled after UEI verification"
+                  value={companyName}
+                  disabled
+                  className="h-12 bg-card/50 border-border opacity-60 cursor-not-allowed"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="cageCode" className="text-foreground/80">
+                  CAGE Code
+                </Label>
+                <Input
+                  id="cageCode"
+                  type="text"
+                  placeholder="Auto-filled after UEI verification"
+                  value={cageCode}
+                  disabled
+                  className="h-12 bg-card/50 border-border opacity-60 cursor-not-allowed"
+                />
+              </div>
+            </div>
+
+            {/* Account Fields */}
+            <div className="space-y-4 pt-2">
+              <div className="space-y-2">
+                <Label htmlFor="fullName" className="text-foreground/80">
+                  Full Name <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="fullName"
+                  type="text"
+                  placeholder="Enter your full name"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  required
+                  className="h-12 bg-card border-border focus:border-primary focus:ring-primary/20"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-foreground/80">
+                  Work Email <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="Enter your work email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="h-12 bg-card border-border focus:border-primary focus:ring-primary/20"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-foreground/80">
+                  Password <span className="text-destructive">*</span>
+                </Label>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Create a password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="h-12 pr-10 bg-card border-border focus:border-primary focus:ring-primary/20"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword" className="text-foreground/80">
+                  Confirm Password <span className="text-destructive">*</span>
+                </Label>
+                <div className="relative">
+                  <Input
+                    id="confirmPassword"
+                    type={showConfirmPassword ? "text" : "password"}
+                    placeholder="Confirm your password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                    className="h-12 pr-10 bg-card border-border focus:border-primary focus:ring-primary/20"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Terms Checkbox */}
+            <div className="flex items-start gap-3 pt-2">
+              <Checkbox
+                id="terms"
+                checked={agreedToTerms}
+                onCheckedChange={(checked) => setAgreedToTerms(checked as boolean)}
+                className="mt-0.5"
+              />
+              <label htmlFor="terms" className="text-sm text-muted-foreground cursor-pointer">
+                I agree to the{" "}
+                <a href="#" className="text-primary hover:text-primary/80 transition-colors">
+                  Terms of Service
+                </a>{" "}
+                and{" "}
+                <a href="#" className="text-primary hover:text-primary/80 transition-colors">
+                  Privacy Policy
+                </a>
+              </label>
+            </div>
+
+            {/* Create Account Button */}
+            <Button
+              type="submit"
+              disabled={!agreedToTerms}
+              className="w-full h-12 text-base font-semibold bg-gradient-to-r from-[#d97706] to-[#fbbf24] hover:from-[#b45309] hover:to-[#d97706] text-black transition-all disabled:opacity-50"
+            >
+              Create Account
+            </Button>
+          </form>
+
+          {/* Sign In Link */}
+          <p className="text-center text-muted-foreground mt-6">
+            Already have an account?{" "}
+            <Link
+              to="/login"
+              className="text-primary font-medium hover:text-primary/80 transition-colors"
+            >
+              Sign In
+            </Link>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Signup;

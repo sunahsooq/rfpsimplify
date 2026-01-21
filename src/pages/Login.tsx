@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Eye, EyeOff, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -238,12 +239,12 @@ const Login = () => {
           {/* Register Link */}
           <p className="text-center text-muted-foreground">
             Don't have an account?{" "}
-            <a
-              href="#"
+            <Link
+              to="/signup"
               className="text-primary font-medium hover:text-primary/80 transition-colors"
             >
               Register with your UEI
-            </a>
+            </Link>
           </p>
         </div>
       </div>
