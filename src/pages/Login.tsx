@@ -21,9 +21,21 @@ const Login = () => {
   ];
 
   return (
-    <div className="h-screen flex overflow-hidden">
-      {/* Left Side - Marketing Panel */}
-      <div className="hidden lg:flex lg:w-[55%] bg-gradient-to-br from-[#1e40af] to-[#3b82f6] p-[60px] flex-col relative overflow-hidden">
+    <div style={{ display: 'flex', minHeight: '100vh', width: '100%' }}>
+      {/* COLUMN 1 - LEFT - MARKETING (55%) */}
+      <div 
+        style={{ 
+          width: '55%', 
+          minHeight: '100vh',
+          background: 'linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)',
+          padding: '60px',
+          display: 'flex',
+          flexDirection: 'column',
+          position: 'relative',
+          overflow: 'hidden'
+        }}
+        className="hidden lg:flex"
+      >
         {/* Background decoration */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute -top-24 -right-24 w-96 h-96 bg-white/5 rounded-full blur-3xl" />
@@ -34,50 +46,90 @@ const Login = () => {
         <div className="relative z-10 flex-1">
           {/* Logo */}
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#3b82f6] to-[#fbbf24] flex items-center justify-center">
+            <div 
+              className="flex items-center justify-center"
+              style={{
+                width: '36px',
+                height: '36px',
+                borderRadius: '8px',
+                background: 'linear-gradient(135deg, #3b82f6, #fbbf24)'
+              }}
+            >
               <Zap className="w-5 h-5 text-white" fill="white" />
             </div>
-            <span className="text-[28px] font-bold text-white">rfpSimplify</span>
+            <span style={{ fontSize: '28px', fontWeight: 700, color: 'white' }}>rfpSimplify</span>
           </div>
 
           {/* Tagline */}
-          <p className="text-white/60 text-sm">
+          <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '14px' }}>
             From RFP to Teaming in 10 Seconds
           </p>
 
           {/* Main Headline */}
-          <h1 className="text-[44px] font-bold text-white leading-tight mt-10">
+          <h1 style={{ 
+            fontSize: '44px', 
+            fontWeight: 700, 
+            color: 'white', 
+            lineHeight: 1.2,
+            marginTop: '40px'
+          }}>
             Win More Federal Contracts
           </h1>
 
           {/* Description */}
-          <p className="text-white/80 text-lg max-w-[500px] mt-4">
+          <p style={{ 
+            color: 'rgba(255,255,255,0.8)', 
+            fontSize: '18px', 
+            maxWidth: '500px',
+            marginTop: '16px',
+            lineHeight: 1.6
+          }}>
             AI-powered capture management for small GovCon businesses. Find opportunities, discover partners, and make smarter bid decisions.
           </p>
 
           {/* Comparison Box */}
-          <div className="bg-black/20 rounded-2xl p-6 max-w-[520px] mt-10">
-            <h3 className="text-white font-bold text-xl mb-1">
+          <div style={{ 
+            background: 'rgba(0,0,0,0.2)', 
+            borderRadius: '16px', 
+            padding: '24px',
+            maxWidth: '520px',
+            marginTop: '40px'
+          }}>
+            <h3 style={{ color: 'white', fontWeight: 700, fontSize: '20px', marginBottom: '4px' }}>
               2 Weeks → 4 Minutes
             </h3>
-            <p className="text-white/60 text-sm mb-5">
+            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '14px', marginBottom: '20px' }}>
               What used to take days now takes seconds
             </p>
 
             {/* Table Header */}
-            <div className="grid grid-cols-[1fr_100px_120px] gap-2 text-sm text-white/50 mb-3 pb-2 border-b border-white/10">
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: '1fr 100px 120px', 
+              gap: '8px',
+              fontSize: '14px',
+              color: 'rgba(255,255,255,0.5)',
+              marginBottom: '12px',
+              paddingBottom: '8px',
+              borderBottom: '1px solid rgba(255,255,255,0.1)'
+            }}>
               <span>Task</span>
-              <span className="text-right">Manual</span>
-              <span className="text-right">With rfpSimplify</span>
+              <span style={{ textAlign: 'right' }}>Manual</span>
+              <span style={{ textAlign: 'right' }}>With rfpSimplify</span>
             </div>
 
             {/* Table Rows */}
-            <div className="space-y-3">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {comparisonData.map((item, index) => (
-                <div key={index} className="grid grid-cols-[1fr_100px_120px] gap-2 text-sm">
-                  <span className="text-white">{item.task}</span>
-                  <span className="text-white/70 text-right">{item.manual}</span>
-                  <span className="text-[#22c55e] text-right font-medium">{item.fast}</span>
+                <div key={index} style={{ 
+                  display: 'grid', 
+                  gridTemplateColumns: '1fr 100px 120px', 
+                  gap: '8px',
+                  fontSize: '14px'
+                }}>
+                  <span style={{ color: 'white' }}>{item.task}</span>
+                  <span style={{ color: 'rgba(255,255,255,0.7)', textAlign: 'right' }}>{item.manual}</span>
+                  <span style={{ color: '#22c55e', textAlign: 'right', fontWeight: 500 }}>{item.fast}</span>
                 </div>
               ))}
             </div>
@@ -85,8 +137,19 @@ const Login = () => {
         </div>
       </div>
 
-      {/* Right Side - Login Form */}
-      <div className="w-full lg:w-[45%] bg-background flex items-center justify-center p-8">
+      {/* COLUMN 2 - RIGHT - LOGIN FORM (45%) */}
+      <div 
+        style={{ 
+          width: '45%',
+          minHeight: '100vh',
+          backgroundColor: '#0c1222',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '32px'
+        }}
+        className="w-full lg:w-[45%]"
+      >
         <div className="w-full max-w-md">
           {/* Mobile Logo */}
           <div className="lg:hidden flex items-center gap-3 mb-8 justify-center">
@@ -168,7 +231,7 @@ const Login = () => {
               <div className="w-full border-t border-border" />
             </div>
             <div className="relative flex justify-center">
-              <span className="bg-background px-4 text-sm text-muted-foreground">or</span>
+              <span className="bg-[#0c1222] px-4 text-sm text-muted-foreground">or</span>
             </div>
           </div>
 
