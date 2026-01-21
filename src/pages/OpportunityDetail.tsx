@@ -138,10 +138,13 @@ export default function OpportunityDetail() {
 
   // Sync state when URL changes (browser back/forward)
   useEffect(() => {
-    const param = searchParams.get("tab") || "overview";
-    const validTab = isValidTabKey(param) ? param : "overview";
-    if (validTab !== activeTab) {
-      setActiveTab(validTab);
+    const tab = searchParams.get("tab");
+    if (
+      tab &&
+      tabs.some((t) => t.key === tab) &&
+      tab !== activeTab
+    ) {
+      setActiveTab(tab as typeof activeTab);
     }
   }, [searchParams]);
 
