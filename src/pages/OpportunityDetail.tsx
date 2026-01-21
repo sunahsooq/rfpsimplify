@@ -6,29 +6,24 @@ import { OpportunityRequirementsTab } from "@/components/opportunity/Opportunity
 import { OpportunityAiPanel } from "@/components/opportunity/OpportunityAiPanel";
 import { OpportunityGapsRisksTab } from "@/components/opportunity/OpportunityGapsRisksTab";
 
-type TabKey = "overview" | "requirements" | "gaps-risks" | "teaming-partners" | "compliance-matrix" | "ai-recommendations";
-type TabLabel = "Overview" | "Requirements" | "Gaps & Risks" | "Teaming Partners" | "Compliance Matrix" | "AI Recommendations";
+const tabs = [
+  { label: "Overview", key: "overview" },
+  { label: "Requirements", key: "requirements" },
+  { label: "Gaps & Risks", key: "gaps-risks" },
+  { label: "Teaming Partners", key: "teaming-partners" },
+  { label: "Compliance Matrix", key: "compliance-matrix" },
+  { label: "AI Recommendations", key: "ai-recommendations" },
+] as const;
 
-const tabUrlToLabel: Record<TabKey, TabLabel> = {
-  overview: "Overview",
-  requirements: "Requirements",
-  "gaps-risks": "Gaps & Risks",
-  "teaming-partners": "Teaming Partners",
-  "compliance-matrix": "Compliance Matrix",
-  "ai-recommendations": "AI Recommendations",
-};
-
-const tabLabelToUrl: Record<TabLabel, TabKey> = {
-  Overview: "overview",
-  Requirements: "requirements",
-  "Gaps & Risks": "gaps-risks",
-  "Teaming Partners": "teaming-partners",
-  "Compliance Matrix": "compliance-matrix",
-  "AI Recommendations": "ai-recommendations",
-};
+type TabKey = (typeof tabs)[number]["key"];
+type TabLabel = (typeof tabs)[number]["label"];
 
 const isValidTabKey = (value: string): value is TabKey => {
-  return value in tabUrlToLabel;
+  return tabs.some((tab) => tab.key === value);
+};
+
+const getTabLabel = (key: TabKey): TabLabel => {
+  return tabs.find((tab) => tab.key === key)?.label ?? "Overview";
 };
 
 type Stage = "Identified" | "Qualified" | "Pursuing" | "Submitted";
@@ -151,15 +146,14 @@ export default function OpportunityDetail() {
   }, [searchParams]);
 
   // Sync URL when tab changes via click
-  const handleTabClick = (label: TabLabel) => {
-    const urlValue = tabLabelToUrl[label];
-    if (urlValue !== activeTab) {
-      setActiveTab(urlValue);
-      setSearchParams({ tab: urlValue }, { replace: false });
+  const handleTabClick = (key: TabKey) => {
+    if (key !== activeTab) {
+      setActiveTab(key);
+      setSearchParams({ tab: key }, { replace: false });
     }
   };
 
-  const activeTabLabel = tabUrlToLabel[activeTab];
+  const activeTabLabel = getTabLabel(activeTab);
 
   const data = useMemo<OpportunityDetailData>(() => {
     if (id && demoById[id]) return demoById[id];
@@ -249,22 +243,13 @@ export default function OpportunityDetail() {
               {/* Tabs bar */}
               <div className="rounded-t-xl bg-[#1a2540] shadow-card">
                 <div className="flex items-center gap-1 overflow-x-auto px-2 py-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                  {(
-                    [
-                      "Overview",
-                      "Requirements",
-                      "Gaps & Risks",
-                      "Teaming Partners",
-                      "Compliance Matrix",
-                      "AI Recommendations",
-                    ] as const
-                  ).map((label) => {
-                    const active = label === activeTabLabel;
+                  {tabs.map((tab) => {
+                    const active = tab.key === activeTab;
                     return (
                       <button
-                        key={label}
+                        key={tab.key}
                         type="button"
-                        onClick={() => handleTabClick(label)}
+                        onClick={() => handleTabClick(tab.key)}
                         className={`shrink-0 border-b-2 px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                           active
                             ? "border-[#3b82f6] bg-[#2a334f] text-white"
@@ -272,7 +257,7 @@ export default function OpportunityDetail() {
                         }`}
                         aria-current={active ? "page" : undefined}
                       >
-                        {label}
+                        {tab.label}
                       </button>
                     );
                   })}
