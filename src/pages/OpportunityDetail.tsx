@@ -26,6 +26,14 @@ const stageBadgeClass: Record<Stage, string> = {
   Submitted: "bg-stage-submitted",
 };
 
+const agencyFullNames: Record<string, string> = {
+  DOE: "Department of Energy (DOE)",
+  DHS: "Department of Homeland Security (DHS)",
+  GSA: "General Services Administration (GSA)",
+  DoD: "Department of Defense (DoD)",
+  VA: "Department of Veterans Affairs (VA)",
+};
+
 const demoById: Record<string, OpportunityDetailData> = {
   "cloud-infra-modernization": {
     title: "Cloud Infrastructure Modernization",
@@ -61,7 +69,7 @@ const demoById: Record<string, OpportunityDetailData> = {
     setAside: "8(a)",
   },
   "cybersecurity-monitoring": {
-    title: "Cybersecurity Monitoring",
+    title: "Cybersecurity Monitoring Services",
     agency: "DoD",
     match: 92,
     stage: "Pursuing",
@@ -79,6 +87,17 @@ const demoById: Record<string, OpportunityDetailData> = {
     due: "Mar 20, 2026",
     urgent: false,
     estValue: "$3.2M",
+    contractType: "IDIQ",
+    setAside: "8(a)",
+  },
+  "identity-management-platform": {
+    title: "Identity Management Platform",
+    agency: "Treasury",
+    match: 83,
+    stage: "Qualified",
+    due: "Apr 05, 2026",
+    urgent: false,
+    estValue: "$2.8M",
     contractType: "IDIQ",
     setAside: "8(a)",
   },
@@ -131,16 +150,18 @@ export default function OpportunityDetail() {
         {/* Header */}
         <section className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div>
-            <h1 className="text-[32px] font-bold leading-tight text-foreground">{data.title}</h1>
-            <p className="mt-1 text-[16px] text-muted-foreground">{data.agency}</p>
+            <h1 className="text-2xl font-bold leading-tight text-foreground md:text-[28px]">{data.title}</h1>
+            <p className="mt-1 text-base text-muted-foreground">
+              {agencyFullNames[data.agency] || data.agency}
+            </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2 md:pt-1">
-            <span className="inline-flex items-center rounded-lg bg-success px-3 py-2 text-sm font-bold text-success-foreground shadow-card">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="inline-flex items-center rounded-lg bg-success px-4 py-2 text-sm font-bold text-white shadow-card">
               {data.match}% Match
             </span>
             <span
-              className={`inline-flex items-center rounded-full px-3 py-2 text-xs font-bold text-primary-foreground shadow-card ${stageBadgeClass[data.stage]}`}
+              className={`inline-flex items-center rounded-full px-4 py-2 text-xs font-bold text-white shadow-card ${stageBadgeClass[data.stage]}`}
               aria-label={`Stage: ${data.stage}`}
             >
               {data.stage}
@@ -149,19 +170,22 @@ export default function OpportunityDetail() {
         </section>
 
         {/* Meta row */}
-        <section className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
+        <section className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
           <div>
-            <span className="font-semibold">Due Date:</span>{" "}
-            <span className={data.urgent ? "text-urgent" : "text-muted-foreground"}>{data.due}</span>
+            <span className="text-muted-foreground">Due Date: </span>
+            <span className={data.urgent ? "font-semibold text-red-500" : "text-foreground"}>{data.due}</span>
           </div>
           <div>
-            <span className="font-semibold">Est. Value:</span> <span>{data.estValue}</span>
+            <span className="text-muted-foreground">Est. Value: </span>
+            <span className="text-foreground">{data.estValue}</span>
           </div>
           <div>
-            <span className="font-semibold">Contract Type:</span> <span>{data.contractType}</span>
+            <span className="text-muted-foreground">Contract Type: </span>
+            <span className="text-foreground">{data.contractType}</span>
           </div>
           <div>
-            <span className="font-semibold">Set-Aside:</span> <span>{data.setAside}</span>
+            <span className="text-muted-foreground">Set-Aside: </span>
+            <span className="text-foreground">{data.setAside}</span>
           </div>
         </section>
 
