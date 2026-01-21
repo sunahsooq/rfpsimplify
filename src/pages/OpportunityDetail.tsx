@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { AppTopNav } from "@/components/AppTopNav";
 import { OpportunityOverviewTab } from "@/components/opportunity/OpportunityOverviewTab";
@@ -6,9 +6,10 @@ import { OpportunityRequirementsTab } from "@/components/opportunity/Opportunity
 import { OpportunityAiPanel } from "@/components/opportunity/OpportunityAiPanel";
 import { OpportunityGapsRisksTab } from "@/components/opportunity/OpportunityGapsRisksTab";
 
-type TabName = "Overview" | "Requirements" | "Gaps & Risks" | "Teaming Partners" | "Compliance Matrix" | "AI Recommendations";
+type TabKey = "overview" | "requirements" | "gaps-risks" | "teaming-partners" | "compliance-matrix" | "ai-recommendations";
+type TabLabel = "Overview" | "Requirements" | "Gaps & Risks" | "Teaming Partners" | "Compliance Matrix" | "AI Recommendations";
 
-const tabUrlMap: Record<string, TabName> = {
+const tabUrlToLabel: Record<TabKey, TabLabel> = {
   overview: "Overview",
   requirements: "Requirements",
   "gaps-risks": "Gaps & Risks",
@@ -17,13 +18,17 @@ const tabUrlMap: Record<string, TabName> = {
   "ai-recommendations": "AI Recommendations",
 };
 
-const tabToUrl: Record<TabName, string> = {
+const tabLabelToUrl: Record<TabLabel, TabKey> = {
   Overview: "overview",
   Requirements: "requirements",
   "Gaps & Risks": "gaps-risks",
   "Teaming Partners": "teaming-partners",
   "Compliance Matrix": "compliance-matrix",
   "AI Recommendations": "ai-recommendations",
+};
+
+const isValidTabKey = (value: string): value is TabKey => {
+  return value in tabUrlToLabel;
 };
 
 type Stage = "Identified" | "Qualified" | "Pursuing" | "Submitted";
@@ -128,22 +133,33 @@ export default function OpportunityDetail() {
   const { id } = useParams<{ id: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // Derive active tab from URL, default to "Overview"
-  const tabParam = searchParams.get("tab") || "overview";
-  const activeTab: TabName = tabUrlMap[tabParam] || "Overview";
+  // Initialize state from URL, default to "overview"
+  const getInitialTab = (): TabKey => {
+    const param = searchParams.get("tab") || "overview";
+    return isValidTabKey(param) ? param : "overview";
+  };
+
+  const [activeTab, setActiveTab] = useState<TabKey>(getInitialTab);
+
+  // Sync state when URL changes (browser back/forward)
+  useEffect(() => {
+    const param = searchParams.get("tab") || "overview";
+    const validTab = isValidTabKey(param) ? param : "overview";
+    if (validTab !== activeTab) {
+      setActiveTab(validTab);
+    }
+  }, [searchParams]);
 
   // Sync URL when tab changes via click
-  const handleTabClick = (tab: TabName) => {
-    const urlValue = tabToUrl[tab];
-    if (searchParams.get("tab") !== urlValue) {
+  const handleTabClick = (label: TabLabel) => {
+    const urlValue = tabLabelToUrl[label];
+    if (urlValue !== activeTab) {
+      setActiveTab(urlValue);
       setSearchParams({ tab: urlValue }, { replace: false });
     }
   };
 
-  // Handle browser back/forward - URL is already the source of truth
-  useEffect(() => {
-    // This effect ensures component re-renders when searchParams change
-  }, [searchParams]);
+  const activeTabLabel = tabUrlToLabel[activeTab];
 
   const data = useMemo<OpportunityDetailData>(() => {
     if (id && demoById[id]) return demoById[id];
@@ -243,7 +259,7 @@ export default function OpportunityDetail() {
                       "AI Recommendations",
                     ] as const
                   ).map((label) => {
-                    const active = label === activeTab;
+                    const active = label === activeTabLabel;
                     return (
                       <button
                         key={label}
@@ -265,18 +281,18 @@ export default function OpportunityDetail() {
 
               {/* Tab content */}
               <div className="rounded-b-xl bg-[#1a2540] p-6 shadow-card">
-                {activeTab === "Overview" ? (
+                {activeTabLabel === "Overview" ? (
                   <OpportunityOverviewTab data={data} />
-                ) : activeTab === "Requirements" ? (
+                ) : activeTabLabel === "Requirements" ? (
                   <OpportunityRequirementsTab />
-                ) : activeTab === "Gaps & Risks" ? (
+                ) : activeTabLabel === "Gaps & Risks" ? (
                   <OpportunityGapsRisksTab />
                 ) : (
                   <div className="rounded-lg border border-[#334155] bg-background/5 p-6">
-                    <p className="text-base font-semibold text-foreground">{activeTab}</p>
+                    <p className="text-base font-semibold text-foreground">{activeTabLabel}</p>
                     <p className="mt-2 text-sm text-muted-foreground">
                       Content for this tab is coming soon. This section will include detailed information
-                      relevant to {activeTab.toLowerCase()} for this opportunity.
+                      relevant to {activeTabLabel.toLowerCase()} for this opportunity.
                     </p>
                   </div>
                 )}
