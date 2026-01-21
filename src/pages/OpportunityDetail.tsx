@@ -1,33 +1,203 @@
 import { useMemo } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { AppTopNav } from "@/components/AppTopNav";
+
+type Stage = "Identified" | "Qualified" | "Pursuing" | "Submitted";
+
+type OpportunityDetailData = {
+  title: string;
+  agency: string;
+  match: number;
+  stage: Stage;
+  due: string;
+  urgent: boolean;
+  estValue: string;
+  contractType: string;
+  setAside: string;
+};
+
+const stageBadgeClass: Record<Stage, string> = {
+  Identified: "bg-stage-identified",
+  Qualified: "bg-stage-qualified",
+  Pursuing: "bg-stage-pursuing",
+  Submitted: "bg-stage-submitted",
+};
+
+const demoById: Record<string, OpportunityDetailData> = {
+  "cloud-infra-modernization": {
+    title: "Cloud Infrastructure Modernization",
+    agency: "DOE",
+    match: 78,
+    stage: "Qualified",
+    due: "Feb 15, 2026",
+    urgent: true,
+    estValue: "$4.2M",
+    contractType: "IDIQ",
+    setAside: "8(a)",
+  },
+  "zero-trust-network-upgrade": {
+    title: "Zero Trust Network Upgrade",
+    agency: "DHS",
+    match: 71,
+    stage: "Pursuing",
+    due: "Feb 19, 2026",
+    urgent: true,
+    estValue: "$3.8M",
+    contractType: "IDIQ",
+    setAside: "8(a)",
+  },
+  "data-platform-consolidation": {
+    title: "Data Platform Consolidation",
+    agency: "GSA",
+    match: 65,
+    stage: "Identified",
+    due: "Mar 02, 2026",
+    urgent: false,
+    estValue: "$2.1M",
+    contractType: "IDIQ",
+    setAside: "8(a)",
+  },
+  "cybersecurity-monitoring": {
+    title: "Cybersecurity Monitoring",
+    agency: "DoD",
+    match: 92,
+    stage: "Pursuing",
+    due: "Feb 10, 2026",
+    urgent: true,
+    estValue: "$5.5M",
+    contractType: "IDIQ",
+    setAside: "8(a)",
+  },
+  "application-modernization": {
+    title: "Application Modernization",
+    agency: "VA",
+    match: 54,
+    stage: "Identified",
+    due: "Mar 20, 2026",
+    urgent: false,
+    estValue: "$3.2M",
+    contractType: "IDIQ",
+    setAside: "8(a)",
+  },
+};
 
 export default function OpportunityDetail() {
   const { id } = useParams<{ id: string }>();
 
-  const title = useMemo(() => {
-    if (!id) return "Opportunity";
-    return id
-      .split("-")
-      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-      .join(" ");
+  const data = useMemo<OpportunityDetailData>(() => {
+    if (id && demoById[id]) return demoById[id];
+
+    const title = !id
+      ? "Opportunity"
+      : id
+          .split("-")
+          .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+          .join(" ");
+
+    return {
+      title,
+      agency: "DOE",
+      match: 78,
+      stage: "Qualified",
+      due: "Feb 15, 2026",
+      urgent: true,
+      estValue: "$4.2M",
+      contractType: "IDIQ",
+      setAside: "8(a)",
+    };
   }, [id]);
 
   return (
     <div className="min-h-screen w-full bg-background">
-      <main className="mx-auto w-full max-w-[1200px] px-8 pb-10 pt-6">
-        <div className="mb-6">
-          <Button asChild variant="outline" className="border-primary/40 text-foreground hover:bg-primary/10">
-            <Link to="/opportunities">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Opportunities
-            </Link>
-          </Button>
+      <AppTopNav />
+
+      <main className="mx-auto w-full max-w-[1600px] px-8 py-6">
+        {/* Back link */}
+        <div className="mb-4">
+          <Link
+            to="/opportunities"
+            className="inline-flex items-center text-sm font-semibold text-primary transition-colors hover:text-primary/90"
+          >
+            {"\u2190"} Back to Opportunities
+          </Link>
         </div>
 
-        <h1 className="text-[32px] font-bold text-foreground">{title}</h1>
-        <p className="mt-2 text-muted-foreground">Placeholder detail page for /opportunity/{`{id}`}</p>
+        {/* Header */}
+        <section className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+          <div>
+            <h1 className="text-[32px] font-bold leading-tight text-foreground">{data.title}</h1>
+            <p className="mt-1 text-[16px] text-muted-foreground">{data.agency}</p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2 md:pt-1">
+            <span className="inline-flex items-center rounded-lg bg-success px-3 py-2 text-sm font-bold text-success-foreground shadow-card">
+              {data.match}% Match
+            </span>
+            <span
+              className={`inline-flex items-center rounded-full px-3 py-2 text-xs font-bold text-primary-foreground shadow-card ${stageBadgeClass[data.stage]}`}
+              aria-label={`Stage: ${data.stage}`}
+            >
+              {data.stage}
+            </span>
+          </div>
+        </section>
+
+        {/* Meta row */}
+        <section className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
+          <div>
+            <span className="font-semibold">Due Date:</span>{" "}
+            <span className={data.urgent ? "text-urgent" : "text-muted-foreground"}>{data.due}</span>
+          </div>
+          <div>
+            <span className="font-semibold">Est. Value:</span> <span>{data.estValue}</span>
+          </div>
+          <div>
+            <span className="font-semibold">Contract Type:</span> <span>{data.contractType}</span>
+          </div>
+          <div>
+            <span className="font-semibold">Set-Aside:</span> <span>{data.setAside}</span>
+          </div>
+        </section>
+
+        {/* Tabs bar (visual only) */}
+        <section className="mt-6">
+          <div className="rounded-t-2xl bg-nav shadow-card">
+            <div className="flex flex-wrap items-center gap-1 px-3 py-3">
+              {[
+                "Overview",
+                "Requirements",
+                "Gaps & Risks",
+                "Teaming Partners",
+                "Compliance Matrix",
+                "AI Recommendations",
+              ].map((label) => {
+                const active = label === "Overview";
+                return (
+                  <button
+                    key={label}
+                    type="button"
+                    className={`rounded-xl px-3 py-2 text-sm font-semibold transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                      active ? "bg-background/10 text-foreground" : "text-muted-foreground"
+                    }`}
+                    aria-current={active ? "page" : undefined}
+                  >
+                    <span className={active ? "border-b-2 border-primary pb-1" : "pb-1"}>{label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Content area */}
+          <div className="rounded-b-2xl bg-nav p-6 shadow-card">
+            <div className="space-y-3">
+              <p className="text-sm font-semibold text-muted-foreground">Overview content coming soon</p>
+              <p className="text-sm text-muted-foreground">
+                Key requirements, sections L/M, evaluation criteria... (tab content placeholder)
+              </p>
+            </div>
+          </div>
+        </section>
       </main>
     </div>
   );
