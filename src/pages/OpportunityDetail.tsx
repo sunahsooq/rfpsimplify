@@ -6,6 +6,7 @@ import { OpportunityRequirementsTab } from "@/components/opportunity/Opportunity
 import { OpportunityAiPanel } from "@/components/opportunity/OpportunityAiPanel";
 import { OpportunityGapsRisksTab } from "@/components/opportunity/OpportunityGapsRisksTab";
 import { OpportunityTeamingPartnersTab } from "@/components/opportunity/OpportunityTeamingPartnersTab";
+import { OpportunityCaptureDecisionPanel } from "@/components/opportunity/OpportunityCaptureDecisionPanel";
 
 const tabs = [
   { label: "Overview", key: "overview" },
@@ -292,15 +293,19 @@ export default function OpportunityDetail() {
                 )}
               </div>
 
-              {/* Mobile: AI panel below content */}
-              <div className="mt-6 md:hidden">
+              {/* Mobile: AI panel + Capture Decision below content */}
+              <div className="mt-6 space-y-6 md:hidden">
                 <OpportunityAiPanel variant="mobile" />
+                <OpportunityCaptureDecisionPanel />
               </div>
             </div>
 
-            {/* Desktop: right rail AI panel */}
+            {/* Desktop: right rail - AI panel + Capture Decision */}
             <div className="hidden md:col-span-4 md:block">
-              <OpportunityAiPanel variant="desktop" />
+              <div className="space-y-6">
+                <OpportunityAiPanel variant="desktop" />
+                <OpportunityCaptureDecisionPanel />
+              </div>
             </div>
           </div>
         </section>
