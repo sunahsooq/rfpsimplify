@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 type Stat = {
   label: string;
@@ -79,6 +80,8 @@ const insightToneClass: Record<"warning" | "success" | "destructive", string> = 
 };
 
 export default function Dashboard() {
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen w-full bg-background">
       <header className="sticky top-0 z-50 w-full border-b border-border bg-nav">
@@ -200,7 +203,11 @@ export default function Dashboard() {
             </div>
 
             <div className="p-6 pt-2">
-              <Button variant="outline" className="w-full border-primary/40 text-foreground hover:bg-primary/10">
+              <Button
+                variant="outline"
+                className="w-full border-primary/40 text-foreground hover:bg-primary/10"
+                onClick={() => navigate("/opportunities")}
+              >
                 View All Opportunities
               </Button>
             </div>

@@ -53,6 +53,15 @@ export default {
           DEFAULT: "hsl(var(--warning))",
           foreground: "hsl(var(--warning-foreground))",
         },
+        stage: {
+          identified: "hsl(var(--stage-identified))",
+          qualified: "hsl(var(--stage-qualified))",
+          pursuing: "hsl(var(--stage-pursuing))",
+          submitted: "hsl(var(--stage-submitted))",
+        },
+        urgent: {
+          DEFAULT: "hsl(var(--urgent))",
+        },
         popover: {
           DEFAULT: "hsl(var(--popover))",
           foreground: "hsl(var(--popover-foreground))",
