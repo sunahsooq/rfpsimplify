@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Zap, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -7,10 +7,13 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { getAuthErrorMessage, getSSOErrorMessage } from "@/lib/auth-utils";
+import { useAuth } from "@/hooks/useAuth";
 
 const Signup = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { session } = useAuth();
   const [uei, setUei] = useState("");
   const [ueiVerified, setUeiVerified] = useState(false);
   const [companyName, setCompanyName] = useState("");
@@ -24,6 +27,13 @@ const Signup = () => {
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [ssoError, setSsoError] = useState<string | null>(null);
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (session) {
+      navigate("/dashboard");
+    }
+  }, [session, navigate]);
 
   const handleVerifyUei = () => {
     console.log("Verifying UEI:", uei);
@@ -65,7 +75,7 @@ const Signup = () => {
       toast({
         variant: "destructive",
         title: "Sign up failed",
-        description: error.message,
+        description: getAuthErrorMessage(error),
       });
       setIsLoading(false);
       return;
@@ -90,7 +100,7 @@ const Signup = () => {
     });
 
     if (error) {
-      setSsoError("Authentication failed. Please try again or use email login.");
+      setSsoError(getSSOErrorMessage());
       setIsLoading(false);
     }
   };
@@ -108,7 +118,7 @@ const Signup = () => {
     });
 
     if (error) {
-      setSsoError("Authentication failed. Please try again or use email login.");
+      setSsoError(getSSOErrorMessage());
       setIsLoading(false);
     }
   };
