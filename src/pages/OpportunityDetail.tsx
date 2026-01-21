@@ -136,6 +136,13 @@ export default function OpportunityDetail() {
 
   const [activeTab, setActiveTab] = useState<TabKey>(getInitialTab);
 
+  // Set default tab in URL if missing
+  useEffect(() => {
+    if (!searchParams.get("tab")) {
+      setSearchParams({ tab: "overview" }, { replace: true });
+    }
+  }, []);
+
   // Sync state when URL changes (browser back/forward)
   useEffect(() => {
     const tab = searchParams.get("tab");
