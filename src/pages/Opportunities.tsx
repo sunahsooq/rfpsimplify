@@ -4,6 +4,7 @@ import { CalendarDays, ChevronDown, Filter, Percent, ShieldCheck } from "lucide-
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { AppTopNav } from "@/components/AppTopNav";
 
 type Stage = "Identified" | "Qualified" | "Pursuing" | "Submitted";
 
@@ -145,6 +146,7 @@ export default function Opportunities() {
 
   return (
     <div className="min-h-screen w-full bg-background">
+      <AppTopNav />
       <main className="mx-auto w-full max-w-[1600px] px-8 pb-10 pt-6">
         <section className="mb-6">
           <div className="flex flex-wrap items-end justify-between gap-4">
