@@ -1,12 +1,16 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Zap, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const Signup = () => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
   const [uei, setUei] = useState("");
   const [ueiVerified, setUeiVerified] = useState(false);
   const [companyName, setCompanyName] = useState("");
@@ -18,6 +22,8 @@ const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [ssoError, setSsoError] = useState<string | null>(null);
 
   const handleVerifyUei = () => {
     console.log("Verifying UEI:", uei);
@@ -29,9 +35,82 @@ const Signup = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Signup attempt:", { uei, fullName, email, password });
+    
+    if (password !== confirmPassword) {
+      toast({
+        variant: "destructive",
+        title: "Passwords don't match",
+        description: "Please make sure your passwords match.",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    setSsoError(null);
+
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: window.location.origin,
+        data: {
+          full_name: fullName,
+        },
+      },
+    });
+
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Sign up failed",
+        description: error.message,
+      });
+      setIsLoading(false);
+      return;
+    }
+
+    toast({
+      title: "Account created!",
+      description: "You have been signed in successfully.",
+    });
+    navigate("/dashboard");
+  };
+
+  const handleGoogleSSO = async () => {
+    setIsLoading(true);
+    setSsoError(null);
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/dashboard`,
+      },
+    });
+
+    if (error) {
+      setSsoError("Authentication failed. Please try again or use email login.");
+      setIsLoading(false);
+    }
+  };
+
+  const handleMicrosoftSSO = async () => {
+    setIsLoading(true);
+    setSsoError(null);
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "azure",
+      options: {
+        redirectTo: `${window.location.origin}/dashboard`,
+        scopes: "email profile openid",
+      },
+    });
+
+    if (error) {
+      setSsoError("Authentication failed. Please try again or use email login.");
+      setIsLoading(false);
+    }
   };
 
   const comparisonData = [
@@ -201,6 +280,7 @@ const Signup = () => {
                 onChange={(e) => setUei(e.target.value.toUpperCase())}
                 maxLength={12}
                 className="h-12 bg-card border-border focus:border-primary focus:ring-primary/20"
+                disabled={isLoading}
               />
               <a
                 href="https://sam.gov"
@@ -216,7 +296,7 @@ const Signup = () => {
             <Button
               type="button"
               onClick={handleVerifyUei}
-              disabled={uei.length !== 12}
+              disabled={uei.length !== 12 || isLoading}
               className="w-full h-12 text-base font-semibold bg-gradient-to-r from-[#3b82f6] to-[#60a5fa] hover:from-[#2563eb] hover:to-[#3b82f6] transition-all disabled:opacity-50"
             >
               Verify UEI
@@ -283,6 +363,7 @@ const Signup = () => {
                   onChange={(e) => setFullName(e.target.value)}
                   required
                   className="h-12 bg-card border-border focus:border-primary focus:ring-primary/20"
+                  disabled={isLoading}
                 />
               </div>
 
@@ -298,6 +379,7 @@ const Signup = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   className="h-12 bg-card border-border focus:border-primary focus:ring-primary/20"
+                  disabled={isLoading}
                 />
               </div>
 
@@ -314,6 +396,7 @@ const Signup = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     className="h-12 pr-10 bg-card border-border focus:border-primary focus:ring-primary/20"
+                    disabled={isLoading}
                   />
                   <button
                     type="button"
@@ -338,6 +421,7 @@ const Signup = () => {
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required
                     className="h-12 pr-10 bg-card border-border focus:border-primary focus:ring-primary/20"
+                    disabled={isLoading}
                   />
                   <button
                     type="button"
@@ -357,6 +441,7 @@ const Signup = () => {
                 checked={agreedToTerms}
                 onCheckedChange={(checked) => setAgreedToTerms(checked as boolean)}
                 className="mt-0.5"
+                disabled={isLoading}
               />
               <label htmlFor="terms" className="text-sm text-muted-foreground cursor-pointer">
                 I agree to the{" "}
@@ -373,10 +458,10 @@ const Signup = () => {
             {/* Create Account Button */}
             <Button
               type="submit"
-              disabled={!agreedToTerms}
+              disabled={!agreedToTerms || isLoading}
               className="w-full h-12 text-base font-semibold bg-gradient-to-r from-[#d97706] to-[#fbbf24] hover:from-[#b45309] hover:to-[#d97706] text-black transition-all disabled:opacity-50"
             >
-              Create Account
+              {isLoading ? "Creating Account..." : "Create Account"}
             </Button>
           </form>
 
@@ -390,12 +475,21 @@ const Signup = () => {
             </div>
           </div>
 
+          {/* SSO Error */}
+          {ssoError && (
+            <div className="mb-4 p-3 rounded-md bg-destructive/10 border border-destructive/30">
+              <p className="text-sm text-destructive">{ssoError}</p>
+            </div>
+          )}
+
           {/* SSO Buttons */}
           <div className="space-y-3">
             {/* Google SSO */}
             <button
               type="button"
-              className="w-full h-12 flex items-center justify-center gap-3 bg-white hover:bg-gray-100 text-gray-800 font-medium rounded-md border border-gray-300 transition-colors"
+              onClick={handleGoogleSSO}
+              disabled={isLoading}
+              className="w-full h-12 flex items-center justify-center gap-3 bg-white hover:bg-gray-100 text-gray-800 font-medium rounded-md border border-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -409,7 +503,9 @@ const Signup = () => {
             {/* Microsoft SSO */}
             <button
               type="button"
-              className="w-full h-12 flex items-center justify-center gap-3 bg-white hover:bg-gray-100 text-gray-800 font-medium rounded-md border border-gray-300 transition-colors"
+              onClick={handleMicrosoftSSO}
+              disabled={isLoading}
+              className="w-full h-12 flex items-center justify-center gap-3 bg-white hover:bg-gray-100 text-gray-800 font-medium rounded-md border border-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <svg className="w-5 h-5" viewBox="0 0 21 21">
                 <rect x="1" y="1" width="9" height="9" fill="#F25022" />

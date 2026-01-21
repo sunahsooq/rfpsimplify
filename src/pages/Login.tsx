@@ -4,17 +4,74 @@ import { Eye, EyeOff, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const Login = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [ssoError, setSsoError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Login attempt:", { email, password });
+    setIsLoading(true);
+    setSsoError(null);
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Sign in failed",
+        description: error.message,
+      });
+      setIsLoading(false);
+      return;
+    }
+
     navigate("/dashboard");
+  };
+
+  const handleGoogleSSO = async () => {
+    setIsLoading(true);
+    setSsoError(null);
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/dashboard`,
+      },
+    });
+
+    if (error) {
+      setSsoError("Authentication failed. Please try again or use email login.");
+      setIsLoading(false);
+    }
+  };
+
+  const handleMicrosoftSSO = async () => {
+    setIsLoading(true);
+    setSsoError(null);
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "azure",
+      options: {
+        redirectTo: `${window.location.origin}/dashboard`,
+        scopes: "email profile openid",
+      },
+    });
+
+    if (error) {
+      setSsoError("Authentication failed. Please try again or use email login.");
+      setIsLoading(false);
+    }
   };
 
   const comparisonData = [
@@ -182,6 +239,7 @@ const Login = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="h-12 bg-card border-border focus:border-primary focus:ring-primary/20"
+                disabled={isLoading}
               />
             </div>
 
@@ -198,6 +256,7 @@ const Login = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="h-12 pr-10 bg-card border-border focus:border-primary focus:ring-primary/20"
+                  disabled={isLoading}
                 />
                 <button
                   type="button"
@@ -222,9 +281,10 @@ const Login = () => {
             {/* Sign In Button */}
             <Button
               type="submit"
+              disabled={isLoading}
               className="w-full h-12 text-base font-semibold bg-gradient-to-r from-[#3b82f6] to-[#60a5fa] hover:from-[#2563eb] hover:to-[#3b82f6] transition-all"
             >
-              Sign In
+              {isLoading ? "Signing in..." : "Sign In"}
             </Button>
           </form>
 
@@ -238,12 +298,21 @@ const Login = () => {
             </div>
           </div>
 
+          {/* SSO Error */}
+          {ssoError && (
+            <div className="mb-4 p-3 rounded-md bg-destructive/10 border border-destructive/30">
+              <p className="text-sm text-destructive">{ssoError}</p>
+            </div>
+          )}
+
           {/* SSO Buttons */}
           <div className="space-y-3">
             {/* Google SSO */}
             <button
               type="button"
-              className="w-full h-12 flex items-center justify-center gap-3 bg-white hover:bg-gray-100 text-gray-800 font-medium rounded-md border border-gray-300 transition-colors"
+              onClick={handleGoogleSSO}
+              disabled={isLoading}
+              className="w-full h-12 flex items-center justify-center gap-3 bg-white hover:bg-gray-100 text-gray-800 font-medium rounded-md border border-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -257,7 +326,9 @@ const Login = () => {
             {/* Microsoft SSO */}
             <button
               type="button"
-              className="w-full h-12 flex items-center justify-center gap-3 bg-white hover:bg-gray-100 text-gray-800 font-medium rounded-md border border-gray-300 transition-colors"
+              onClick={handleMicrosoftSSO}
+              disabled={isLoading}
+              className="w-full h-12 flex items-center justify-center gap-3 bg-white hover:bg-gray-100 text-gray-800 font-medium rounded-md border border-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <svg className="w-5 h-5" viewBox="0 0 21 21">
                 <rect x="1" y="1" width="9" height="9" fill="#F25022" />
