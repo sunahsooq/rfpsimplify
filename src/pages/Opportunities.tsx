@@ -311,10 +311,10 @@ export default function Opportunities() {
         {/* Opportunities List */}
         <section>
           {rows.length === 0 ? (
-            <Card className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-border bg-card p-12 text-center shadow-card">
-              <p className="mb-4 text-lg font-medium text-muted-foreground">No opportunities yet</p>
-              <Button className="bg-gradient-to-r from-blue-600 to-blue-400 text-white shadow-card transition-all hover:scale-[1.02] hover:shadow-glow">
-                Import from SAM.gov
+            <Card className="flex flex-col items-center justify-center rounded-xl border border-border bg-[#1a2540] p-12 text-center shadow-card">
+              <p className="mb-6 text-lg text-muted-foreground">No opportunities match your filters yet.</p>
+              <Button variant="outline" className="w-full border-primary text-primary hover:bg-primary/10 sm:w-auto">
+                Clear Filters
               </Button>
             </Card>
           ) : (
