@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { Link, useParams } from "react-router-dom";
 import { AppTopNav } from "@/components/AppTopNav";
+import { OpportunityOverviewTab } from "@/components/opportunity/OpportunityOverviewTab";
 
 type Stage = "Identified" | "Qualified" | "Pursuing" | "Submitted";
 
@@ -162,7 +163,7 @@ export default function OpportunityDetail() {
         {/* Tabs bar (visual only) */}
         <section className="mt-6">
           <div className="rounded-t-2xl bg-nav shadow-card">
-            <div className="flex flex-wrap items-center gap-1 px-3 py-3">
+            <div className="flex items-center gap-1 overflow-x-auto px-3 py-3 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {[
                 "Overview",
                 "Requirements",
@@ -176,7 +177,7 @@ export default function OpportunityDetail() {
                   <button
                     key={label}
                     type="button"
-                    className={`rounded-xl px-3 py-2 text-sm font-semibold transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                    className={`shrink-0 rounded-xl px-3 py-2 text-sm font-semibold transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                       active ? "bg-background/10 text-foreground" : "text-muted-foreground"
                     }`}
                     aria-current={active ? "page" : undefined}
@@ -190,12 +191,7 @@ export default function OpportunityDetail() {
 
           {/* Content area */}
           <div className="rounded-b-2xl bg-nav p-6 shadow-card">
-            <div className="space-y-3">
-              <p className="text-sm font-semibold text-muted-foreground">Overview content coming soon</p>
-              <p className="text-sm text-muted-foreground">
-                Key requirements, sections L/M, evaluation criteria... (tab content placeholder)
-              </p>
-            </div>
+            <OpportunityOverviewTab data={data} />
           </div>
         </section>
       </main>
