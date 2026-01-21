@@ -213,10 +213,10 @@ export default function OpportunityDetail() {
                         key={label}
                         type="button"
                         onClick={() => setActiveTab(label)}
-                        className={`shrink-0 rounded-lg px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                        className={`shrink-0 border-b-2 px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                           active
-                            ? "bg-[#2a334f] text-foreground"
-                            : "text-muted-foreground hover:bg-[#2a334f]/50 hover:text-foreground"
+                            ? "border-[#3b82f6] bg-[#2a334f] text-white"
+                            : "border-transparent text-[#94a3b8] hover:bg-[#2a334f] hover:text-foreground"
                         }`}
                         aria-current={active ? "page" : undefined}
                       >
