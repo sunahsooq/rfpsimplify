@@ -5,6 +5,7 @@ import { OpportunityOverviewTab } from "@/components/opportunity/OpportunityOver
 import { OpportunityRequirementsTab } from "@/components/opportunity/OpportunityRequirementsTab";
 import { OpportunityAiPanel } from "@/components/opportunity/OpportunityAiPanel";
 import { OpportunityGapsRisksTab } from "@/components/opportunity/OpportunityGapsRisksTab";
+import { OpportunityTeamingPartnersTab } from "@/components/opportunity/OpportunityTeamingPartnersTab";
 
 const tabs = [
   { label: "Overview", key: "overview" },
@@ -278,6 +279,8 @@ export default function OpportunityDetail() {
                   <OpportunityRequirementsTab />
                 ) : activeTabLabel === "Gaps & Risks" ? (
                   <OpportunityGapsRisksTab />
+                ) : activeTabLabel === "Teaming Partners" ? (
+                  <OpportunityTeamingPartnersTab />
                 ) : (
                   <div className="rounded-lg border border-[#334155] bg-background/5 p-6">
                     <p className="text-base font-semibold text-foreground">{activeTabLabel}</p>
