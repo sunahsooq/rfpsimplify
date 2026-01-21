@@ -40,6 +40,18 @@
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
+    /* Opportunity stage + urgency tokens (must match demo hex colors) */
+    /* #3b82f6 */
+    --stage-identified: 217 91% 60%;
+    /* #10b981 */
+    --stage-qualified: 160 84% 39%;
+    /* #f59e0b */
+    --stage-pursuing: 38 92% 50%;
+    /* #8b5cf6 */
+    --stage-submitted: 258 90% 66%;
+    /* #ef4444 */
+    --urgent: 0 84% 60%;
+
     --border: 217 91% 70% / 0.12;
     --input: 217 91% 70% / 0.12;
     --ring: 217 91% 60%;
@@ -100,6 +112,13 @@
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
+
+    /* Opportunity stage + urgency tokens */
+    --stage-identified: 217 91% 60%;
+    --stage-qualified: 160 84% 39%;
+    --stage-pursuing: 38 92% 50%;
+    --stage-submitted: 258 90% 66%;
+    --urgent: 0 84% 60%;
 
     --border: 217 91% 70% / 0.12;
     --input: 217 91% 70% / 0.12;
