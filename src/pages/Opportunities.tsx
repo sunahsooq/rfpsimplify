@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Progress } from "@/components/ui/progress";
 import { AppTopNav } from "@/components/AppTopNav";
 
 type Stage = "Identified" | "Qualified" | "Pursuing" | "Submitted";
@@ -133,10 +132,10 @@ function OpportunityCard({ opportunity }: { opportunity: Opportunity }) {
         </div>
 
         {/* Middle row: Meta info */}
-        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-3">
           <div className="flex items-center gap-2 text-sm">
             <CalendarDays className="h-4 w-4 shrink-0 text-muted-foreground" />
-            <span className={opportunity.urgent ? "font-medium text-urgent" : "text-muted-foreground"}>
+            <span className={opportunity.urgent ? "font-medium text-red-500" : "text-muted-foreground"}>
               Due: {opportunity.due}
             </span>
           </div>
@@ -144,10 +143,15 @@ function OpportunityCard({ opportunity }: { opportunity: Opportunity }) {
             <ShieldCheck className="h-4 w-4 shrink-0" />
             <span>Est. Value: {opportunity.estValue}</span>
           </div>
-          <div className="flex items-center gap-2 sm:justify-end">
-            <div className="flex flex-col items-start gap-1 sm:items-end">
-              <span className="text-lg font-bold text-success">{opportunity.match}%</span>
-              <Progress value={opportunity.match} className="h-1 w-16 bg-muted" />
+          <div className="flex items-center gap-2 md:justify-end">
+            <div className="flex shrink-0 flex-col items-start md:items-end">
+              <span className="text-xl font-bold text-success">{opportunity.match}%</span>
+              <div className="mt-1 h-1.5 w-20 overflow-hidden rounded-full bg-muted">
+                <div
+                  className="h-full rounded-full bg-success"
+                  style={{ width: `${opportunity.match}%` }}
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -305,16 +309,18 @@ export default function Opportunities() {
         </section>
 
         {/* Opportunities List */}
-        <section className="space-y-4">
-          {rows.length > 0 ? (
-            rows.map((o) => <OpportunityCard key={o.id} opportunity={o} />)
-          ) : (
-            <Card className="flex flex-col items-center justify-center rounded-xl border border-border bg-card p-12 text-center shadow-card">
-              <p className="text-muted-foreground">No opportunities match your filters yet.</p>
-              <Button variant="outline" className="mt-4">
-                Clear Filters
-              </Button>
+        <section>
+          {rows.length === 0 ? (
+            <Card className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-border bg-card p-12 text-center shadow-card">
+              <p className="mb-4 text-lg text-muted-foreground">No opportunities match your filters yet.</p>
+              <Button variant="outline">Clear Filters</Button>
             </Card>
+          ) : (
+            <div className="space-y-4">
+              {rows.map((o) => (
+                <OpportunityCard key={o.id} opportunity={o} />
+              ))}
+            </div>
           )}
         </section>
       </main>
