@@ -148,14 +148,6 @@ export default function OpportunityDetail() {
     }
   }, [searchParams]);
 
-  // Sync URL when tab changes via click
-  const handleTabClick = (key: TabKey) => {
-    if (key !== activeTab) {
-      setActiveTab(key);
-      setSearchParams({ tab: key }, { replace: false });
-    }
-  };
-
   const activeTabLabel = getTabLabel(activeTab);
 
   const data = useMemo<OpportunityDetailData>(() => {
@@ -252,7 +244,12 @@ export default function OpportunityDetail() {
                       <button
                         key={tab.key}
                         type="button"
-                        onClick={() => handleTabClick(tab.key)}
+                        onClick={() => {
+                          if (activeTab !== tab.key) {
+                            setActiveTab(tab.key);
+                            setSearchParams({ tab: tab.key });
+                          }
+                        }}
                         className={`rounded-xl px-3 py-2 text-sm font-semibold transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring
                           ${active ? "bg-background/10 text-foreground" : "text-muted-foreground"}`}
                         aria-current={active ? "page" : undefined}
