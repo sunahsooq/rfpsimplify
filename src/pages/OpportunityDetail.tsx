@@ -1,7 +1,9 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { AppTopNav } from "@/components/AppTopNav";
 import { OpportunityOverviewTab } from "@/components/opportunity/OpportunityOverviewTab";
+import { OpportunityRequirementsTab } from "@/components/opportunity/OpportunityRequirementsTab";
+import { OpportunityAiPanel } from "@/components/opportunity/OpportunityAiPanel";
 
 type Stage = "Identified" | "Qualified" | "Pursuing" | "Submitted";
 
@@ -84,6 +86,9 @@ const demoById: Record<string, OpportunityDetailData> = {
 
 export default function OpportunityDetail() {
   const { id } = useParams<{ id: string }>();
+  const [activeTab, setActiveTab] = useState<
+    "Overview" | "Requirements" | "Gaps & Risks" | "Teaming Partners" | "Compliance Matrix" | "AI Recommendations"
+  >("Overview");
 
   const data = useMemo<OpportunityDetailData>(() => {
     if (id && demoById[id]) return demoById[id];
@@ -160,38 +165,68 @@ export default function OpportunityDetail() {
           </div>
         </section>
 
-        {/* Tabs bar (visual only) */}
+        {/* Tabs + content + AI panel */}
         <section className="mt-6">
-          <div className="rounded-t-2xl bg-nav shadow-card">
-            <div className="flex items-center gap-1 overflow-x-auto px-3 py-3 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              {[
-                "Overview",
-                "Requirements",
-                "Gaps & Risks",
-                "Teaming Partners",
-                "Compliance Matrix",
-                "AI Recommendations",
-              ].map((label) => {
-                const active = label === "Overview";
-                return (
-                  <button
-                    key={label}
-                    type="button"
-                    className={`shrink-0 rounded-xl px-3 py-2 text-sm font-semibold transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
-                      active ? "bg-background/10 text-foreground" : "text-muted-foreground"
-                    }`}
-                    aria-current={active ? "page" : undefined}
-                  >
-                    <span className={active ? "border-b-2 border-primary pb-1" : "pb-1"}>{label}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-12">
+            {/* Main content */}
+            <div className="md:col-span-8">
+              <div className="rounded-t-2xl bg-nav shadow-card">
+                <div className="flex items-center gap-1 overflow-x-auto px-3 py-3 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                  {(
+                    [
+                      "Overview",
+                      "Requirements",
+                      "Gaps & Risks",
+                      "Teaming Partners",
+                      "Compliance Matrix",
+                      "AI Recommendations",
+                    ] as const
+                  ).map((label) => {
+                    const active = label === activeTab;
+                    return (
+                      <button
+                        key={label}
+                        type="button"
+                        onClick={() => setActiveTab(label)}
+                        className={`shrink-0 rounded-xl px-3 py-2 text-sm font-semibold transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                          active ? "bg-background/10 text-foreground" : "text-muted-foreground"
+                        }`}
+                        aria-current={active ? "page" : undefined}
+                      >
+                        <span className={active ? "border-b-2 border-primary pb-1" : "pb-1"}>{label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
 
-          {/* Content area */}
-          <div className="rounded-b-2xl bg-nav p-6 shadow-card">
-            <OpportunityOverviewTab data={data} />
+              <div className="rounded-b-2xl bg-nav p-6 shadow-card">
+                {activeTab === "Overview" ? (
+                  <OpportunityOverviewTab data={data} />
+                ) : activeTab === "Requirements" ? (
+                  <OpportunityRequirementsTab />
+                ) : (
+                  <div className="space-y-2">
+                    <p className="text-sm font-semibold text-muted-foreground">Tab content placeholder</p>
+                    <p className="text-sm text-muted-foreground">Content for “{activeTab}” coming soon.</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Mobile: AI panel below content */}
+              <div className="mt-6">
+                <div className="md:hidden">
+                  <OpportunityAiPanel variant="mobile" />
+                </div>
+              </div>
+            </div>
+
+            {/* Desktop: right rail AI panel */}
+            <div className="md:col-span-4">
+              <div className="hidden md:block">
+                <OpportunityAiPanel variant="desktop" />
+              </div>
+            </div>
           </div>
         </section>
       </main>
