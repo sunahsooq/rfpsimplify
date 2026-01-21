@@ -312,8 +312,10 @@ export default function Opportunities() {
         <section>
           {rows.length === 0 ? (
             <Card className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-border bg-card p-12 text-center shadow-card">
-              <p className="mb-4 text-lg text-muted-foreground">No opportunities match your filters yet.</p>
-              <Button variant="outline">Clear Filters</Button>
+              <p className="mb-4 text-lg font-medium text-muted-foreground">No opportunities yet</p>
+              <Button className="bg-gradient-to-r from-blue-600 to-blue-400 text-white shadow-card transition-all hover:scale-[1.02] hover:shadow-glow">
+                Import from SAM.gov
+              </Button>
             </Card>
           ) : (
             <div className="space-y-4">
