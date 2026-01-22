@@ -29,23 +29,8 @@ const Login = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setSsoError(null);
-
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
-      toast({
-        variant: "destructive",
-        title: "Sign in failed",
-        description: getAuthErrorMessage(error),
-      });
-      setIsLoading(false);
-      return;
-    }
-
+    
+    // Mock login for MVP/demo - immediately redirect to dashboard
     navigate("/dashboard");
   };
 
