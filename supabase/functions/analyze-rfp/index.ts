@@ -10,9 +10,11 @@ const corsHeaders = {
 type CompanyProfile = {
   company_name: string | null;
   primary_naics: string | null;
-  secondary_naics: string | null;
-  certifications_set_asides: string[] | null;
-  core_capabilities: string[] | null;
+  secondary_naics: string[] | null;
+  certifications: string[] | null;
+  capabilities: string[] | null;
+  past_performance_tags?: string[] | null;
+  location?: string | null;
 };
 
 const analysisTool = {
@@ -75,26 +77,6 @@ const analysisTool = {
           required: ["strengths", "gaps", "risk_flags"],
           additionalProperties: false,
         },
-        scores: {
-          type: "object",
-          properties: {
-            naics_alignment_score: { type: "number" },
-            certification_alignment_score: { type: "number" },
-            capability_alignment_score: { type: "number" },
-            past_performance_alignment_score: { type: "number" },
-            overall_match_score: { type: "number" },
-            readiness_level: { type: "string", enum: ["Low", "Medium", "High", "Low | Medium | High"] },
-          },
-          required: [
-            "naics_alignment_score",
-            "certification_alignment_score",
-            "capability_alignment_score",
-            "past_performance_alignment_score",
-            "overall_match_score",
-            "readiness_level",
-          ],
-          additionalProperties: false,
-        },
         partner_recommendations: {
           type: "array",
           items: {
@@ -137,7 +119,6 @@ const analysisTool = {
         "requirements",
         "evaluation_criteria",
         "match_analysis",
-        "scores",
         "partner_recommendations",
         "bid_brief",
       ],
@@ -146,9 +127,81 @@ const analysisTool = {
   },
 } as const;
 
-function normalizeReadiness(input: string): "Low" | "Medium" | "High" {
-  if (input === "Low" || input === "Medium" || input === "High") return input;
-  return "Medium";
+type ComputedScores = {
+  naics_alignment_score: number;
+  certification_alignment_score: number;
+  capability_alignment_score: number;
+  past_performance_alignment_score: number;
+  overall_match_score: number;
+  readiness_level: "Low" | "Medium" | "High";
+};
+
+const clamp0to100 = (n: number) => Math.max(0, Math.min(100, Math.round(n)));
+
+function computeNaicsScore(company: CompanyProfile, rfpNaics: string[]) {
+  if (!rfpNaics?.length) return 70;
+  if (company.primary_naics && rfpNaics.includes(company.primary_naics)) return 100;
+  const secondary = Array.isArray(company.secondary_naics) ? company.secondary_naics : [];
+  const overlap = secondary.filter((n) => rfpNaics.includes(n));
+  return overlap.length ? 75 : 40;
+}
+
+function computeCertificationScore(company: CompanyProfile, required: string[]) {
+  if (!required?.length) return 70;
+  const certs = Array.isArray(company.certifications) ? company.certifications : [];
+  const matched = required.filter((c) => certs.includes(c));
+  return clamp0to100((matched.length / required.length) * 100);
+}
+
+function computeCapabilityScore(company: CompanyProfile, technicalReqs: string[]) {
+  if (!technicalReqs?.length) return 60;
+  const caps = Array.isArray(company.capabilities) ? company.capabilities : [];
+  const matches = technicalReqs.filter((req) => caps.some((cap) => req.toLowerCase().includes(cap.toLowerCase())));
+  return clamp0to100(Math.min(100, (matches.length / technicalReqs.length) * 100));
+}
+
+function computePastPerformanceScore(company: CompanyProfile, experienceReqs: string[]) {
+  const tags = Array.isArray(company.past_performance_tags) ? company.past_performance_tags : [];
+  if (!tags.length) return 50;
+  const haystack = (experienceReqs ?? []).join(" ").toLowerCase();
+  const matches = tags.filter((t) => haystack.includes(t.toLowerCase()));
+  return matches.length ? 75 : 55;
+}
+
+function computeOverallScore(scores: { naics: number; certifications: number; capabilities: number; past_performance: number }) {
+  return clamp0to100(
+    scores.naics * 0.2 + scores.certifications * 0.3 + scores.capabilities * 0.2 + scores.past_performance * 0.2 + 10,
+  );
+}
+
+function computeReadiness(overall: number): ComputedScores["readiness_level"] {
+  if (overall >= 75) return "High";
+  if (overall >= 55) return "Medium";
+  return "Low";
+}
+
+function postParseProcessing(company: CompanyProfile, analysis: any): ComputedScores {
+  const rfpNaics: string[] = analysis?.opportunity?.naics_codes ?? [];
+  const requiredCerts: string[] = analysis?.requirements?.certifications_required ?? [];
+  const technicalReqs: string[] = analysis?.requirements?.technical ?? [];
+  const experienceReqs: string[] = analysis?.requirements?.experience_required ?? [];
+
+  const subscores = {
+    naics: computeNaicsScore(company, rfpNaics),
+    certifications: computeCertificationScore(company, requiredCerts),
+    capabilities: computeCapabilityScore(company, technicalReqs),
+    past_performance: computePastPerformanceScore(company, experienceReqs),
+  };
+
+  const overall = computeOverallScore(subscores);
+  return {
+    naics_alignment_score: clamp0to100(subscores.naics),
+    certification_alignment_score: clamp0to100(subscores.certifications),
+    capability_alignment_score: clamp0to100(subscores.capabilities),
+    past_performance_alignment_score: clamp0to100(subscores.past_performance),
+    overall_match_score: clamp0to100(overall),
+    readiness_level: computeReadiness(overall),
+  };
 }
 
 serve(async (req) => {
@@ -177,8 +230,10 @@ serve(async (req) => {
         company_name: null,
         primary_naics: null,
         secondary_naics: null,
-        certifications_set_asides: null,
-        core_capabilities: null,
+        certifications: null,
+        capabilities: null,
+        past_performance_tags: null,
+        location: null,
       },
       rfp_text,
       output_schema_note:
@@ -233,11 +288,9 @@ serve(async (req) => {
 
     // Defensive normalization + minimal validation
     if (!analysis || typeof analysis !== "object") throw new Error("Invalid AI output");
-    if (!analysis.opportunity || !analysis.requirements || !analysis.scores) {
+    if (!analysis.opportunity || !analysis.requirements) {
       throw new Error("AI output missing required sections");
     }
-
-    analysis.scores.readiness_level = normalizeReadiness(analysis?.scores?.readiness_level);
 
     analysis.opportunity.naics_codes = Array.isArray(analysis?.opportunity?.naics_codes) ? analysis.opportunity.naics_codes : [];
     analysis.opportunity.set_aside = Array.isArray(analysis?.opportunity?.set_aside) ? analysis.opportunity.set_aside : [];
@@ -262,6 +315,18 @@ serve(async (req) => {
       analysis.requirements.technical = analysis.opportunity.summary.slice(0, 6);
     }
 
+    // Platform-owned deterministic scoring (never accept AI numeric scores)
+    const computedScores = postParseProcessing(company_profile ?? ({} as CompanyProfile), analysis);
+
+    // Add scorecard to bid brief for downstream rendering (narrative still AI-owned)
+    analysis.bid_brief = {
+      ...(analysis.bid_brief ?? {}),
+      scorecard: {
+        overall_match_score: computedScores.overall_match_score,
+        readiness_level: computedScores.readiness_level,
+      },
+    };
+
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
     if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
@@ -285,7 +350,7 @@ serve(async (req) => {
       requirements: analysis?.requirements ?? null,
       evaluation_criteria: analysis?.evaluation_criteria ?? [],
       match_analysis: analysis?.match_analysis ?? null,
-      scores: analysis?.scores ?? null,
+      scores: computedScores,
       partner_recommendations: analysis?.partner_recommendations ?? null,
       bid_brief: analysis?.bid_brief ?? null,
       raw_rfp_text: rfp_text,

@@ -403,7 +403,7 @@ export default function OpportunityDetail() {
               {/* Tab content */}
               <div className="rounded-b-xl bg-[#1a2540] p-6 shadow-card">
                 {activeTabLabel === "Overview" ? (
-                  <OpportunityOverviewTab data={data} />
+                  <OpportunityOverviewTab data={data} opportunity={dbOpp ?? undefined} />
                 ) : activeTabLabel === "Requirements" ? (
                   <OpportunityRequirementsTab
                     technical={dbOpp?.requirements?.technical}
@@ -413,9 +413,9 @@ export default function OpportunityDetail() {
                     evaluationCriteria={dbOpp?.evaluation_criteria}
                   />
                 ) : activeTabLabel === "Gaps & Risks" ? (
-                  <OpportunityGapsRisksTab />
+                  <OpportunityGapsRisksTab matchAnalysis={dbOpp?.match_analysis} />
                 ) : activeTabLabel === "Teaming Partners" ? (
-                  <OpportunityTeamingPartnersTab />
+                  <OpportunityTeamingPartnersTab gaps={dbOpp?.match_analysis?.gaps} />
                 ) : (
                   <div className="rounded-lg border border-[#334155] bg-background/5 p-6">
                     <p className="text-base font-semibold text-foreground">{activeTabLabel}</p>

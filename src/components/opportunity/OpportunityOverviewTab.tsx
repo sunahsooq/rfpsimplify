@@ -7,7 +7,7 @@ type Stage = "Identified" | "Qualified" | "Pursuing" | "Submitted";
 export type OpportunityOverviewData = {
   title: string;
   agency: string;
-  match: number;
+  match: number | null;
   stage: Stage;
   due: string;
   urgent: boolean;
@@ -31,25 +31,47 @@ const fitChecklist = [
   { label: "Technical capability match", status: "pass" },
 ] as const;
 
-export function OpportunityOverviewTab({ data }: { data: OpportunityOverviewData }) {
+export function OpportunityOverviewTab({
+  data,
+  opportunity,
+}: {
+  data: OpportunityOverviewData;
+  opportunity?: {
+    solicitation_id?: string | null;
+    naics_codes?: string[] | null;
+    place_of_performance?: string | null;
+    summary?: string[] | null;
+    requirements?: { certifications_required?: string[] | null } | null;
+    match_analysis?: { gaps?: string[] | null } | null;
+  };
+}) {
+  const summaryText = Array.isArray(opportunity?.summary) && opportunity!.summary!.length
+    ? opportunity!.summary!.join(" ")
+    : null;
+
+  const solicitation = opportunity?.solicitation_id ?? "—";
+  const naics = Array.isArray(opportunity?.naics_codes) && opportunity!.naics_codes!.length ? opportunity!.naics_codes![0] : "—";
+  const pop = opportunity?.place_of_performance ?? "—";
+
+  const requiredCerts = (opportunity?.requirements?.certifications_required ?? []).filter(Boolean) as string[];
+  const gaps = (opportunity?.match_analysis?.gaps ?? []).filter(Boolean) as string[];
+
   return (
     <div className="space-y-6">
       {/* Summary */}
       <section>
         <p className="text-[15px] leading-relaxed text-slate-200">
-          DOE seeks a contractor to modernize its legacy cloud infrastructure, migrate mission-critical
-          systems to FedRAMP-authorized environments, and enhance cybersecurity posture across enterprise
-          platforms. This is a best-value procurement emphasizing technical capability and risk mitigation.
+          {summaryText ?? "Summary not available yet."}
         </p>
       </section>
 
       {/* Summary chips */}
       <section className="flex flex-wrap gap-2">
         {[
-          { label: "Solicitation", value: "DE-SOL-0012847" },
-          { label: "NAICS", value: "541512" },
+          { label: "Solicitation", value: solicitation },
+          { label: "NAICS", value: naics },
           { label: "PSC", value: "D302" },
-          { label: "Place of Performance", value: "CONUS" },
+          { label: "Place of Performance", value: pop },
         ].map((chip) => (
           <span
             key={chip.label}
@@ -141,8 +163,8 @@ export function OpportunityOverviewTab({ data }: { data: OpportunityOverviewData
         </h2>
         <OpportunityRecommendedPartners
           opportunityAgency={data.agency}
-          requiredCerts={["FedRAMP", "CMMC"]}
-          companyGaps={["FedRAMP", "GSA Schedule"]}
+          requiredCerts={requiredCerts as any}
+          companyGaps={(gaps as any) ?? []}
         />
       </section>
 

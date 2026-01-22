@@ -15,35 +15,15 @@ type Stat = {
   valueClassName?: string;
 };
 
-const stats: Stat[] = [
-  {
-    label: "Active Opportunities",
-    value: "12",
-    icon: Briefcase,
-    accentClassName: "border-primary",
-  },
-  {
-    label: "Due This Week",
-    value: "3",
-    icon: Clock,
-    accentClassName: "border-warning",
-    valueClassName: "text-warning",
-  },
-  {
-    label: "Avg Win Probability",
-    value: "42%",
-    icon: Target,
-    accentClassName: "border-success",
-    valueClassName: "text-success",
-  },
-  {
-    label: "Pipeline Value",
-    value: "$18.4M",
-    icon: DollarSign,
-    accentClassName: "border-primary",
-    valueClassName: "text-primary",
-  },
-];
+function parseMoneyToNumber(input: string | null | undefined) {
+  if (!input) return 0;
+  const s = String(input).trim();
+  const num = Number(s.replace(/[^0-9.]/g, ""));
+  if (!Number.isFinite(num)) return 0;
+  if (/[mM]\b/.test(s)) return num * 1_000_000;
+  if (/[kK]\b/.test(s)) return num * 1_000;
+  return num;
+}
 
 type RecentOpp = { id: string; title: string; org: string; due: string; match: number | null };
 
@@ -80,17 +60,18 @@ const insightToneClass: Record<"warning" | "success" | "destructive", string> = 
 export default function Dashboard() {
   const navigate = useNavigate();
   const [dbRecent, setDbRecent] = useState<RecentOpp[]>([]);
+  const [stats, setStats] = useState<Stat[]>([]);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const { data } = await supabase
+      const { data, count } = await supabase
         .from("opportunities")
-        .select("id,title,agency,due_date,scores,source,status,created_at")
+        .select("id,title,agency,due_date,estimated_value,scores,source,status,created_at", { count: "exact" })
         .in("source", ["sam_gov", "manual_upload"])
         .eq("status", "active")
         .order("created_at", { ascending: false })
-        .limit(6);
+        .limit(200);
 
       if (cancelled) return;
 
@@ -105,7 +86,52 @@ export default function Dashboard() {
         };
       }) ?? [];
 
-      setDbRecent(mapped);
+      setDbRecent(mapped.slice(0, 6));
+
+      // Stats (platform-owned, deterministic from persisted data)
+      const rows = (data as any[] | null) ?? [];
+      const now = Date.now();
+      const weekMs = 7 * 24 * 60 * 60 * 1000;
+      const dueThisWeek = rows.filter((r) => {
+        const t = Date.parse(String(r?.due_date ?? ""));
+        return Number.isFinite(t) && t >= now && t <= now + weekMs;
+      }).length;
+      const scoreNums = rows
+        .map((r) => (typeof r?.scores?.overall_match_score === "number" ? r.scores.overall_match_score : null))
+        .filter((n): n is number => typeof n === "number");
+      const avgMatch = scoreNums.length ? Math.round(scoreNums.reduce((a, b) => a + b, 0) / scoreNums.length) : null;
+      const pipelineValue = rows.reduce((sum, r) => sum + parseMoneyToNumber(r?.estimated_value), 0);
+      const pipelineValueM = pipelineValue ? `$${(pipelineValue / 1_000_000).toFixed(1)}M` : "—";
+
+      setStats([
+        {
+          label: "Active Opportunities",
+          value: String(count ?? rows.length),
+          icon: Briefcase,
+          accentClassName: "border-primary",
+        },
+        {
+          label: "Due This Week",
+          value: String(dueThisWeek),
+          icon: Clock,
+          accentClassName: "border-warning",
+          valueClassName: "text-warning",
+        },
+        {
+          label: "Avg Match",
+          value: typeof avgMatch === "number" ? `${avgMatch}%` : "—",
+          icon: Target,
+          accentClassName: "border-success",
+          valueClassName: "text-success",
+        },
+        {
+          label: "Pipeline Value",
+          value: pipelineValueM,
+          icon: DollarSign,
+          accentClassName: "border-primary",
+          valueClassName: "text-primary",
+        },
+      ]);
     })();
     return () => {
       cancelled = true;

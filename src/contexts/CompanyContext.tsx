@@ -12,10 +12,13 @@ export type CompanyData = {
   uei: string;
   cageCode: string;
   primaryNaics: string;
-  secondaryNaics?: string | null;
+  secondaryNaics?: string[] | null;
   socioEconomicStatuses: SocioEconomicStatus[];
   certificationsSetAsides?: string[] | null;
   coreCapabilities?: string[] | null;
+  certifications?: string[] | null;
+  pastPerformanceTags?: string[] | null;
+  location?: string | null;
 };
 
 type CompanyContextType = {
@@ -29,10 +32,13 @@ const defaultCompany: CompanyData = {
   uei: "JQNC9KQPXYZ1",
   cageCode: "7ABC1",
   primaryNaics: "541512",
-  secondaryNaics: null,
+  secondaryNaics: ["541519"],
   socioEconomicStatuses: ["Small Business", "8(a)", "WOSB"],
   certificationsSetAsides: ["Small Business", "8(a)", "WOSB"],
   coreCapabilities: ["Cloud", "Cybersecurity", "DevSecOps", "Data", "Migration"],
+  certifications: ["FedRAMP", "CMMC"],
+  pastPerformanceTags: ["DOE", "cloud", "cybersecurity"],
+  location: "Washington, DC",
 };
 
 const CompanyContext = createContext<CompanyContextType | undefined>(undefined);
