@@ -38,7 +38,7 @@ type Stage = "Identified" | "Qualified" | "Pursuing" | "Submitted";
 type OpportunityDetailData = {
   title: string;
   agency: string;
-  match: number;
+  match: number | null;
   stage: Stage;
   due: string;
   urgent: boolean;
@@ -213,18 +213,18 @@ export default function OpportunityDetail() {
 
   const data = useMemo<OpportunityDetailData>(() => {
     if (dbOpp) {
-      const score = typeof dbOpp?.scores?.overall_match_score === "number" ? dbOpp.scores.overall_match_score : 0;
+      const score = typeof dbOpp?.scores?.overall_match_score === "number" ? dbOpp.scores.overall_match_score : null;
       const setAside = Array.isArray(dbOpp.set_aside) && dbOpp.set_aside.length ? dbOpp.set_aside[0] : "";
       return {
-        title: dbOpp.title ?? "Untitled Opportunity",
+        title: dbOpp.title ?? "Untitled Opportunity (Manual RFP Upload)",
         agency: dbOpp.agency ?? "Unknown",
-        match: Math.max(0, Math.min(100, Math.round(score))),
+        match: typeof score === "number" ? Math.max(0, Math.min(100, Math.round(score))) : null,
         stage: "Identified",
-        due: dbOpp.due_date ?? "TBD",
+        due: dbOpp.due_date ?? "—",
         urgent: false,
-        estValue: dbOpp.estimated_value ?? "TBD",
-        contractType: dbOpp.contract_type ?? "TBD",
-        setAside: setAside || "TBD",
+        estValue: dbOpp.estimated_value ?? "—",
+        contractType: dbOpp.contract_type ?? "—",
+        setAside: setAside || "—",
       };
     }
     if (id && demoById[id]) return demoById[id];
@@ -298,7 +298,7 @@ export default function OpportunityDetail() {
 
           <div className="flex flex-wrap items-center gap-2">
             <span className="inline-flex items-center rounded-lg bg-[#22c55e] px-4 py-2 text-sm font-bold text-white shadow-card">
-              {data.match}% Match
+              {typeof data.match === "number" ? `${data.match}% Match` : "Match: —"}
             </span>
             <span
               className={`inline-flex items-center rounded-full px-4 py-2 text-xs font-bold text-white shadow-card ${stageBadgeClass[data.stage]}`}

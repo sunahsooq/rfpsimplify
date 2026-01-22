@@ -34,6 +34,7 @@ export type Database = {
           set_aside: string[]
           solicitation_id: string | null
           source: string
+          status: string
           sub_agency: string | null
           summary: string[]
           title: string | null
@@ -58,6 +59,7 @@ export type Database = {
           set_aside?: string[]
           solicitation_id?: string | null
           source?: string
+          status?: string
           sub_agency?: string | null
           summary?: string[]
           title?: string | null
@@ -82,6 +84,7 @@ export type Database = {
           set_aside?: string[]
           solicitation_id?: string | null
           source?: string
+          status?: string
           sub_agency?: string | null
           summary?: string[]
           title?: string | null

@@ -170,7 +170,7 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    const system = `You are a senior GovCon capture manager and RFP analyst.\n\nYour task is to ingest a raw government RFP and produce a fully structured, application-ready analysis that can be used to create an Opportunity, drive match scoring, gap analysis, partner recommendations, and a bid brief.\n\nIMPORTANT RULES:\n- Return ONLY valid JSON\n- Do NOT include explanations or commentary\n- If a field is not found, return null\n- Be precise, conservative, and realistic (do not hallucinate requirements)\n- Prefer fewer, clearer requirements over long lists\n- Normalize terms (e.g., NAICS names, certifications)`;
+    const system = `You are a senior GovCon capture manager and RFP analyst.\n\nYour task is to ingest a raw government RFP and produce a fully structured, application-ready analysis that can be used to create an Opportunity, drive match scoring, gap analysis, partner recommendations, and a bid brief.\n\nIMPORTANT RULES:\n- Return ONLY valid JSON\n- Do NOT include explanations or commentary\n- If a field is not found, return null (for strings) or [] (for lists)\n- Be precise, conservative, and realistic (do not hallucinate requirements)\n- Prefer fewer, clearer requirements over long lists\n- Normalize terms (e.g., NAICS names, certifications)\n\nREQUIREMENTS EXTRACTION RULE:\nIf explicit \'shall\' requirements are sparse/absent, infer capability-based requirements from the scope of work (do not leave requirements empty unless the scope is truly missing).`;
 
     const user = {
       company_profile: company_profile ?? {
@@ -230,11 +230,37 @@ serve(async (req) => {
     if (!argsStr) throw new Error("AI did not return structured tool output");
 
     const analysis = JSON.parse(argsStr);
-    // Normalize a couple of known edge cases
+
+    // Defensive normalization + minimal validation
+    if (!analysis || typeof analysis !== "object") throw new Error("Invalid AI output");
+    if (!analysis.opportunity || !analysis.requirements || !analysis.scores) {
+      throw new Error("AI output missing required sections");
+    }
+
     analysis.scores.readiness_level = normalizeReadiness(analysis?.scores?.readiness_level);
+
     analysis.opportunity.naics_codes = Array.isArray(analysis?.opportunity?.naics_codes) ? analysis.opportunity.naics_codes : [];
     analysis.opportunity.set_aside = Array.isArray(analysis?.opportunity?.set_aside) ? analysis.opportunity.set_aside : [];
     analysis.opportunity.summary = Array.isArray(analysis?.opportunity?.summary) ? analysis.opportunity.summary : [];
+
+    analysis.requirements.technical = Array.isArray(analysis?.requirements?.technical) ? analysis.requirements.technical : [];
+    analysis.requirements.certifications_required = Array.isArray(analysis?.requirements?.certifications_required)
+      ? analysis.requirements.certifications_required
+      : [];
+    analysis.requirements.experience_required = Array.isArray(analysis?.requirements?.experience_required) ? analysis.requirements.experience_required : [];
+    analysis.requirements.compliance_requirements = Array.isArray(analysis?.requirements?.compliance_requirements)
+      ? analysis.requirements.compliance_requirements
+      : [];
+
+    // If requirements came back empty but we have scope summary, infer a small set
+    const reqTotal =
+      analysis.requirements.technical.length +
+      analysis.requirements.certifications_required.length +
+      analysis.requirements.experience_required.length +
+      analysis.requirements.compliance_requirements.length;
+    if (reqTotal === 0 && analysis.opportunity.summary.length > 0) {
+      analysis.requirements.technical = analysis.opportunity.summary.slice(0, 6);
+    }
 
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
@@ -245,7 +271,7 @@ serve(async (req) => {
     const db = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
     const insertPayload = {
       source: "manual_upload",
-      title: analysis?.opportunity?.title ?? null,
+      title: analysis?.opportunity?.title || "Untitled Opportunity (Manual RFP Upload)",
       solicitation_id: analysis?.opportunity?.solicitation_id ?? null,
       agency: analysis?.opportunity?.agency ?? null,
       sub_agency: analysis?.opportunity?.sub_agency ?? null,

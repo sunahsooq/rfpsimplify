@@ -29,22 +29,22 @@ export function OpportunityRequirementsTab({
         <h2 className="mb-4 text-[20px] font-bold text-foreground">
           Key Requirements &amp; Evaluation Criteria
         </h2>
-        <p className="text-[15px] leading-relaxed text-slate-200">
+        <p className="text-[15px] leading-relaxed text-muted-foreground">
           Key requirements and evaluation drivers extracted from the solicitation text.
         </p>
       </header>
 
       {/* Divider */}
-      <div className="h-px w-full bg-[#334155]" />
+      <div className="h-px w-full bg-border" />
 
       {/* Major Factors Section */}
       <section className="space-y-4">
         <h3 className="text-base font-bold text-foreground">Key Requirements</h3>
         <div className="space-y-3">
-          {(rows.length ? rows : ["No requirements extracted."]).map((text) => (
+          {(rows.length ? rows : ["Requirements inferred from scope; review recommended."]).map((text) => (
             <div
               key={text}
-              className="flex gap-3 rounded-lg border border-[#334155] bg-background/5 p-4"
+                className="flex gap-3 rounded-lg border border-border bg-background/5 p-4"
             >
               <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-success" />
               <div className="min-w-0">
@@ -56,13 +56,13 @@ export function OpportunityRequirementsTab({
       </section>
 
       {/* Divider */}
-      <div className="h-px w-full bg-[#334155]" />
+      <div className="h-px w-full bg-border" />
 
       <section className="space-y-4">
         <h3 className="text-base font-bold text-foreground">Evaluation Criteria</h3>
         <div className="space-y-3">
           {(evaluationCriteria?.length ? evaluationCriteria.slice(0, 8) : ["No evaluation criteria extracted."]).map((c) => (
-            <div key={c} className="flex gap-3 rounded-lg border border-[#334155] bg-background/5 p-4">
+            <div key={c} className="flex gap-3 rounded-lg border border-border bg-background/5 p-4">
               <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-success" />
               <p className="text-sm font-semibold text-foreground">{c}</p>
             </div>
@@ -71,14 +71,14 @@ export function OpportunityRequirementsTab({
       </section>
 
       {/* Divider */}
-      <div className="h-px w-full bg-[#334155]" />
+      <div className="h-px w-full bg-border" />
 
       {/* Solicitation Instructions Section */}
       <section className="space-y-4">
         <h3 className="text-base font-bold text-foreground">Solicitation Instructions</h3>
         <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
           {/* Section L */}
-          <div className="flex gap-3 rounded-lg border border-[#334155] bg-background/5 p-4">
+          <div className="flex gap-3 rounded-lg border border-border bg-background/5 p-4">
             <FileText className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
             <div className="min-w-0">
               <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
@@ -92,7 +92,7 @@ export function OpportunityRequirementsTab({
           </div>
 
           {/* Section M */}
-          <div className="flex gap-3 rounded-lg border border-[#334155] bg-background/5 p-4">
+          <div className="flex gap-3 rounded-lg border border-border bg-background/5 p-4">
             <ClipboardList className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
             <div className="min-w-0">
               <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
@@ -106,7 +106,7 @@ export function OpportunityRequirementsTab({
           </div>
 
           {/* Attachments */}
-          <div className="flex gap-3 rounded-lg border border-[#334155] bg-background/5 p-4">
+          <div className="flex gap-3 rounded-lg border border-border bg-background/5 p-4">
             <Paperclip className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
             <div className="min-w-0">
               <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
@@ -122,7 +122,7 @@ export function OpportunityRequirementsTab({
       </section>
 
       {/* Divider */}
-      <div className="h-px w-full bg-[#334155]" />
+      <div className="h-px w-full bg-border" />
 
       {/* Disclaimer */}
       <p className="text-xs italic text-muted-foreground">
