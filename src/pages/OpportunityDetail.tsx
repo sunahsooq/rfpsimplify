@@ -1,12 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
+import { Plus, Check } from "lucide-react";
 import { AppTopNav } from "@/components/AppTopNav";
+import { Button } from "@/components/ui/button";
 import { OpportunityOverviewTab } from "@/components/opportunity/OpportunityOverviewTab";
 import { OpportunityRequirementsTab } from "@/components/opportunity/OpportunityRequirementsTab";
 import { OpportunityAiPanel } from "@/components/opportunity/OpportunityAiPanel";
 import { OpportunityGapsRisksTab } from "@/components/opportunity/OpportunityGapsRisksTab";
 import { OpportunityTeamingPartnersTab } from "@/components/opportunity/OpportunityTeamingPartnersTab";
 import { OpportunityCaptureDecisionPanel } from "@/components/opportunity/OpportunityCaptureDecisionPanel";
+import { usePipeline } from "@/contexts/PipelineContext";
+import { toast } from "sonner";
 
 const tabs = [
   { label: "Overview", key: "overview" },
@@ -129,6 +133,7 @@ const demoById: Record<string, OpportunityDetailData> = {
 export default function OpportunityDetail() {
   const { id } = useParams<{ id: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
+  const { addToPipeline, isInPipeline } = usePipeline();
 
   // Initialize state from URL, default to "overview"
   const getInitialTab = (): TabKey => {
@@ -182,6 +187,20 @@ export default function OpportunityDetail() {
     };
   }, [id]);
 
+  const inPipeline = id ? isInPipeline(id) : false;
+
+  const handleAddToPipeline = () => {
+    if (!id || inPipeline) return;
+    
+    addToPipeline({
+      id,
+      opportunityName: data.title,
+      agency: data.agency,
+      estimatedValue: data.estValue,
+    });
+    toast.success("Opportunity added to pipeline");
+  };
+
   return (
     <div className="min-h-screen w-full bg-background">
       <AppTopNav />
@@ -216,6 +235,26 @@ export default function OpportunityDetail() {
             >
               {data.stage}
             </span>
+            <Button
+              onClick={handleAddToPipeline}
+              disabled={inPipeline}
+              className={inPipeline 
+                ? "bg-success/20 text-success border border-success/30 hover:bg-success/20" 
+                : "bg-gradient-to-r from-blue-600 to-blue-400 text-white shadow-card hover:scale-[1.02]"
+              }
+            >
+              {inPipeline ? (
+                <>
+                  <Check className="mr-1.5 h-4 w-4" />
+                  In Pipeline
+                </>
+              ) : (
+                <>
+                  <Plus className="mr-1.5 h-4 w-4" />
+                  Add to Pipeline
+                </>
+              )}
+            </Button>
           </div>
         </section>
 

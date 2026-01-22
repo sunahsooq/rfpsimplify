@@ -1,193 +1,75 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, GripVertical, CalendarDays } from "lucide-react";
+import { FolderKanban, Loader2 } from "lucide-react";
 import { AppTopNav } from "@/components/AppTopNav";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { usePipeline, type PipelineStage } from "@/contexts/PipelineContext";
+import { toast } from "sonner";
 
-type Stage = "Identified" | "Qualified" | "Pursuing" | "Submitted";
+const stages: PipelineStage[] = ["Identify", "Qualify", "Pursuit", "Bid Submitted", "Won", "Lost"];
 
-interface PipelineOpportunity {
-  id: string;
-  title: string;
-  agency: string;
-  due: string;
-  urgent: boolean;
-  match: number;
-  estValue: string;
-  stage: Stage;
-}
-
-const opportunities: PipelineOpportunity[] = [
-  {
-    id: "cloud-infra-modernization",
-    title: "Cloud Infrastructure Modernization",
-    agency: "DOE",
-    due: "Feb 15, 2026",
-    urgent: true,
-    match: 78,
-    estValue: "$4.2M",
-    stage: "Qualified",
-  },
-  {
-    id: "zero-trust-network-upgrade",
-    title: "Zero Trust Network Upgrade",
-    agency: "DHS",
-    due: "Feb 19, 2026",
-    urgent: true,
-    match: 71,
-    estValue: "$3.8M",
-    stage: "Pursuing",
-  },
-  {
-    id: "data-platform-consolidation",
-    title: "Data Platform Consolidation",
-    agency: "GSA",
-    due: "Mar 02, 2026",
-    urgent: false,
-    match: 65,
-    estValue: "$2.1M",
-    stage: "Identified",
-  },
-  {
-    id: "cybersecurity-monitoring",
-    title: "Cybersecurity Monitoring Services",
-    agency: "DoD",
-    due: "Feb 10, 2026",
-    urgent: true,
-    match: 92,
-    estValue: "$5.5M",
-    stage: "Pursuing",
-  },
-  {
-    id: "application-modernization",
-    title: "Application Modernization",
-    agency: "VA",
-    due: "Mar 20, 2026",
-    urgent: false,
-    match: 54,
-    estValue: "$3.2M",
-    stage: "Identified",
-  },
-  {
-    id: "enterprise-sso-integration",
-    title: "Enterprise SSO Integration",
-    agency: "Treasury",
-    due: "Jan 30, 2026",
-    urgent: false,
-    match: 88,
-    estValue: "$1.8M",
-    stage: "Submitted",
-  },
-];
-
-const stages: Stage[] = ["Identified", "Qualified", "Pursuing", "Submitted"];
-
-const stageColors: Record<Stage, { bg: string; text: string; badge: string }> = {
-  Identified: {
-    bg: "bg-stage-identified/10",
-    text: "text-stage-identified",
-    badge: "bg-stage-identified/15 text-stage-identified",
-  },
-  Qualified: {
-    bg: "bg-stage-qualified/10",
-    text: "text-stage-qualified",
-    badge: "bg-stage-qualified/15 text-stage-qualified",
-  },
-  Pursuing: {
-    bg: "bg-stage-pursuing/10",
-    text: "text-stage-pursuing",
-    badge: "bg-stage-pursuing/15 text-stage-pursuing",
-  },
-  Submitted: {
-    bg: "bg-stage-submitted/10",
-    text: "text-stage-submitted",
-    badge: "bg-stage-submitted/15 text-stage-submitted",
-  },
+const stageStyles: Record<PipelineStage, string> = {
+  Identify: "bg-muted/50 text-muted-foreground",
+  Qualify: "bg-muted/50 text-muted-foreground",
+  Pursuit: "bg-primary/15 text-primary",
+  "Bid Submitted": "bg-primary/15 text-primary",
+  Won: "bg-success/15 text-success",
+  Lost: "bg-destructive/15 text-destructive",
 };
 
-function PipelineCard({ opportunity }: { opportunity: PipelineOpportunity }) {
-  const navigate = useNavigate();
-  const colors = stageColors[opportunity.stage];
-
-  return (
-    <div
-      role="button"
-      tabIndex={0}
-      onClick={() => navigate(`/opportunity/${opportunity.id}`)}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") navigate(`/opportunity/${opportunity.id}`);
-      }}
-      className="group cursor-pointer rounded-lg bg-[#2a334f] p-4 shadow-card transition-all hover:scale-[1.02] hover:shadow-glow"
-    >
-      {/* Drag Handle + Title */}
-      <div className="mb-2 flex items-start gap-2">
-        <GripVertical className="mt-0.5 h-4 w-4 shrink-0 cursor-grab text-muted-foreground opacity-50 group-hover:opacity-100" />
-        <h3 className="text-sm font-bold leading-tight text-foreground">{opportunity.title}</h3>
-      </div>
-
-      {/* Agency */}
-      <p className="mb-3 pl-6 text-xs text-muted-foreground">{opportunity.agency}</p>
-
-      {/* Meta Row */}
-      <div className="flex items-center justify-between gap-2 pl-6">
-        <div className="flex items-center gap-1.5 text-xs">
-          <CalendarDays className="h-3.5 w-3.5 text-muted-foreground" />
-          <span className={opportunity.urgent ? "font-medium text-red-500" : "text-muted-foreground"}>
-            {opportunity.due}
-          </span>
-        </div>
-        <span className="text-sm font-bold text-success">{opportunity.match}%</span>
-      </div>
-
-      {/* Bottom Row: Value + Badge */}
-      <div className="mt-3 flex items-center justify-between gap-2 border-t border-[#334155] pt-3 pl-6">
-        <span className="text-xs text-muted-foreground">{opportunity.estValue}</span>
-        <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${colors.badge}`}>
-          {opportunity.stage}
-        </span>
-      </div>
-    </div>
-  );
-}
-
-function PipelineColumn({ stage, items }: { stage: Stage; items: PipelineOpportunity[] }) {
-  const colors = stageColors[stage];
-
-  return (
-    <div className="flex w-72 shrink-0 flex-col rounded-xl bg-[#1a2540] shadow-card md:w-80">
-      {/* Column Header */}
-      <div className="flex items-center justify-between border-b border-[#334155] px-4 py-3">
-        <div className="flex items-center gap-2">
-          <span className={`h-2.5 w-2.5 rounded-full ${colors.bg} ${colors.text}`} />
-          <h2 className="text-sm font-bold text-foreground">{stage}</h2>
-        </div>
-        <span className="rounded-full bg-[#334155] px-2 py-0.5 text-xs font-medium text-muted-foreground">
-          {items.length}
-        </span>
-      </div>
-
-      {/* Cards */}
-      <div className="flex flex-1 flex-col gap-3 p-3">
-        {items.length === 0 ? (
-          <div className="flex flex-1 items-center justify-center rounded-lg border-2 border-dashed border-[#334155] p-4">
-            <p className="text-center text-xs text-muted-foreground">No opportunities in this stage</p>
-          </div>
-        ) : (
-          items.map((opp) => <PipelineCard key={opp.id} opportunity={opp} />)
-        )}
-      </div>
-    </div>
-  );
-}
+const rowAccentStyles: Record<PipelineStage, string> = {
+  Identify: "",
+  Qualify: "",
+  Pursuit: "bg-primary/5",
+  "Bid Submitted": "bg-primary/5",
+  Won: "bg-success/5",
+  Lost: "bg-destructive/5",
+};
 
 export default function Pipeline() {
-  // Group opportunities by stage
-  const groupedByStage = stages.reduce(
-    (acc, stage) => {
-      acc[stage] = opportunities.filter((o) => o.stage === stage);
-      return acc;
-    },
-    {} as Record<Stage, PipelineOpportunity[]>
-  );
+  const navigate = useNavigate();
+  const { items, updateStage, updatePWin } = usePipeline();
+  const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>({});
+
+  const simulateLoading = async (id: string, callback: () => void) => {
+    setLoadingStates((prev) => ({ ...prev, [id]: true }));
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    callback();
+    setLoadingStates((prev) => ({ ...prev, [id]: false }));
+  };
+
+  const handleStageChange = (id: string, stage: PipelineStage) => {
+    simulateLoading(id, () => {
+      updateStage(id, stage);
+      toast.success(`Stage updated to ${stage}`);
+    });
+  };
+
+  const handlePWinChange = (id: string, value: string) => {
+    const numValue = parseInt(value, 10);
+    if (!isNaN(numValue)) {
+      simulateLoading(`pwin-${id}`, () => {
+        updatePWin(id, numValue);
+        toast.success("P(Win) updated");
+      });
+    }
+  };
 
   return (
     <div className="min-h-screen w-full bg-background">
@@ -198,32 +80,130 @@ export default function Pipeline() {
         <section className="mb-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-foreground md:text-[32px]">Capture Pipeline</h1>
+              <h1 className="text-2xl font-bold text-foreground md:text-[32px]">Pipeline</h1>
               <p className="mt-1 text-sm text-muted-foreground md:text-base">
-                Track opportunities from identification to submission
+                Track and manage your active pursuits
               </p>
             </div>
 
-            <Button className="h-11 w-full bg-gradient-to-r from-blue-600 to-blue-400 text-white shadow-card transition-all hover:scale-[1.02] hover:shadow-glow sm:w-auto">
-              <Plus className="mr-2 h-4 w-4" />
-              New Opportunity
+            <Button
+              onClick={() => navigate("/opportunities")}
+              className="h-11 w-full bg-gradient-to-r from-blue-600 to-blue-400 text-white shadow-card transition-all hover:scale-[1.02] hover:shadow-glow sm:w-auto"
+            >
+              <FolderKanban className="mr-2 h-4 w-4" />
+              Browse Opportunities
             </Button>
           </div>
         </section>
 
-        {/* Pipeline Board */}
-        <section className="overflow-x-auto pb-4 [-ms-overflow-style:none] [scrollbar-width:thin] [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[#334155] [&::-webkit-scrollbar-track]:bg-transparent">
-          <div className="flex gap-4 md:gap-5">
-            {stages.map((stage) => (
-              <PipelineColumn key={stage} stage={stage} items={groupedByStage[stage]} />
-            ))}
-          </div>
-        </section>
+        {/* Pipeline Table or Empty State */}
+        {items.length === 0 ? (
+          <section className="flex flex-col items-center justify-center rounded-xl border border-border bg-card p-12 text-center shadow-card">
+            <FolderKanban className="h-12 w-12 text-muted-foreground mb-4" />
+            <h2 className="text-xl font-bold text-foreground mb-2">
+              No opportunities in your pipeline yet
+            </h2>
+            <p className="text-muted-foreground mb-6">
+              Add an opportunity to start tracking your pursuits
+            </p>
+            <Button
+              onClick={() => navigate("/opportunities")}
+              className="bg-gradient-to-r from-blue-600 to-blue-400 text-white"
+            >
+              Browse Opportunities
+            </Button>
+          </section>
+        ) : (
+          <section className="rounded-xl border border-border bg-card shadow-card overflow-hidden">
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-border hover:bg-transparent">
+                    <TableHead className="text-muted-foreground font-semibold">
+                      Opportunity Name
+                    </TableHead>
+                    <TableHead className="text-muted-foreground font-semibold">Agency</TableHead>
+                    <TableHead className="text-muted-foreground font-semibold">Est. Value</TableHead>
+                    <TableHead className="text-muted-foreground font-semibold w-28">P(Win) %</TableHead>
+                    <TableHead className="text-muted-foreground font-semibold w-40">Stage</TableHead>
+                    <TableHead className="text-muted-foreground font-semibold">Owner</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {items.map((item) => (
+                    <TableRow
+                      key={item.id}
+                      className={`border-border transition-colors ${rowAccentStyles[item.stage]}`}
+                    >
+                      <TableCell>
+                        <button
+                          type="button"
+                          onClick={() => navigate(`/opportunity/${item.id}`)}
+                          className="text-foreground font-medium hover:text-primary hover:underline text-left"
+                        >
+                          {item.opportunityName}
+                        </button>
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">{item.agency}</TableCell>
+                      <TableCell className="text-success font-medium">{item.estimatedValue}</TableCell>
+                      <TableCell>
+                        <div className="relative">
+                          <Input
+                            type="number"
+                            min={0}
+                            max={100}
+                            value={item.pWin}
+                            onChange={(e) => handlePWinChange(item.id, e.target.value)}
+                            className="w-20 h-8 bg-secondary border-border text-foreground text-center font-mono text-sm"
+                          />
+                          {loadingStates[`pwin-${item.id}`] && (
+                            <Loader2 className="absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 animate-spin text-muted-foreground" />
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="relative">
+                          <Select
+                            value={item.stage}
+                            onValueChange={(value) => handleStageChange(item.id, value as PipelineStage)}
+                          >
+                            <SelectTrigger
+                              className={`w-36 h-8 border-border text-sm font-medium ${stageStyles[item.stage]}`}
+                            >
+                              <SelectValue />
+                              {loadingStates[item.id] && (
+                                <Loader2 className="ml-1 h-3 w-3 animate-spin" />
+                              )}
+                            </SelectTrigger>
+                            <SelectContent className="bg-popover border-border">
+                              {stages.map((stage) => (
+                                <SelectItem
+                                  key={stage}
+                                  value={stage}
+                                  className="text-sm"
+                                >
+                                  {stage}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">{item.owner}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </section>
+        )}
 
         {/* Footer Note */}
-        <p className="mt-6 text-xs italic text-muted-foreground">
-          Drag cards between columns to update opportunity stage. Changes are visual-only in this demo.
-        </p>
+        {items.length > 0 && (
+          <p className="mt-4 text-xs text-muted-foreground">
+            {items.length} {items.length === 1 ? "opportunity" : "opportunities"} in pipeline
+          </p>
+        )}
       </main>
     </div>
   );

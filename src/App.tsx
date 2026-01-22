@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { CompanyProvider } from "@/contexts/CompanyContext";
+import { PipelineProvider } from "@/contexts/PipelineContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
@@ -29,9 +30,10 @@ const App = () => (
     <TooltipProvider>
       <AuthProvider>
         <CompanyProvider>
-          <Toaster />
-          <Sonner />
-        <BrowserRouter>
+          <PipelineProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
           <Routes>
             {/* Public routes */}
             <Route path="/" element={<Index />} />
@@ -77,6 +79,7 @@ const App = () => (
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
+          </PipelineProvider>
         </CompanyProvider>
       </AuthProvider>
     </TooltipProvider>
