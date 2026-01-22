@@ -1,6 +1,27 @@
 import { CheckCircle2, FileText, ClipboardList, Paperclip } from "lucide-react";
 
-export function OpportunityRequirementsTab() {
+type Props = {
+  technical?: string[];
+  certificationsRequired?: string[];
+  experienceRequired?: string[];
+  complianceRequirements?: string[];
+  evaluationCriteria?: string[];
+};
+
+export function OpportunityRequirementsTab({
+  technical,
+  certificationsRequired,
+  experienceRequired,
+  complianceRequirements,
+  evaluationCriteria,
+}: Props) {
+  const rows = [
+    ...(technical?.slice(0, 6) ?? []),
+    ...(certificationsRequired?.slice(0, 4).map((c) => `Certification: ${c}`) ?? []),
+    ...(experienceRequired?.slice(0, 4).map((e) => `Experience: ${e}`) ?? []),
+    ...(complianceRequirements?.slice(0, 4).map((c) => `Compliance: ${c}`) ?? []),
+  ].filter(Boolean);
+
   return (
     <div className="space-y-6">
       {/* Main Heading */}
@@ -9,10 +30,7 @@ export function OpportunityRequirementsTab() {
           Key Requirements &amp; Evaluation Criteria
         </h2>
         <p className="text-[15px] leading-relaxed text-slate-200">
-          The Government will evaluate proposals using a best-value tradeoff source selection. Technical
-          capability and past performance are significantly more important than price. The evaluation will
-          focus on demonstrated experience with FedRAMP-authorized cloud migrations and CMMC Level 2
-          compliance.
+          Key requirements and evaluation drivers extracted from the solicitation text.
         </p>
       </header>
 
@@ -21,37 +39,32 @@ export function OpportunityRequirementsTab() {
 
       {/* Major Factors Section */}
       <section className="space-y-4">
-        <h3 className="text-base font-bold text-foreground">Major Factors</h3>
+        <h3 className="text-base font-bold text-foreground">Key Requirements</h3>
         <div className="space-y-3">
-          {[
-            {
-              title: "Technical Approach (40%)",
-              detail:
-                "Detailed migration strategy, security controls, performance SLAs, innovation differentiation",
-            },
-            {
-              title: "Past Performance (30%)",
-              detail:
-                "3+ relevant contracts in last 5 years, similar scope/scale to DOE cloud modernization",
-            },
-            {
-              title: "Management Approach (15%)",
-              detail: "Staffing plan, key personnel, risk mitigation strategy",
-            },
-            {
-              title: "Price (15%)",
-              detail: "Realistic, competitive, best-value determination",
-            },
-          ].map((row) => (
+          {(rows.length ? rows : ["No requirements extracted."]).map((text) => (
             <div
-              key={row.title}
+              key={text}
               className="flex gap-3 rounded-lg border border-[#334155] bg-background/5 p-4"
             >
               <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-success" />
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-foreground">{row.title}</p>
-                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{row.detail}</p>
+                <p className="text-sm font-semibold text-foreground">{text}</p>
               </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Divider */}
+      <div className="h-px w-full bg-[#334155]" />
+
+      <section className="space-y-4">
+        <h3 className="text-base font-bold text-foreground">Evaluation Criteria</h3>
+        <div className="space-y-3">
+          {(evaluationCriteria?.length ? evaluationCriteria.slice(0, 8) : ["No evaluation criteria extracted."]).map((c) => (
+            <div key={c} className="flex gap-3 rounded-lg border border-[#334155] bg-background/5 p-4">
+              <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-success" />
+              <p className="text-sm font-semibold text-foreground">{c}</p>
             </div>
           ))}
         </div>

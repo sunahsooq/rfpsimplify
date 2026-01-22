@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { CalendarDays, Filter, Search, ShieldCheck, List, LayoutGrid } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -6,6 +6,8 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AppTopNav } from "@/components/AppTopNav";
+import { ManualRfpIngestDialog } from "@/components/opportunity/ManualRfpIngestDialog";
+import { supabase } from "@/integrations/supabase/client";
 
 type Stage = "Identified" | "Qualified" | "Pursuing" | "Submitted";
 
@@ -19,6 +21,17 @@ type Opportunity = {
   estValue: string;
   stage: Stage;
   tags: string[];
+};
+
+type DbOpportunityRow = {
+  id: string;
+  created_at: string;
+  title: string | null;
+  agency: string | null;
+  due_date: string | null;
+  estimated_value: string | null;
+  set_aside: string[];
+  scores: any;
 };
 
 const stageMeta: Record<Stage, { label: Stage; className: string }> = {
@@ -173,6 +186,7 @@ function OpportunityCard({ opportunity }: { opportunity: Opportunity }) {
 }
 
 export default function Opportunities() {
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [agency, setAgency] = useState<string | undefined>(undefined);
   const [dueDate, setDueDate] = useState<string | undefined>(undefined);
@@ -180,8 +194,49 @@ export default function Opportunities() {
   const [setAside, setSetAside] = useState<string | undefined>(undefined);
   const [viewMode, setViewMode] = useState<"list" | "pipeline">("list");
 
+  const [ingestOpen, setIngestOpen] = useState(false);
+  const [dbRows, setDbRows] = useState<DbOpportunityRow[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("opportunities")
+        .select("id, created_at, title, agency, due_date, estimated_value, set_aside, scores")
+        .order("created_at", { ascending: false })
+        .limit(50);
+      if (!cancelled && data) setDbRows(data as any);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const dbAsCards = useMemo<Opportunity[]>(() => {
+    return dbRows.map((r) => {
+      const score = typeof r?.scores?.overall_match_score === "number" ? r.scores.overall_match_score : 0;
+      const readiness = typeof r?.scores?.readiness_level === "string" ? r.scores.readiness_level : "";
+      const tags = [
+        ...(Array.isArray(r.set_aside) ? r.set_aside.slice(0, 2) : []),
+        ...(readiness ? [readiness] : []),
+      ].filter(Boolean);
+
+      return {
+        id: r.id,
+        title: r.title ?? "Untitled Opportunity",
+        agency: r.agency ?? "Unknown",
+        due: r.due_date ?? "TBD",
+        urgent: false,
+        match: Math.max(0, Math.min(100, Math.round(score))),
+        estValue: r.estimated_value ?? "TBD",
+        stage: "Identified",
+        tags,
+      };
+    });
+  }, [dbRows]);
+
   // Visual-only filters (no logic). We still compute a stable list for rendering.
-  const rows = useMemo(() => opportunities, []);
+  const rows = useMemo(() => [...dbAsCards, ...opportunities], [dbAsCards]);
 
   return (
     <div className="min-h-screen w-full bg-background">
@@ -197,12 +252,26 @@ export default function Opportunities() {
               </p>
             </div>
 
-            <Button className="h-11 w-full bg-gradient-to-r from-blue-600 to-blue-400 text-white shadow-card transition-all hover:scale-[1.02] hover:shadow-glow sm:w-auto">
-              <Filter className="mr-2 h-4 w-4" />
-              Create Watchlist
-            </Button>
+            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+              <Button
+                onClick={() => setIngestOpen(true)}
+                className="h-11 w-full bg-gradient-to-r from-blue-600 to-blue-400 text-white shadow-card transition-all hover:scale-[1.02] hover:shadow-glow sm:w-auto"
+              >
+                Create Opportunity from RFP (Manual)
+              </Button>
+              <Button className="h-11 w-full sm:w-auto" variant="outline">
+                <Filter className="mr-2 h-4 w-4" />
+                Create Watchlist
+              </Button>
+            </div>
           </div>
         </section>
+
+        <ManualRfpIngestDialog
+          open={ingestOpen}
+          onOpenChange={setIngestOpen}
+          onCreated={(id) => navigate(`/opportunity/${id}`)}
+        />
 
         {/* Filter + Action Bar */}
         <section className="mb-6 rounded-xl border border-border bg-card p-4 shadow-card">

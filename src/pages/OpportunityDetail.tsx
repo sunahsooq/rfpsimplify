@@ -11,6 +11,7 @@ import { OpportunityTeamingPartnersTab } from "@/components/opportunity/Opportun
 import { OpportunityCaptureDecisionPanel } from "@/components/opportunity/OpportunityCaptureDecisionPanel";
 import { usePipeline } from "@/contexts/PipelineContext";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const tabs = [
   { label: "Overview", key: "overview" },
@@ -44,6 +45,25 @@ type OpportunityDetailData = {
   estValue: string;
   contractType: string;
   setAside: string;
+};
+
+type DbOpportunity = {
+  id: string;
+  title: string | null;
+  agency: string | null;
+  due_date: string | null;
+  estimated_value: string | null;
+  contract_type: string | null;
+  set_aside: string[];
+  naics_codes: string[];
+  solicitation_id: string | null;
+  scores: any;
+  requirements: any;
+  evaluation_criteria: string[];
+  match_analysis: any;
+  partner_recommendations: any;
+  bid_brief: any;
+  summary: string[];
 };
 
 const stageBadgeClass: Record<Stage, string> = {
@@ -136,6 +156,31 @@ export default function OpportunityDetail() {
   const navigate = useNavigate();
   const { addToPipeline, isInPipeline } = usePipeline();
   const [isGeneratingBrief, setIsGeneratingBrief] = useState(false);
+  const [dbOpp, setDbOpp] = useState<DbOpportunity | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const isUuid = typeof id === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id);
+    if (!isUuid) {
+      setDbOpp(null);
+      return;
+    }
+
+    (async () => {
+      const { data } = await supabase
+        .from("opportunities")
+        .select(
+          "id,title,agency,due_date,estimated_value,contract_type,set_aside,naics_codes,solicitation_id,scores,requirements,evaluation_criteria,match_analysis,partner_recommendations,bid_brief,summary",
+        )
+        .eq("id", id)
+        .maybeSingle();
+      if (!cancelled) setDbOpp((data as any) ?? null);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [id]);
 
   // Initialize state from URL, default to "overview"
   const getInitialTab = (): TabKey => {
@@ -167,6 +212,21 @@ export default function OpportunityDetail() {
   const activeTabLabel = getTabLabel(activeTab);
 
   const data = useMemo<OpportunityDetailData>(() => {
+    if (dbOpp) {
+      const score = typeof dbOpp?.scores?.overall_match_score === "number" ? dbOpp.scores.overall_match_score : 0;
+      const setAside = Array.isArray(dbOpp.set_aside) && dbOpp.set_aside.length ? dbOpp.set_aside[0] : "";
+      return {
+        title: dbOpp.title ?? "Untitled Opportunity",
+        agency: dbOpp.agency ?? "Unknown",
+        match: Math.max(0, Math.min(100, Math.round(score))),
+        stage: "Identified",
+        due: dbOpp.due_date ?? "TBD",
+        urgent: false,
+        estValue: dbOpp.estimated_value ?? "TBD",
+        contractType: dbOpp.contract_type ?? "TBD",
+        setAside: setAside || "TBD",
+      };
+    }
     if (id && demoById[id]) return demoById[id];
 
     const title = !id
@@ -345,7 +405,13 @@ export default function OpportunityDetail() {
                 {activeTabLabel === "Overview" ? (
                   <OpportunityOverviewTab data={data} />
                 ) : activeTabLabel === "Requirements" ? (
-                  <OpportunityRequirementsTab />
+                  <OpportunityRequirementsTab
+                    technical={dbOpp?.requirements?.technical}
+                    certificationsRequired={dbOpp?.requirements?.certifications_required}
+                    experienceRequired={dbOpp?.requirements?.experience_required}
+                    complianceRequirements={dbOpp?.requirements?.compliance_requirements}
+                    evaluationCriteria={dbOpp?.evaluation_criteria}
+                  />
                 ) : activeTabLabel === "Gaps & Risks" ? (
                   <OpportunityGapsRisksTab />
                 ) : activeTabLabel === "Teaming Partners" ? (
