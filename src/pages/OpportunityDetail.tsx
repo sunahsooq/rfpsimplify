@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useParams, useSearchParams } from "react-router-dom";
-import { Plus, Check } from "lucide-react";
+import { Link, useParams, useSearchParams, useNavigate } from "react-router-dom";
+import { Plus, Check, FileText, Loader2 } from "lucide-react";
 import { AppTopNav } from "@/components/AppTopNav";
 import { Button } from "@/components/ui/button";
 import { OpportunityOverviewTab } from "@/components/opportunity/OpportunityOverviewTab";
@@ -133,7 +133,9 @@ const demoById: Record<string, OpportunityDetailData> = {
 export default function OpportunityDetail() {
   const { id } = useParams<{ id: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const { addToPipeline, isInPipeline } = usePipeline();
+  const [isGeneratingBrief, setIsGeneratingBrief] = useState(false);
 
   // Initialize state from URL, default to "overview"
   const getInitialTab = (): TabKey => {
@@ -201,6 +203,15 @@ export default function OpportunityDetail() {
     toast.success("Opportunity added to pipeline");
   };
 
+  const handleGenerateBidBrief = () => {
+    setIsGeneratingBrief(true);
+    // Simulate AI generation delay
+    setTimeout(() => {
+      setIsGeneratingBrief(false);
+      navigate(`/brief/${id || "cloud-infra-modernization"}`);
+    }, 2000);
+  };
+
   return (
     <div className="min-h-screen w-full bg-background">
       <AppTopNav />
@@ -238,9 +249,10 @@ export default function OpportunityDetail() {
             <Button
               onClick={handleAddToPipeline}
               disabled={inPipeline}
+              variant="outline"
               className={inPipeline 
                 ? "bg-success/20 text-success border border-success/30 hover:bg-success/20" 
-                : "bg-gradient-to-r from-blue-600 to-blue-400 text-white shadow-card hover:scale-[1.02]"
+                : "border-border hover:bg-accent"
               }
             >
               {inPipeline ? (
@@ -252,6 +264,23 @@ export default function OpportunityDetail() {
                 <>
                   <Plus className="mr-1.5 h-4 w-4" />
                   Add to Pipeline
+                </>
+              )}
+            </Button>
+            <Button
+              onClick={handleGenerateBidBrief}
+              disabled={isGeneratingBrief}
+              className="bg-gradient-to-r from-blue-600 to-blue-400 text-white shadow-card hover:scale-[1.02]"
+            >
+              {isGeneratingBrief ? (
+                <>
+                  <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+                  Generating with AI…
+                </>
+              ) : (
+                <>
+                  <FileText className="mr-1.5 h-4 w-4" />
+                  Generate Bid Brief
                 </>
               )}
             </Button>
