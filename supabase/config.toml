@@ -1,1 +1,4 @@
 project_id = "hlwonocpqbyyfxuchaid"
+
+[functions.analyze-rfp]
+verify_jwt = false

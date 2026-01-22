@@ -1,30 +1,17 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
-import { getAuthErrorMessage, getSSOErrorMessage } from "@/lib/auth-utils";
-import { useAuth } from "@/hooks/useAuth";
 
 const Login = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const { session } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [ssoError, setSsoError] = useState<string | null>(null);
-
-  // Redirect if already logged in
-  useEffect(() => {
-    if (session) {
-      navigate("/dashboard");
-    }
-  }, [session, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,38 +22,15 @@ const Login = () => {
   };
 
   const handleGoogleSSO = async () => {
-    setIsLoading(true);
+    // Demo-only: no auth API
     setSsoError(null);
-
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/dashboard`,
-      },
-    });
-
-    if (error) {
-      setSsoError(getSSOErrorMessage());
-      setIsLoading(false);
-    }
+    navigate("/dashboard");
   };
 
   const handleMicrosoftSSO = async () => {
-    setIsLoading(true);
+    // Demo-only: no auth API
     setSsoError(null);
-
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "azure",
-      options: {
-        redirectTo: `${window.location.origin}/dashboard`,
-        scopes: "email profile openid",
-      },
-    });
-
-    if (error) {
-      setSsoError(getSSOErrorMessage());
-      setIsLoading(false);
-    }
+    navigate("/dashboard");
   };
 
   const comparisonData = [

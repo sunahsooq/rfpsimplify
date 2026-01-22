@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +16,7 @@ import {
 import { useCompany } from "@/contexts/CompanyContext";
 import { usePartners } from "@/contexts/PartnerContext";
 import { usePipeline } from "@/contexts/PipelineContext";
+import { supabase } from "@/integrations/supabase/client";
 
 // Demo data for the bid brief
 const briefDataById: Record<string, {
@@ -94,9 +96,53 @@ export default function BidBrief() {
   const { partners } = usePartners();
   const { items: pipelineItems } = usePipeline();
 
-  const data = opportunityId && briefDataById[opportunityId] 
-    ? briefDataById[opportunityId] 
-    : defaultBriefData;
+  const [dbOpp, setDbOpp] = useState<any | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const isUuid = typeof opportunityId === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(opportunityId);
+    if (!isUuid) {
+      setDbOpp(null);
+      return;
+    }
+    (async () => {
+      const { data } = await supabase
+        .from("opportunities")
+        .select("id,title,agency,solicitation_id,naics_codes,set_aside,estimated_value,scores,bid_brief,requirements")
+        .eq("id", opportunityId)
+        .maybeSingle();
+      if (!cancelled) setDbOpp((data as any) ?? null);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [opportunityId]);
+
+  const data = useMemo(() => {
+    if (dbOpp) {
+      const score = typeof dbOpp?.scores?.overall_match_score === "number" ? dbOpp.scores.overall_match_score : 0;
+      const naics = Array.isArray(dbOpp?.naics_codes) && dbOpp.naics_codes.length ? dbOpp.naics_codes[0] : company.primaryNaics;
+      const setAside = Array.isArray(dbOpp?.set_aside) && dbOpp.set_aside.length ? dbOpp.set_aside.join(", ") : "";
+
+      const reqs: Array<{ requirement: string; capability: string; status: "match" | "partial" | "gap" }> = [];
+      const tech = dbOpp?.requirements?.technical as string[] | undefined;
+      (tech ?? []).slice(0, 6).forEach((t) => reqs.push({ requirement: t, capability: "TBD", status: "partial" }));
+
+      return {
+        title: dbOpp.title ?? "Untitled Opportunity",
+        solicitationNumber: dbOpp.solicitation_id ?? "TBD",
+        agency: dbOpp.agency ?? "TBD",
+        match: Math.max(0, Math.min(100, Math.round(score))),
+        naics,
+        setAside: setAside || "TBD",
+        estValue: dbOpp.estimated_value ?? "TBD",
+        pWin: 50,
+        expectedMargin: "TBD",
+        requirements: reqs.length ? reqs : defaultBriefData.requirements,
+      };
+    }
+    return opportunityId && briefDataById[opportunityId] ? briefDataById[opportunityId] : defaultBriefData;
+  }, [company.primaryNaics, dbOpp, opportunityId]);
 
   // Get pipeline item for this opportunity
   const pipelineItem = pipelineItems.find(p => p.id === opportunityId);
@@ -157,6 +203,11 @@ export default function BidBrief() {
       detail: "Lean operational model enables aggressive pricing while maintaining quality standards.",
     },
   ];
+
+  const brief = dbOpp?.bid_brief;
+  const effectiveWinThemes = Array.isArray(brief?.win_themes) && brief.win_themes.length
+    ? brief.win_themes.map((t: string) => ({ theme: t, detail: "" }))
+    : winThemes;
 
   return (
     <>
@@ -224,14 +275,14 @@ export default function BidBrief() {
             </h2>
             <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
               <div className="space-y-4">
-                {winThemes.map((item, idx) => (
+                {effectiveWinThemes.map((item: any, idx: number) => (
                   <div key={idx} className="flex items-start gap-3">
                     <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white">
                       {idx + 1}
                     </span>
                     <div>
                       <p className="font-semibold text-gray-900">{item.theme}</p>
-                      <p className="text-sm text-gray-600 mt-0.5">{item.detail}</p>
+                      {item.detail ? <p className="text-sm text-gray-600 mt-0.5">{item.detail}</p> : null}
                     </div>
                   </div>
                 ))}
