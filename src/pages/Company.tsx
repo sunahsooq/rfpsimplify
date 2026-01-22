@@ -1,45 +1,62 @@
+import { useState } from "react";
 import { AppTopNav } from "@/components/AppTopNav";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Building2, Plus, Shield, Award, Briefcase } from "lucide-react";
+import { Building2, Check, Loader2 } from "lucide-react";
+import { useCompany, type SocioEconomicStatus } from "@/contexts/CompanyContext";
+import { toast } from "sonner";
 
-const companyData = {
-  name: "Acme Federal Solutions",
-  uei: "JQNC9KQPXYZ1",
-  cageCode: "7ABC1",
-  address: "1234 Government Way, Suite 500, Arlington, VA 22201",
-  primaryNaics: "541512 - Computer Systems Design Services",
-  setAsides: ["8(a)", "SDVOSB", "HUBZone"],
-};
-
-const certifications = [
-  { name: "FedRAMP", status: "active", level: "Moderate" },
-  { name: "CMMC Level 2", status: "active", level: "" },
-  { name: "ISO 27001", status: "active", level: "" },
-  { name: "SOC 2 Type II", status: "expired", level: "" },
-];
-
-const capabilities = [
-  "Cloud Migration",
-  "Cybersecurity",
-  "DevSecOps",
-  "Data Platforms",
-  "Zero Trust Architecture",
-  "Application Modernization",
-  "AI/ML Integration",
-  "Agile Development",
-];
-
-const pastPerformance = [
-  { agency: "Department of Energy", contract: "Cloud Infrastructure Modernization", value: "$4.2M", year: "2023" },
-  { agency: "Department of Defense", contract: "Cybersecurity Operations Center", value: "$8.7M", year: "2022" },
-  { agency: "GSA", contract: "IT Schedule 70 Support", value: "$2.1M", year: "2021" },
+const allSocioEconomicOptions: SocioEconomicStatus[] = [
+  "Small Business",
+  "8(a)",
+  "WOSB",
+  "SDVOSB",
+  "HUBZone",
 ];
 
 export default function Company() {
+  const { company, updateCompany, maskedUei } = useCompany();
+  
+  const [formData, setFormData] = useState({
+    legalBusinessName: company.legalBusinessName,
+    uei: company.uei,
+    cageCode: company.cageCode,
+    primaryNaics: company.primaryNaics,
+    socioEconomicStatuses: [...company.socioEconomicStatuses],
+  });
+  
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const toggleSocioEconomicStatus = (status: SocioEconomicStatus) => {
+    setFormData((prev) => {
+      const current = prev.socioEconomicStatuses;
+      const updated = current.includes(status)
+        ? current.filter((s) => s !== status)
+        : [...current, status];
+      return { ...prev, socioEconomicStatuses: updated };
+    });
+  };
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    // Simulate save delay
+    await new Promise((resolve) => setTimeout(resolve, 800));
+    updateCompany(formData);
+    setIsSaving(false);
+    toast.success("Company profile updated successfully");
+  };
+
+  // Masked UEI for preview
+  const previewMaskedUei = formData.uei.length >= 4 
+    ? `****${formData.uei.slice(-4)}` 
+    : formData.uei;
+
   return (
     <div className="min-h-screen bg-background">
       <AppTopNav />
@@ -51,197 +68,196 @@ export default function Company() {
             Company Profile
           </h1>
           <p className="text-muted-foreground">
-            Information used to evaluate opportunities and generate recommendations
+            Manage your company identity for opportunity matching and gap analysis
           </p>
         </div>
 
-        <div className="space-y-6">
-          {/* Company Overview */}
-          <Card className="bg-[#1a2540] border-[#334155]">
-            <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-2 text-lg text-foreground">
-                <Building2 className="h-5 w-5 text-primary" />
-                Company Overview
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          {/* Left Column - Editable Fields (65%) */}
+          <div className="lg:col-span-8 space-y-6">
+            <Card className="bg-card border-border">
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-2 text-lg text-foreground">
+                  <Building2 className="h-5 w-5 text-primary" />
+                  Company Information
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-5">
+                {/* Legal Business Name */}
                 <div className="space-y-2">
-                  <label className="text-sm text-muted-foreground">Company Name</label>
+                  <label className="text-sm font-medium text-muted-foreground">
+                    Legal Business Name
+                  </label>
                   <Input 
-                    defaultValue={companyData.name} 
-                    className="bg-[#2a334f] border-[#334155] text-foreground"
+                    value={formData.legalBusinessName}
+                    onChange={(e) => handleInputChange("legalBusinessName", e.target.value)}
+                    className="bg-secondary border-border text-foreground"
+                    placeholder="Enter your legal business name"
                   />
                 </div>
+
+                {/* UEI */}
                 <div className="space-y-2">
-                  <label className="text-sm text-muted-foreground">UEI (Read-only)</label>
+                  <label className="text-sm font-medium text-muted-foreground">
+                    Unique Entity ID (UEI)
+                  </label>
                   <Input 
-                    defaultValue={companyData.uei} 
-                    readOnly
-                    className="bg-[#2a334f]/50 border-[#334155] text-muted-foreground cursor-not-allowed"
+                    value={formData.uei}
+                    onChange={(e) => handleInputChange("uei", e.target.value.toUpperCase().slice(0, 12))}
+                    className="bg-secondary border-border text-foreground font-mono"
+                    placeholder="12-character UEI"
+                    maxLength={12}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    12-character alphanumeric identifier from SAM.gov
+                  </p>
+                </div>
+
+                {/* CAGE Code */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-muted-foreground">
+                    CAGE Code
+                  </label>
+                  <Input 
+                    value={formData.cageCode}
+                    onChange={(e) => handleInputChange("cageCode", e.target.value.toUpperCase())}
+                    className="bg-secondary border-border text-foreground font-mono"
+                    placeholder="5-character CAGE code"
                   />
                 </div>
+
+                {/* Primary NAICS */}
                 <div className="space-y-2">
-                  <label className="text-sm text-muted-foreground">CAGE Code</label>
+                  <label className="text-sm font-medium text-muted-foreground">
+                    Primary NAICS Code
+                  </label>
                   <Input 
-                    defaultValue={companyData.cageCode} 
-                    className="bg-[#2a334f] border-[#334155] text-foreground"
+                    value={formData.primaryNaics}
+                    onChange={(e) => handleInputChange("primaryNaics", e.target.value)}
+                    className="bg-secondary border-border text-foreground font-mono"
+                    placeholder="e.g., 541512"
                   />
                 </div>
-                <div className="space-y-2">
-                  <label className="text-sm text-muted-foreground">Primary NAICS</label>
-                  <Input 
-                    defaultValue={companyData.primaryNaics} 
-                    className="bg-[#2a334f] border-[#334155] text-foreground"
-                  />
+
+                {/* Socio-Economic Status */}
+                <div className="space-y-3">
+                  <label className="text-sm font-medium text-muted-foreground">
+                    Socio-Economic Status
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {allSocioEconomicOptions.map((status) => {
+                      const isSelected = formData.socioEconomicStatuses.includes(status);
+                      return (
+                        <button
+                          key={status}
+                          type="button"
+                          onClick={() => toggleSocioEconomicStatus(status)}
+                          className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-colors border ${
+                            isSelected
+                              ? "bg-primary/20 text-primary border-primary/40"
+                              : "bg-secondary text-muted-foreground border-border hover:border-primary/40 hover:text-foreground"
+                          }`}
+                        >
+                          {isSelected && <Check className="h-3 w-3" />}
+                          {status}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Select all applicable socio-economic designations
+                  </p>
                 </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm text-muted-foreground">Address</label>
-                <Input 
-                  defaultValue={companyData.address} 
-                  className="bg-[#2a334f] border-[#334155] text-foreground"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm text-muted-foreground">Set-Asides</label>
-                <div className="flex flex-wrap gap-2">
-                  {companyData.setAsides.map((setAside) => (
-                    <Badge 
-                      key={setAside} 
-                      className="bg-primary/20 text-primary border-primary/30 hover:bg-primary/30"
-                    >
-                      {setAside}
-                    </Badge>
-                  ))}
-                  <Button variant="ghost" size="sm" className="h-6 px-2 text-muted-foreground hover:text-foreground">
-                    <Plus className="h-3 w-3 mr-1" />
-                    Add
+
+                {/* Save Button */}
+                <div className="pt-4">
+                  <Button 
+                    onClick={handleSave}
+                    disabled={isSaving}
+                    className="w-full sm:w-auto bg-gradient-to-r from-primary to-blue-400 hover:from-primary/90 hover:to-blue-400/90 text-primary-foreground px-8"
+                  >
+                    {isSaving ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      "Save Profile"
+                    )}
                   </Button>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </div>
 
-          {/* Certifications */}
-          <Card className="bg-[#1a2540] border-[#334155]">
-            <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-2 text-lg text-foreground">
-                <Shield className="h-5 w-5 text-primary" />
-                Certifications
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {certifications.map((cert) => (
-                  <div 
-                    key={cert.name}
-                    className={`p-4 rounded-lg border ${
-                      cert.status === "active" 
-                        ? "bg-success/10 border-success/30" 
-                        : "bg-destructive/10 border-destructive/30"
-                    }`}
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="font-medium text-foreground">{cert.name}</span>
-                      <Badge 
-                        className={
-                          cert.status === "active"
-                            ? "bg-success/20 text-success border-success/30"
-                            : "bg-destructive/20 text-destructive border-destructive/30"
-                        }
-                      >
-                        {cert.status === "active" ? "Active" : "Expired"}
-                      </Badge>
+          {/* Right Column - Company Preview (35%) */}
+          <div className="lg:col-span-4">
+            <Card className="bg-card border-border sticky top-24">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg text-foreground">
+                  Company Preview
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Company Name */}
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    Company Name
+                  </p>
+                  <p className="mt-1 text-base font-semibold text-foreground">
+                    {formData.legalBusinessName || "—"}
+                  </p>
+                </div>
+
+                {/* Masked UEI */}
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    UEI
+                  </p>
+                  <p className="mt-1 text-base font-mono text-foreground">
+                    {previewMaskedUei || "—"}
+                  </p>
+                </div>
+
+                {/* Primary NAICS */}
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    Primary NAICS
+                  </p>
+                  <p className="mt-1 text-base font-mono text-foreground">
+                    {formData.primaryNaics || "—"}
+                  </p>
+                </div>
+
+                {/* Socio-Economic Badges */}
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+                    Certifications
+                  </p>
+                  {formData.socioEconomicStatuses.length > 0 ? (
+                    <div className="flex flex-wrap gap-1.5">
+                      {formData.socioEconomicStatuses.map((status) => (
+                        <Badge 
+                          key={status}
+                          className="bg-success/15 text-success border-success/30"
+                        >
+                          {status}
+                        </Badge>
+                      ))}
                     </div>
-                    {cert.level && (
-                      <span className="text-sm text-muted-foreground">{cert.level}</span>
-                    )}
-                  </div>
-                ))}
-              </div>
-              <Button variant="ghost" size="sm" className="mt-4 text-muted-foreground hover:text-foreground">
-                <Plus className="h-4 w-4 mr-2" />
-                Add Certification
-              </Button>
-            </CardContent>
-          </Card>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">No certifications selected</p>
+                  )}
+                </div>
 
-          {/* Capabilities */}
-          <Card className="bg-[#1a2540] border-[#334155]">
-            <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-2 text-lg text-foreground">
-                <Award className="h-5 w-5 text-primary" />
-                Capabilities
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-wrap gap-2 mb-4">
-                {capabilities.map((capability) => (
-                  <Badge 
-                    key={capability}
-                    variant="secondary"
-                    className="bg-[#2a334f] text-foreground border-[#334155] hover:bg-[#3a4560]"
-                  >
-                    {capability}
-                  </Badge>
-                ))}
-              </div>
-              <div className="flex gap-2">
-                <Input 
-                  placeholder="Add new capability..." 
-                  className="bg-[#2a334f] border-[#334155] text-foreground max-w-xs"
-                />
-                <Button variant="outline" size="sm" className="border-[#334155] hover:bg-[#2a334f]">
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Past Performance */}
-          <Card className="bg-[#1a2540] border-[#334155]">
-            <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-2 text-lg text-foreground">
-                <Briefcase className="h-5 w-5 text-primary" />
-                Past Performance
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="border-[#334155] hover:bg-transparent">
-                      <TableHead className="text-muted-foreground">Agency</TableHead>
-                      <TableHead className="text-muted-foreground">Contract Name</TableHead>
-                      <TableHead className="text-muted-foreground">Value</TableHead>
-                      <TableHead className="text-muted-foreground">Year</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {pastPerformance.map((pp, index) => (
-                      <TableRow key={index} className="border-[#334155] hover:bg-[#2a334f]/50">
-                        <TableCell className="text-foreground font-medium">{pp.agency}</TableCell>
-                        <TableCell className="text-muted-foreground">{pp.contract}</TableCell>
-                        <TableCell className="text-success font-medium">{pp.value}</TableCell>
-                        <TableCell className="text-muted-foreground">{pp.year}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-              <Button variant="ghost" size="sm" className="mt-4 text-muted-foreground hover:text-foreground">
-                <Plus className="h-4 w-4 mr-2" />
-                Add Past Performance
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Save Button */}
-          <div className="flex justify-end">
-            <Button className="bg-gradient-to-r from-primary to-blue-400 hover:from-primary/90 hover:to-blue-400/90 text-white px-8">
-              Save Changes
-            </Button>
+                {/* Footer */}
+                <div className="pt-4 border-t border-border">
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    This information is used for opportunity matching and gap analysis.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </main>

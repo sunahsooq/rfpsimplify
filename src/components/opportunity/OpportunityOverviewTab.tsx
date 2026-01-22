@@ -1,4 +1,5 @@
 import { CheckCircle2, AlertTriangle, ExternalLink, User } from "lucide-react";
+import { OpportunityCompanyMatch } from "./OpportunityCompanyMatch";
 
 type Stage = "Identified" | "Qualified" | "Pursuing" | "Submitted";
 
@@ -90,6 +91,18 @@ export function OpportunityOverviewTab({ data }: { data: OpportunityOverviewData
             <p className="mt-1 text-sm font-bold text-foreground">May 2026</p>
           </div>
         </div>
+      </section>
+
+      {/* Divider */}
+      <div className="h-px w-full bg-[#334155]" />
+
+      {/* Company Fit Analysis - Dynamic based on company context */}
+      <section className="space-y-3">
+        <h2 className="text-base font-bold text-foreground">Your Company Fit</h2>
+        <OpportunityCompanyMatch 
+          opportunityNaics="541512" 
+          opportunitySetAside={data.setAside} 
+        />
       </section>
 
       {/* Divider */}
