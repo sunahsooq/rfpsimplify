@@ -8,6 +8,7 @@ import { extractRfpTextFromFile } from "@/lib/rfpTextExtract";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { RfpAnalysis } from "@/types/rfpAnalysis";
+import { postParseProcessing, type CompanyForScoring, type RfpForScoring } from "@/lib/opportunityScoring";
 
 type Props = {
   open: boolean;
@@ -52,9 +53,15 @@ export function ManualRfpIngestDialog({ open, onOpenChange, onCreated }: Props) 
       const companyProfile = {
         company_name: company.legalBusinessName ?? null,
         primary_naics: company.primaryNaics ?? null,
-        secondary_naics: (company as any).secondaryNaics ?? null,
-        certifications_set_asides: (company as any).certificationsSetAsides ?? company.socioEconomicStatuses ?? null,
-        core_capabilities: (company as any).coreCapabilities ?? null,
+        secondary_naics: Array.isArray((company as any).secondaryNaics)
+          ? (company as any).secondaryNaics
+          : (company as any).secondaryNaics
+            ? [(company as any).secondaryNaics]
+            : [],
+        certifications: (company as any).certifications ?? [],
+        capabilities: (company as any).coreCapabilities ?? [],
+        past_performance_tags: (company as any).pastPerformanceTags ?? [],
+        location: (company as any).location ?? null,
       };
 
       const { data, error: fnError } = await supabase.functions.invoke("analyze-rfp", {
@@ -70,6 +77,45 @@ export function ManualRfpIngestDialog({ open, onOpenChange, onCreated }: Props) 
 
       const payload = data as { id: string; analysis: RfpAnalysis };
       if (!payload?.id) throw new Error("No opportunity id returned");
+
+      // Deterministic, company-aware scoring (platform-owned)
+      const rfpForScoring: RfpForScoring = {
+        naics_codes: payload.analysis?.opportunity?.naics_codes ?? [],
+        required_certifications: payload.analysis?.requirements?.certifications_required ?? [],
+        technical_requirements: payload.analysis?.requirements?.technical ?? [],
+        experience_requirements: payload.analysis?.requirements?.experience_required ?? [],
+        compliance_requirements: payload.analysis?.requirements?.compliance_requirements ?? [],
+        place_of_performance: payload.analysis?.opportunity?.place_of_performance ?? null,
+      };
+
+      const companyForScoring: CompanyForScoring = {
+        primary_naics: company.primaryNaics,
+        secondary_naics: Array.isArray((company as any).secondaryNaics)
+          ? ((company as any).secondaryNaics as string[])
+          : (company as any).secondaryNaics
+            ? [String((company as any).secondaryNaics)]
+            : [],
+        certifications: ((company as any).certifications as string[] | null) ??
+          ((company as any).certificationsSetAsides as string[] | null) ??
+          (company.socioEconomicStatuses as unknown as string[]),
+        capabilities: ((company as any).coreCapabilities as string[] | null) ?? [],
+        past_performance_tags: ((company as any).pastPerformanceTags as string[] | null) ?? [],
+        location: ((company as any).location as string | null) ?? null,
+      };
+
+      const computed = postParseProcessing(companyForScoring, rfpForScoring);
+      const nextBidBrief = {
+        ...(payload.analysis?.bid_brief ?? {}),
+        scorecard: {
+          overall_match_score: computed.overall_match_score,
+          readiness_level: computed.readiness_level,
+        },
+      };
+
+      await supabase
+        .from("opportunities")
+        .update({ scores: computed, bid_brief: nextBidBrief })
+        .eq("id", payload.id);
 
       toast.success("RFP analyzed and opportunity created");
       handleClose(false);

@@ -10,58 +10,47 @@ interface GapItem {
   risk: RiskLevel;
 }
 
-const gaps: GapItem[] = [
-  {
-    label: "FedRAMP Authorization",
-    status: "partial",
-    impact: "Partial compliance",
-    risk: "medium",
-  },
-  {
-    label: "CMMC Level 2 Certification",
-    status: "pass",
-    impact: "In place",
-    risk: "low",
-  },
-  {
-    label: "GSA Schedule 70 Access",
-    status: "gap",
-    impact: "No current hold",
-    risk: "high",
-  },
-  {
-    label: "Past Performance in DOE Cloud Projects",
-    status: "pass",
-    impact: "Strong",
-    risk: "low",
-  },
-  {
-    label: "Pricing Competitiveness",
-    status: "partial",
-    impact: "Estimated 8–12% above incumbent",
-    risk: "medium",
-  },
-  {
-    label: "Security Clearance Requirements",
-    status: "pass",
-    impact: "Cleared staff available",
-    risk: "low",
-  },
-];
-
 const statusConfig: Record<Status, { icon: typeof CheckCircle2; color: string; bgColor: string }> = {
-  pass: { icon: CheckCircle2, color: "text-[#22c55e]", bgColor: "bg-[#22c55e]/10" },
-  partial: { icon: AlertTriangle, color: "text-[#f59e0b]", bgColor: "bg-[#f59e0b]/10" },
-  gap: { icon: XCircle, color: "text-[#ef4444]", bgColor: "bg-[#ef4444]/10" },
+  pass: { icon: CheckCircle2, color: "text-success", bgColor: "bg-success/10" },
+  partial: { icon: AlertTriangle, color: "text-warning", bgColor: "bg-warning/10" },
+  gap: { icon: XCircle, color: "text-destructive", bgColor: "bg-destructive/10" },
 };
 
 const riskBadgeClass: Record<RiskLevel, string> = {
-  low: "bg-[#22c55e]/15 text-[#22c55e]",
-  medium: "bg-[#f59e0b]/15 text-[#f59e0b]",
-  high: "bg-[#ef4444]/15 text-[#ef4444]",
+  low: "bg-success/15 text-success",
+  medium: "bg-warning/15 text-warning",
+  high: "bg-destructive/15 text-destructive",
 };
 
-export function OpportunityGapsRisksTab() {
+export function OpportunityGapsRisksTab({
+  matchAnalysis,
+}: {
+  matchAnalysis?: { gaps?: string[] | null; risk_flags?: string[] | null } | null;
+}) {
+  const gaps: GapItem[] = (matchAnalysis?.gaps ?? []).map((g) => ({
+    label: g,
+    status: "gap" as const,
+    impact: "Gap identified",
+    risk: "medium" as const,
+  }));
+
+  const risks: GapItem[] = (matchAnalysis?.risk_flags ?? []).map((r) => ({
+    label: r,
+    status: "partial" as const,
+    impact: "Risk flag",
+    risk: "high" as const,
+  }));
+
+  const rows = [...gaps, ...risks].slice(0, 12);
+
+  if (!rows.length) {
+    return (
+      <div className="rounded-lg border border-border bg-background/5 p-6">
+        <p className="text-sm text-muted-foreground">No gaps or risks available for this opportunity yet.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Heading */}
@@ -78,7 +67,7 @@ export function OpportunityGapsRisksTab() {
 
       {/* Checklist Grid */}
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-        {gaps.map((item) => {
+        {rows.map((item) => {
           const config = statusConfig[item.status];
           const Icon = config.icon;
 
@@ -114,9 +103,7 @@ export function OpportunityGapsRisksTab() {
       <div className="h-px w-full bg-[#334155]" />
 
       {/* Disclaimer */}
-      <p className="text-xs italic text-muted-foreground">
-        Gaps based on static profile match. Real analysis coming soon.
-      </p>
+      <p className="text-xs italic text-muted-foreground">Gaps and risks are derived from the persisted RFP analysis.</p>
     </div>
   );
 }

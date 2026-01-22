@@ -1,74 +1,54 @@
+import { useMemo } from "react";
 import { Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { usePartners } from "@/contexts/PartnerContext";
 
-type FitLevel = "high" | "medium";
-
-interface Partner {
-  name: string;
-  fit: FitLevel;
-  capabilities: string[];
-  rationale: string;
-}
-
-const partners: Partner[] = [
-  {
-    name: "CyberShield Solutions",
-    fit: "high",
-    capabilities: [
-      "GSA IT Schedule 70 holder",
-      "FedRAMP Moderate authorized",
-      "CMMC Level 2 expertise",
-    ],
-    rationale: "Covers your GSA and FedRAMP gaps. Strong DOE references and incumbent relationships.",
-  },
-  {
-    name: "FedCloud Partners",
-    fit: "high",
-    capabilities: [
-      "Hybrid cloud migration specialists",
-      "DOE past performance (3 contracts)",
-      "AWS GovCloud certified",
-    ],
-    rationale: "Deep DOE experience with cloud modernization. Excellent technical alignment.",
-  },
-  {
-    name: "SecureTeaming Inc",
-    fit: "medium",
-    capabilities: [
-      "Security compliance specialists",
-      "FISMA/RMF assessments",
-      "Continuous monitoring solutions",
-    ],
-    rationale: "Strong compliance expertise. Limited cloud migration experience.",
-  },
-  {
-    name: "Innovation GovTech",
-    fit: "medium",
-    capabilities: [
-      "DevSecOps capabilities",
-      "Innovation differentiators",
-      "Agile delivery methodology",
-    ],
-    rationale: "Modern development practices. May need additional vehicle access.",
-  },
-];
+type FitLevel = "high" | "medium" | "low";
 
 const fitBadgeClass: Record<FitLevel, string> = {
-  high: "bg-[#22c55e]/15 text-[#22c55e]",
-  medium: "bg-[#f59e0b]/15 text-[#f59e0b]",
+  high: "bg-success/15 text-success",
+  medium: "bg-warning/15 text-warning",
+  low: "bg-muted/50 text-muted-foreground",
 };
 
 const fitLabel: Record<FitLevel, string> = {
   high: "High Fit",
   medium: "Medium Fit",
+  low: "Potential",
 };
 
-export function OpportunityTeamingPartnersTab() {
-  if (partners.length === 0) {
+export function OpportunityTeamingPartnersTab({ gaps }: { gaps?: string[] | null }) {
+  const { partners } = usePartners();
+
+  const recommendations = useMemo(() => {
+    const gapText = (gaps ?? []).join(" ").toLowerCase();
+    if (!gapText) return [];
+
+    return partners
+      .map((p) => {
+        const matchedCaps = p.capabilities.filter((cap) => gapText.includes(cap.toLowerCase()));
+        const score = matchedCaps.length;
+        const fit: FitLevel = score >= 2 ? "high" : score === 1 ? "medium" : "low";
+        return {
+          name: p.name,
+          fit,
+          capabilities: matchedCaps.length ? matchedCaps.slice(0, 3) : p.capabilities.slice(0, 3),
+          rationale: matchedCaps.length
+            ? `Matches gaps via: ${matchedCaps.slice(0, 2).join(", ")}`
+            : "Potential complementary capabilities; review for fit.",
+          score,
+        };
+      })
+      .filter((r) => r.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 6);
+  }, [gaps, partners]);
+
+  if (!recommendations.length) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
         <p className="text-base text-muted-foreground">
-          No high-fit partners identified for this opportunity yet. Update your profile for better matches.
+          No partner recommendations available for this opportunity yet.
         </p>
       </div>
     );
@@ -87,10 +67,10 @@ export function OpportunityTeamingPartnersTab() {
 
       {/* Partner Cards Grid */}
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
-        {partners.map((partner) => (
+        {recommendations.map((partner) => (
           <div
             key={partner.name}
-            className="rounded-2xl bg-[#2a334f] p-5 shadow-card transition-all hover:scale-[1.01] hover:shadow-glow"
+            className="rounded-2xl bg-card p-5 shadow-card transition-all hover:scale-[1.01] hover:shadow-glow"
           >
             {/* Header: Name + Badge */}
             <div className="mb-4 flex items-start justify-between gap-3">
@@ -113,14 +93,14 @@ export function OpportunityTeamingPartnersTab() {
             </ul>
 
             {/* Divider */}
-            <div className="mb-4 border-t border-[#334155]" />
+            <div className="mb-4 border-t border-border" />
 
             {/* Rationale */}
             <p className="mb-5 text-xs leading-relaxed text-muted-foreground">{partner.rationale}</p>
 
             {/* CTA Button */}
             <Button
-              className="w-full bg-gradient-to-r from-[#3b82f6] to-[#60a5fa] text-sm font-medium text-white shadow-card transition-all hover:scale-[1.01] hover:shadow-glow"
+              className="w-full bg-gradient-to-r from-primary to-primary/70 text-sm font-medium text-primary-foreground shadow-card transition-all hover:scale-[1.01] hover:shadow-glow"
               onClick={(e) => e.stopPropagation()}
             >
               <Mail className="mr-2 h-4 w-4" />
