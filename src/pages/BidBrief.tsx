@@ -130,18 +130,32 @@ export default function BidBrief() {
     }
   };
 
-  // Generate executive summary bullets based on company data
-  const executiveSummaryBullets = [
-    `Your primary NAICS (${company.primaryNaics}) ${company.primaryNaics === data.naics ? "matches" : "aligns with"} this solicitation's requirements.`,
-    company.socioEconomicStatuses.some(s => data.setAside.includes(s) || s === "8(a)")
-      ? `You qualify for this ${data.setAside} set-aside based on your ${company.socioEconomicStatuses.join(", ")} certification(s).`
-      : `Set-aside requirement (${data.setAside}) may require teaming partner support.`,
-    data.requirements.filter(r => r.status === "match").length >= 3
-      ? "Strong capability alignment with technical requirements reduces proposal risk."
-      : "Some capability gaps exist that should be addressed through teaming.",
-    data.requirements.some(r => r.status === "gap")
-      ? `Key risk: ${data.requirements.find(r => r.status === "gap")?.requirement} requires mitigation strategy.`
-      : "No critical gaps identified; proceed with confidence.",
+  // Generate AI Win Themes based on company data and opportunity
+  const winThemes = [
+    {
+      theme: "Proven Technical Excellence",
+      detail: `Our ${company.primaryNaics === data.naics ? "exact NAICS match" : "aligned NAICS code"} (${company.primaryNaics}) demonstrates deep domain expertise in this sector.`,
+    },
+    {
+      theme: "Compliant Set-Aside Status",
+      detail: company.socioEconomicStatuses.some(s => data.setAside.includes(s) || s === "8(a)")
+        ? `Active ${company.socioEconomicStatuses.join(", ")} certification(s) meet the ${data.setAside} set-aside requirement.`
+        : `Strategic teaming arrangement provides ${data.setAside} compliance pathway.`,
+    },
+    {
+      theme: "Agency Relationship Advantage",
+      detail: `Established past performance with ${data.agency} reduces perceived risk and demonstrates mission understanding.`,
+    },
+    {
+      theme: "Ready-to-Deploy Team",
+      detail: data.requirements.filter(r => r.status === "match").length >= 3
+        ? "Pre-qualified team with proven capability alignment minimizes ramp-up time."
+        : "Teaming partners fill capability gaps, creating a comprehensive solution.",
+    },
+    {
+      theme: "Competitive Pricing Position",
+      detail: "Lean operational model enables aggressive pricing while maintaining quality standards.",
+    },
   ];
 
   return (
@@ -202,32 +216,37 @@ export default function BidBrief() {
             </div>
           </section>
 
-          {/* Executive Summary */}
+          {/* Win Themes (Executive Summary) */}
           <section className="mb-10">
             <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
               <FileText className="h-5 w-5 text-blue-600" />
-              Executive Summary
+              Win Themes
             </h2>
             <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
-              <ul className="space-y-3">
-                {executiveSummaryBullets.map((bullet, idx) => (
-                  <li key={idx} className="flex items-start gap-3 text-gray-700">
-                    <span className="mt-2 h-1.5 w-1.5 rounded-full bg-blue-600 shrink-0" />
-                    <span>{bullet}</span>
-                  </li>
+              <div className="space-y-4">
+                {winThemes.map((item, idx) => (
+                  <div key={idx} className="flex items-start gap-3">
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white">
+                      {idx + 1}
+                    </span>
+                    <div>
+                      <p className="font-semibold text-gray-900">{item.theme}</p>
+                      <p className="text-sm text-gray-600 mt-0.5">{item.detail}</p>
+                    </div>
+                  </div>
                 ))}
-              </ul>
-              <p className="mt-4 text-xs text-gray-400 italic">
-                AI-generated summary (simulated)
+              </div>
+              <p className="mt-5 text-xs text-gray-400 italic">
+                AI-generated win themes (simulated)
               </p>
             </div>
           </section>
 
-          {/* Why Us - Comparison Table */}
+          {/* Capability Comparison Table */}
           <section className="mb-10">
             <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
               <TrendingUp className="h-5 w-5 text-blue-600" />
-              Why Us
+              Capability Comparison
             </h2>
             <div className="overflow-hidden rounded-lg border border-gray-200">
               <table className="w-full">
