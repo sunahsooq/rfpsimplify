@@ -13,6 +13,7 @@ export type Partner = {
   naicsCodes: string[];
   pastPerformanceAgencies: string[];
   contactEmail: string;
+  location: string;
 };
 
 const mockPartners: Partner[] = [
@@ -26,6 +27,7 @@ const mockPartners: Partner[] = [
     naicsCodes: ["541512", "541519"],
     pastPerformanceAgencies: ["DOE", "DHS", "DoD"],
     contactEmail: "partnerships@cybershield.com",
+    location: "Arlington, VA",
   },
   {
     id: "fedcloud",
@@ -37,6 +39,7 @@ const mockPartners: Partner[] = [
     naicsCodes: ["541512", "518210"],
     pastPerformanceAgencies: ["DOE", "GSA", "VA"],
     contactEmail: "teaming@fedcloud.io",
+    location: "Reston, VA",
   },
   {
     id: "secureteaming",
@@ -48,6 +51,7 @@ const mockPartners: Partner[] = [
     naicsCodes: ["541512", "541611"],
     pastPerformanceAgencies: ["Treasury", "DoD"],
     contactEmail: "partners@secureteaming.com",
+    location: "Bethesda, MD",
   },
   {
     id: "innovationgovtech",
@@ -59,6 +63,7 @@ const mockPartners: Partner[] = [
     naicsCodes: ["541512", "541511"],
     pastPerformanceAgencies: ["VA", "HHS"],
     contactEmail: "teaming@innovationgovtech.com",
+    location: "San Antonio, TX",
   },
   {
     id: "datadriven",
@@ -70,6 +75,7 @@ const mockPartners: Partner[] = [
     naicsCodes: ["541512", "518210"],
     pastPerformanceAgencies: ["GSA", "DOE", "Commerce"],
     contactEmail: "partnerships@datadrivenfed.com",
+    location: "Washington, DC",
   },
   {
     id: "missioncloud",
@@ -81,6 +87,7 @@ const mockPartners: Partner[] = [
     naicsCodes: ["541512", "541513"],
     pastPerformanceAgencies: ["DoD", "DHS", "DOJ"],
     contactEmail: "teaming@missioncloud.gov",
+    location: "Colorado Springs, CO",
   },
 ];
 
