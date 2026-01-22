@@ -14,6 +14,258 @@ export type Database = {
   }
   public: {
     Tables: {
+      company_certifications: {
+        Row: {
+          certificate_number: string | null
+          company_profile_id: string
+          created_at: string
+          expiration_date: string | null
+          id: string
+          issue_date: string | null
+          issuing_authority: string
+          level: string | null
+          name: string
+          status: string
+          type: string
+          updated_at: string
+          verification_url: string | null
+        }
+        Insert: {
+          certificate_number?: string | null
+          company_profile_id: string
+          created_at?: string
+          expiration_date?: string | null
+          id?: string
+          issue_date?: string | null
+          issuing_authority: string
+          level?: string | null
+          name: string
+          status?: string
+          type: string
+          updated_at?: string
+          verification_url?: string | null
+        }
+        Update: {
+          certificate_number?: string | null
+          company_profile_id?: string
+          created_at?: string
+          expiration_date?: string | null
+          id?: string
+          issue_date?: string | null
+          issuing_authority?: string
+          level?: string | null
+          name?: string
+          status?: string
+          type?: string
+          updated_at?: string
+          verification_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_certifications_company_profile_id_fkey"
+            columns: ["company_profile_id"]
+            isOneToOne: false
+            referencedRelation: "company_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_past_performance: {
+        Row: {
+          agency_or_client: string
+          client_type: string
+          company_profile_id: string
+          contract_name: string
+          contract_number: string | null
+          contract_type: string
+          contract_value_range: string
+          contract_vehicle: string | null
+          cpars_rating: string | null
+          created_at: string
+          id: string
+          pop_end_date: string | null
+          pop_start_date: string | null
+          reference_contact: Json | null
+          role: string
+          scope_description: string | null
+          scope_tags: string[]
+          status: string
+          sub_agency: string | null
+          updated_at: string
+          work_share_percentage: number | null
+        }
+        Insert: {
+          agency_or_client: string
+          client_type: string
+          company_profile_id: string
+          contract_name: string
+          contract_number?: string | null
+          contract_type: string
+          contract_value_range: string
+          contract_vehicle?: string | null
+          cpars_rating?: string | null
+          created_at?: string
+          id?: string
+          pop_end_date?: string | null
+          pop_start_date?: string | null
+          reference_contact?: Json | null
+          role: string
+          scope_description?: string | null
+          scope_tags?: string[]
+          status: string
+          sub_agency?: string | null
+          updated_at?: string
+          work_share_percentage?: number | null
+        }
+        Update: {
+          agency_or_client?: string
+          client_type?: string
+          company_profile_id?: string
+          contract_name?: string
+          contract_number?: string | null
+          contract_type?: string
+          contract_value_range?: string
+          contract_vehicle?: string | null
+          cpars_rating?: string | null
+          created_at?: string
+          id?: string
+          pop_end_date?: string | null
+          pop_start_date?: string | null
+          reference_contact?: Json | null
+          role?: string
+          scope_description?: string | null
+          scope_tags?: string[]
+          status?: string
+          sub_agency?: string | null
+          updated_at?: string
+          work_share_percentage?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_past_performance_company_profile_id_fkey"
+            columns: ["company_profile_id"]
+            isOneToOne: false
+            referencedRelation: "company_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_profiles: {
+        Row: {
+          advanced: Json | null
+          annual_revenue_range: string
+          cage_code: string | null
+          capabilities: Json
+          created_at: string
+          dba_name: string | null
+          employee_count_range: string
+          headquarters: Json
+          id: string
+          legal_name: string
+          primary_naics: string
+          profile_completeness: number
+          sam_expiration_date: string | null
+          sam_last_synced: string | null
+          sam_status: string
+          secondary_naics: string[]
+          uei: string
+          updated_at: string
+          user_id: string
+          website_url: string | null
+          year_founded: number | null
+        }
+        Insert: {
+          advanced?: Json | null
+          annual_revenue_range?: string
+          cage_code?: string | null
+          capabilities?: Json
+          created_at?: string
+          dba_name?: string | null
+          employee_count_range?: string
+          headquarters?: Json
+          id?: string
+          legal_name: string
+          primary_naics: string
+          profile_completeness?: number
+          sam_expiration_date?: string | null
+          sam_last_synced?: string | null
+          sam_status?: string
+          secondary_naics?: string[]
+          uei: string
+          updated_at?: string
+          user_id: string
+          website_url?: string | null
+          year_founded?: number | null
+        }
+        Update: {
+          advanced?: Json | null
+          annual_revenue_range?: string
+          cage_code?: string | null
+          capabilities?: Json
+          created_at?: string
+          dba_name?: string | null
+          employee_count_range?: string
+          headquarters?: Json
+          id?: string
+          legal_name?: string
+          primary_naics?: string
+          profile_completeness?: number
+          sam_expiration_date?: string | null
+          sam_last_synced?: string | null
+          sam_status?: string
+          secondary_naics?: string[]
+          uei?: string
+          updated_at?: string
+          user_id?: string
+          website_url?: string | null
+          year_founded?: number | null
+        }
+        Relationships: []
+      }
+      company_set_asides: {
+        Row: {
+          certification_number: string | null
+          certifying_agency: string | null
+          company_profile_id: string
+          created_at: string
+          expiration_date: string | null
+          id: string
+          status: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          certification_number?: string | null
+          certifying_agency?: string | null
+          company_profile_id: string
+          created_at?: string
+          expiration_date?: string | null
+          id?: string
+          status?: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          certification_number?: string | null
+          certifying_agency?: string | null
+          company_profile_id?: string
+          created_at?: string
+          expiration_date?: string | null
+          id?: string
+          status?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_set_asides_company_profile_id_fkey"
+            columns: ["company_profile_id"]
+            isOneToOne: false
+            referencedRelation: "company_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       opportunities: {
         Row: {
           agency: string | null
