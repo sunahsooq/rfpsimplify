@@ -3,6 +3,7 @@ import { Briefcase, Clock, DollarSign, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { AppTopNav } from "@/components/AppTopNav";
+import { CompanySnapshot } from "@/components/dashboard/CompanySnapshot";
 
 type Stat = {
   label: string;
@@ -148,20 +149,26 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* AI Insights (40%) */}
-          <div className="rounded-xl border border-border bg-card p-6 shadow-card transition-all hover:scale-[1.01] hover:shadow-glow md:col-span-2">
-            <h2 className="text-[20px] font-bold text-foreground">AI Insights</h2>
+          {/* Right column: Company Snapshot + AI Insights */}
+          <div className="md:col-span-2 space-y-6">
+            {/* Company Snapshot */}
+            <CompanySnapshot />
 
-            <div className="mt-4 space-y-3">
-              {insights.map((i) => (
-                <div
-                  key={i.text}
-                  className={`flex items-start gap-3 rounded-xl p-4 ${insightToneClass[i.tone]}`}
-                >
-                  <span className="mt-0.5">{i.prefix}</span>
-                  <p className="text-sm font-medium">{i.text}</p>
-                </div>
-              ))}
+            {/* AI Insights */}
+            <div className="rounded-xl border border-border bg-card p-6 shadow-card transition-all hover:scale-[1.01] hover:shadow-glow">
+              <h2 className="text-[20px] font-bold text-foreground">AI Insights</h2>
+
+              <div className="mt-4 space-y-3">
+                {insights.map((i) => (
+                  <div
+                    key={i.text}
+                    className={`flex items-start gap-3 rounded-xl p-4 ${insightToneClass[i.tone]}`}
+                  >
+                    <span className="mt-0.5">{i.prefix}</span>
+                    <p className="text-sm font-medium">{i.text}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </section>
