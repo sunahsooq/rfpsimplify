@@ -14,7 +14,81 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      opportunities: {
+        Row: {
+          agency: string | null
+          bid_brief: Json | null
+          contract_type: string | null
+          created_at: string
+          due_date: string | null
+          estimated_value: string | null
+          evaluation_criteria: string[]
+          id: string
+          match_analysis: Json | null
+          naics_codes: string[]
+          partner_recommendations: Json | null
+          place_of_performance: string | null
+          raw_rfp_text: string | null
+          requirements: Json | null
+          scores: Json | null
+          set_aside: string[]
+          solicitation_id: string | null
+          source: string
+          sub_agency: string | null
+          summary: string[]
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          agency?: string | null
+          bid_brief?: Json | null
+          contract_type?: string | null
+          created_at?: string
+          due_date?: string | null
+          estimated_value?: string | null
+          evaluation_criteria?: string[]
+          id?: string
+          match_analysis?: Json | null
+          naics_codes?: string[]
+          partner_recommendations?: Json | null
+          place_of_performance?: string | null
+          raw_rfp_text?: string | null
+          requirements?: Json | null
+          scores?: Json | null
+          set_aside?: string[]
+          solicitation_id?: string | null
+          source?: string
+          sub_agency?: string | null
+          summary?: string[]
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          agency?: string | null
+          bid_brief?: Json | null
+          contract_type?: string | null
+          created_at?: string
+          due_date?: string | null
+          estimated_value?: string | null
+          evaluation_criteria?: string[]
+          id?: string
+          match_analysis?: Json | null
+          naics_codes?: string[]
+          partner_recommendations?: Json | null
+          place_of_performance?: string | null
+          raw_rfp_text?: string | null
+          requirements?: Json | null
+          scores?: Json | null
+          set_aside?: string[]
+          solicitation_id?: string | null
+          source?: string
+          sub_agency?: string | null
+          summary?: string[]
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
