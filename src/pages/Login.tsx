@@ -221,7 +221,7 @@ const Login = () => {
           </div>
 
           {/* Login Form */}
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-5" noValidate>
             {/* Email Field */}
             <div className="space-y-2">
               <Label htmlFor="email" className="text-foreground/80">
@@ -229,12 +229,13 @@ const Login = () => {
               </Label>
               <Input
                 id="email"
-                type="email"
+                type="text"
                 placeholder="Enter your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="h-12 bg-card border-border focus:border-primary focus:ring-primary/20"
                 disabled={isLoading}
+                autoComplete="off"
               />
             </div>
 
