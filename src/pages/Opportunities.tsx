@@ -17,7 +17,7 @@ type Opportunity = {
   agency: string;
   due: string;
   urgent: boolean;
-  match: number;
+  match: number | null;
   estValue: string;
   stage: Stage;
   tags: string[];
@@ -158,13 +158,16 @@ function OpportunityCard({ opportunity }: { opportunity: Opportunity }) {
           </div>
           <div className="flex items-center gap-2 md:justify-end">
             <div className="flex shrink-0 flex-col items-start md:items-end">
-              <span className="text-xl font-bold text-success">{opportunity.match}%</span>
-              <div className="mt-1 h-1.5 w-20 overflow-hidden rounded-full bg-muted">
-                <div
-                  className="h-full rounded-full bg-success"
-                  style={{ width: `${opportunity.match}%` }}
-                />
-              </div>
+              {typeof opportunity.match === "number" ? (
+                <>
+                  <span className="text-xl font-bold text-success">{opportunity.match}%</span>
+                  <div className="mt-1 h-1.5 w-20 overflow-hidden rounded-full bg-muted">
+                    <div className="h-full rounded-full bg-success" style={{ width: `${opportunity.match}%` }} />
+                  </div>
+                </>
+              ) : (
+                <span className="text-xl font-bold text-muted-foreground">—</span>
+              )}
             </div>
           </div>
         </div>
@@ -214,7 +217,7 @@ export default function Opportunities() {
 
   const dbAsCards = useMemo<Opportunity[]>(() => {
     return dbRows.map((r) => {
-      const score = typeof r?.scores?.overall_match_score === "number" ? r.scores.overall_match_score : 0;
+      const score = typeof r?.scores?.overall_match_score === "number" ? r.scores.overall_match_score : null;
       const readiness = typeof r?.scores?.readiness_level === "string" ? r.scores.readiness_level : "";
       const tags = [
         ...(Array.isArray(r.set_aside) ? r.set_aside.slice(0, 2) : []),
@@ -223,12 +226,12 @@ export default function Opportunities() {
 
       return {
         id: r.id,
-        title: r.title ?? "Untitled Opportunity",
+        title: r.title ?? "Untitled Opportunity (Manual RFP Upload)",
         agency: r.agency ?? "Unknown",
-        due: r.due_date ?? "TBD",
+        due: r.due_date ?? "—",
         urgent: false,
-        match: Math.max(0, Math.min(100, Math.round(score))),
-        estValue: r.estimated_value ?? "TBD",
+        match: typeof score === "number" ? Math.max(0, Math.min(100, Math.round(score))) : null,
+        estValue: r.estimated_value ?? "—",
         stage: "Identified",
         tags,
       };

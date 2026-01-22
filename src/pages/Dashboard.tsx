@@ -1,9 +1,11 @@
 import type { ComponentType } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Briefcase, Clock, DollarSign, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { AppTopNav } from "@/components/AppTopNav";
 import { CompanySnapshot } from "@/components/dashboard/CompanySnapshot";
+import { supabase } from "@/integrations/supabase/client";
 
 type Stat = {
   label: string;
@@ -43,10 +45,12 @@ const stats: Stat[] = [
   },
 ];
 
-const recentOpportunities = [
-  { title: "Cloud Infrastructure Modernization", org: "DOE", due: "Feb 15, 2026", match: 78 },
-  { title: "Zero Trust Network Upgrade", org: "DHS", due: "Feb 19, 2026", match: 71 },
-  { title: "Data Platform Consolidation", org: "GSA", due: "Mar 02, 2026", match: 65 },
+type RecentOpp = { id: string; title: string; org: string; due: string; match: number | null };
+
+const recentOpportunitiesFallback: RecentOpp[] = [
+  { id: "cloud-infra-modernization", title: "Cloud Infrastructure Modernization", org: "DOE", due: "Feb 15, 2026", match: 78 },
+  { id: "zero-trust-network-upgrade", title: "Zero Trust Network Upgrade", org: "DHS", due: "Feb 19, 2026", match: 71 },
+  { id: "data-platform-consolidation", title: "Data Platform Consolidation", org: "GSA", due: "Mar 02, 2026", match: 65 },
 ];
 
 const insights = [
@@ -75,6 +79,43 @@ const insightToneClass: Record<"warning" | "success" | "destructive", string> = 
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const [dbRecent, setDbRecent] = useState<RecentOpp[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("opportunities")
+        .select("id,title,agency,due_date,scores,source,status,created_at")
+        .in("source", ["sam_gov", "manual_upload"])
+        .eq("status", "active")
+        .order("created_at", { ascending: false })
+        .limit(6);
+
+      if (cancelled) return;
+
+      const mapped: RecentOpp[] = (data as any[] | null)?.map((r) => {
+        const score = typeof r?.scores?.overall_match_score === "number" ? r.scores.overall_match_score : null;
+        return {
+          id: r.id,
+          title: r.title ?? "Untitled Opportunity (Manual RFP Upload)",
+          org: r.agency ?? "Unknown",
+          due: r.due_date ?? "—",
+          match: typeof score === "number" ? Math.max(0, Math.min(100, Math.round(score))) : null,
+        };
+      }) ?? [];
+
+      setDbRecent(mapped);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const recentOpportunities = useMemo(
+    () => (dbRecent.length ? dbRecent : recentOpportunitiesFallback),
+    [dbRecent],
+  );
 
   return (
     <div className="min-h-screen w-full bg-background">
@@ -123,6 +164,12 @@ export default function Dashboard() {
                 <div
                   key={row.title}
                   className="flex cursor-pointer items-center justify-between gap-4 rounded-lg px-4 py-4 transition-colors hover:bg-muted/30"
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => navigate(`/opportunity/${row.id}`)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") navigate(`/opportunity/${row.id}`);
+                  }}
                 >
                   <div>
                     <div className="font-semibold text-foreground">{row.title}</div>
@@ -131,7 +178,7 @@ export default function Dashboard() {
                   <div className="text-right">
                     <div className="text-sm text-muted-foreground">Due: {row.due}</div>
                     <div className="mt-1 inline-flex items-center rounded-full bg-success/15 px-2.5 py-1 text-xs font-semibold text-success">
-                      Match: {row.match}%
+                      Match: {typeof row.match === "number" ? `${row.match}%` : "—"}
                     </div>
                   </div>
                 </div>

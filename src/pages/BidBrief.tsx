@@ -120,28 +120,38 @@ export default function BidBrief() {
 
   const data = useMemo(() => {
     if (dbOpp) {
-      const score = typeof dbOpp?.scores?.overall_match_score === "number" ? dbOpp.scores.overall_match_score : 0;
+      const score = typeof dbOpp?.scores?.overall_match_score === "number" ? dbOpp.scores.overall_match_score : null;
       const naics = Array.isArray(dbOpp?.naics_codes) && dbOpp.naics_codes.length ? dbOpp.naics_codes[0] : company.primaryNaics;
       const setAside = Array.isArray(dbOpp?.set_aside) && dbOpp.set_aside.length ? dbOpp.set_aside.join(", ") : "";
 
       const reqs: Array<{ requirement: string; capability: string; status: "match" | "partial" | "gap" }> = [];
       const tech = dbOpp?.requirements?.technical as string[] | undefined;
-      (tech ?? []).slice(0, 6).forEach((t) => reqs.push({ requirement: t, capability: "TBD", status: "partial" }));
+      (tech ?? []).slice(0, 6).forEach((t) => reqs.push({ requirement: t, capability: "—", status: "partial" }));
+
+      const brief = dbOpp?.bid_brief;
+      const hasBrief =
+        brief &&
+        typeof brief === "object" &&
+        ((Array.isArray(brief.win_themes) && brief.win_themes.length > 0) ||
+          (Array.isArray(brief.why_us) && brief.why_us.length > 0) ||
+          (typeof brief.proposed_team_strategy === "string" && brief.proposed_team_strategy.trim().length > 0) ||
+          (typeof brief.justification === "string" && brief.justification.trim().length > 0));
 
       return {
-        title: dbOpp.title ?? "Untitled Opportunity",
-        solicitationNumber: dbOpp.solicitation_id ?? "TBD",
-        agency: dbOpp.agency ?? "TBD",
-        match: Math.max(0, Math.min(100, Math.round(score))),
+        title: dbOpp.title ?? "Untitled Opportunity (Manual RFP Upload)",
+        solicitationNumber: dbOpp.solicitation_id ?? "—",
+        agency: dbOpp.agency ?? "—",
+        match: typeof score === "number" ? Math.max(0, Math.min(100, Math.round(score))) : null,
         naics,
-        setAside: setAside || "TBD",
-        estValue: dbOpp.estimated_value ?? "TBD",
+        setAside: setAside || "—",
+        estValue: dbOpp.estimated_value ?? "—",
         pWin: 50,
-        expectedMargin: "TBD",
-        requirements: reqs.length ? reqs : defaultBriefData.requirements,
+        expectedMargin: brief?.financial_snapshot?.expected_margin ?? "—",
+        requirements: reqs.length ? reqs : [],
+        bidBrief: hasBrief ? brief : null,
       };
     }
-    return opportunityId && briefDataById[opportunityId] ? briefDataById[opportunityId] : defaultBriefData;
+    return opportunityId && briefDataById[opportunityId] ? { ...briefDataById[opportunityId], bidBrief: null } : { ...defaultBriefData, bidBrief: null };
   }, [company.primaryNaics, dbOpp, opportunityId]);
 
   // Get pipeline item for this opportunity
@@ -176,7 +186,7 @@ export default function BidBrief() {
     }
   };
 
-  // Generate AI Win Themes based on company data and opportunity
+  // Demo fallback win themes (used only when no persisted bid brief exists)
   const winThemes = [
     {
       theme: "Proven Technical Excellence",
@@ -204,7 +214,7 @@ export default function BidBrief() {
     },
   ];
 
-  const brief = dbOpp?.bid_brief;
+  const brief = (data as any).bidBrief;
   const effectiveWinThemes = Array.isArray(brief?.win_themes) && brief.win_themes.length
     ? brief.win_themes.map((t: string) => ({ theme: t, detail: "" }))
     : winThemes;
@@ -248,6 +258,13 @@ export default function BidBrief() {
 
         {/* Document Content */}
         <main className="print-container max-w-4xl mx-auto px-6 py-10">
+          {dbOpp && !brief ? (
+            <section className="mb-6 rounded-lg border border-gray-200 bg-gray-50 p-4">
+              <p className="text-sm text-gray-700 font-medium">Bid Brief not generated yet.</p>
+              <p className="mt-1 text-xs text-gray-500">This opportunity was created from a manual RFP upload, but no bid brief content was persisted.</p>
+            </section>
+          ) : null}
+
           {/* Header */}
           <section className="mb-10 pb-8 border-b border-gray-200">
             <div className="flex items-start justify-between gap-6">
@@ -260,8 +277,14 @@ export default function BidBrief() {
               <div className="text-right shrink-0">
                 <div className="inline-flex items-center gap-2 px-4 py-3 bg-gray-50 rounded-lg border border-gray-200">
                   <span className="text-sm text-gray-600">Match Score</span>
-                  <span className="text-3xl font-bold text-green-600">{data.match}</span>
-                  <span className="text-xl text-gray-400">/100</span>
+                  {typeof (data as any).match === "number" ? (
+                    <>
+                      <span className="text-3xl font-bold text-green-600">{(data as any).match}</span>
+                      <span className="text-xl text-gray-400">/100</span>
+                    </>
+                  ) : (
+                    <span className="text-3xl font-bold text-gray-400">—</span>
+                  )}
                 </div>
               </div>
             </div>
@@ -287,9 +310,9 @@ export default function BidBrief() {
                   </div>
                 ))}
               </div>
-              <p className="mt-5 text-xs text-gray-400 italic">
-                AI-generated win themes (simulated)
-              </p>
+              {!brief ? (
+                <p className="mt-5 text-xs text-gray-400 italic">Win themes shown are demo placeholders.</p>
+              ) : null}
             </div>
           </section>
 
@@ -309,23 +332,31 @@ export default function BidBrief() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {data.requirements.map((req, idx) => (
+                  {(data.requirements?.length ? data.requirements : []).map((req, idx) => (
                     <tr key={idx} className={idx % 2 === 0 ? "bg-white" : "bg-gray-50/50"}>
                       <td className="px-4 py-3 text-sm text-gray-700">{req.requirement}</td>
                       <td className="px-4 py-3 text-sm text-gray-700">{req.capability}</td>
                       <td className="px-4 py-3 text-center">
                         <div className="flex items-center justify-center gap-1.5">
                           {getStatusIcon(req.status)}
-                          <span className={`text-xs font-medium capitalize ${
-                            req.status === "match" ? "text-green-600" :
-                            req.status === "partial" ? "text-amber-600" : "text-red-600"
-                          }`}>
+                          <span
+                            className={`text-xs font-medium capitalize ${
+                              req.status === "match" ? "text-green-600" : req.status === "partial" ? "text-amber-600" : "text-red-600"
+                            }`}
+                          >
                             {req.status}
                           </span>
                         </div>
                       </td>
                     </tr>
                   ))}
+                  {!data.requirements?.length ? (
+                    <tr className="bg-white">
+                      <td className="px-4 py-4 text-sm text-gray-500" colSpan={3}>
+                        Requirements inferred from scope; review recommended.
+                      </td>
+                    </tr>
+                  ) : null}
                 </tbody>
               </table>
             </div>
