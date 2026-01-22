@@ -1,5 +1,6 @@
-import { CheckCircle2, AlertTriangle, ExternalLink, User } from "lucide-react";
+import { CheckCircle2, AlertTriangle, ExternalLink, User, Users } from "lucide-react";
 import { OpportunityCompanyMatch } from "./OpportunityCompanyMatch";
+import { OpportunityRecommendedPartners } from "./OpportunityRecommendedPartners";
 
 type Stage = "Identified" | "Qualified" | "Pursuing" | "Submitted";
 
@@ -127,6 +128,22 @@ export function OpportunityOverviewTab({ data }: { data: OpportunityOverviewData
             </div>
           ))}
         </div>
+      </section>
+
+      {/* Divider */}
+      <div className="h-px w-full bg-[#334155]" />
+
+      {/* Recommended Partners */}
+      <section className="space-y-3">
+        <h2 className="text-base font-bold text-foreground flex items-center gap-2">
+          <Users className="h-4 w-4 text-primary" />
+          Recommended Teaming Partners
+        </h2>
+        <OpportunityRecommendedPartners
+          opportunityAgency={data.agency}
+          requiredCerts={["FedRAMP", "CMMC"]}
+          companyGaps={["FedRAMP", "GSA Schedule"]}
+        />
       </section>
 
       {/* Divider */}

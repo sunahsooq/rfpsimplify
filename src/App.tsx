@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { CompanyProvider } from "@/contexts/CompanyContext";
 import { PipelineProvider } from "@/contexts/PipelineContext";
+import { PartnerProvider } from "@/contexts/PartnerContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
@@ -16,6 +17,7 @@ import OpportunityDetail from "./pages/OpportunityDetail";
 import Pipeline from "./pages/Pipeline";
 import Company from "./pages/Company";
 import Settings from "./pages/Settings";
+import Partners from "./pages/Partners";
 import PartnerDiscovery from "./pages/PartnerDiscovery";
 import MyPartners from "./pages/MyPartners";
 import Marketplace from "./pages/Marketplace";
@@ -31,10 +33,11 @@ const App = () => (
       <AuthProvider>
         <CompanyProvider>
           <PipelineProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-          <Routes>
+            <PartnerProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+            <Routes>
             {/* Public routes */}
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
@@ -59,6 +62,9 @@ const App = () => (
             <Route path="/settings" element={
               <ProtectedRoute><Settings /></ProtectedRoute>
             } />
+            <Route path="/partners" element={
+              <ProtectedRoute><Partners /></ProtectedRoute>
+            } />
             <Route path="/partners/discover" element={
               <ProtectedRoute><PartnerDiscovery /></ProtectedRoute>
             } />
@@ -79,6 +85,7 @@ const App = () => (
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
+            </PartnerProvider>
           </PipelineProvider>
         </CompanyProvider>
       </AuthProvider>
