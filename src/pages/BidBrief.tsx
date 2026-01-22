@@ -1,357 +1,351 @@
-import { useParams } from "react-router-dom";
-import { AppTopNav } from "@/components/AppTopNav";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
   CheckCircle2, 
   AlertTriangle, 
   XCircle, 
-  Sparkles,
+  Printer,
+  ArrowLeft,
   Building2,
-  Calendar,
-  DollarSign,
-  FileText,
   Users,
   TrendingUp,
-  Shield,
-  Target,
-  ArrowLeft
+  FileText,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { useCompany } from "@/contexts/CompanyContext";
+import { usePartners } from "@/contexts/PartnerContext";
+import { usePipeline } from "@/contexts/PipelineContext";
 
 // Demo data for the bid brief
-const briefData = {
-  id: "1",
-  opportunity: "Cloud Infrastructure Modernization",
+const briefDataById: Record<string, {
+  title: string;
+  solicitationNumber: string;
+  agency: string;
+  match: number;
+  naics: string;
+  setAside: string;
+  estValue: string;
+  pWin: number;
+  expectedMargin: string;
+  requirements: Array<{ requirement: string; capability: string; status: "match" | "partial" | "gap" }>;
+}> = {
+  "cloud-infra-modernization": {
+    title: "Cloud Infrastructure Modernization",
+    solicitationNumber: "DOE-2026-CLOUD-001",
+    agency: "Department of Energy",
+    match: 78,
+    naics: "541512",
+    setAside: "8(a)",
+    estValue: "$4.2M",
+    pWin: 52,
+    expectedMargin: "15-20%",
+    requirements: [
+      { requirement: "NAICS 541512 - Computer Systems Design", capability: "Primary NAICS Code", status: "match" },
+      { requirement: "8(a) Set-Aside Eligibility", capability: "8(a) Certification Active", status: "match" },
+      { requirement: "FedRAMP Moderate Authorization", capability: "In Progress (Q2 2026)", status: "partial" },
+      { requirement: "Cloud Migration Experience (3 contracts)", capability: "5 Relevant Contracts", status: "match" },
+      { requirement: "GSA Schedule 70", capability: "Not Held", status: "gap" },
+      { requirement: "DOE Past Performance", capability: "2 Active DOE Contracts", status: "match" },
+    ],
+  },
+  "zero-trust-network-upgrade": {
+    title: "Zero Trust Network Upgrade",
+    solicitationNumber: "DHS-2026-ZT-042",
+    agency: "Department of Homeland Security",
+    match: 71,
+    naics: "541512",
+    setAside: "Small Business",
+    estValue: "$3.8M",
+    pWin: 45,
+    expectedMargin: "12-18%",
+    requirements: [
+      { requirement: "NAICS 541512", capability: "Primary NAICS Code", status: "match" },
+      { requirement: "Small Business Set-Aside", capability: "Small Business Status", status: "match" },
+      { requirement: "CMMC Level 2", capability: "Assessment Pending", status: "partial" },
+      { requirement: "Zero Trust Architecture Experience", capability: "Limited Experience", status: "partial" },
+    ],
+  },
+};
+
+const defaultBriefData = {
+  title: "Cloud Infrastructure Modernization",
+  solicitationNumber: "DOE-2026-CLOUD-001",
   agency: "Department of Energy",
-  stage: "Qualified",
   match: 78,
-  summary: "The DOE is seeking a contractor to modernize its legacy cloud infrastructure across 12 regional facilities. This opportunity represents a strategic fit with our core cloud migration capabilities and past DOE experience. The scope includes hybrid cloud architecture design, FedRAMP-compliant implementation, and managed services transition. While the technical requirements align well with our team's expertise, vehicle and compliance gaps present moderate risk that can be addressed through teaming.",
-  value: "$4.2M",
-  dueDate: "Feb 15, 2026",
-  daysUntilDue: 25,
-  contractType: "IDIQ Task Order",
-  setAside: "Small Business",
-  recommendation: "BID with Partner",
-  pWinBase: 52,
-  pWinWithPartner: 78,
-  keyDrivers: [
-    "Strong technical fit with cloud migration and modernization capabilities",
-    "Existing DOE past performance provides credibility advantage",
-    "FedRAMP gap can be fully mitigated via CyberShield partnership",
-    "Competitive risk: incumbent has 3-year relationship but mixed CPARS",
-    "Pricing strategy supports competitive positioning"
+  naics: "541512",
+  setAside: "8(a)",
+  estValue: "$4.2M",
+  pWin: 52,
+  expectedMargin: "15-20%",
+  requirements: [
+    { requirement: "NAICS 541512 - Computer Systems Design", capability: "Primary NAICS Code", status: "match" as const },
+    { requirement: "8(a) Set-Aside Eligibility", capability: "8(a) Certification Active", status: "match" as const },
+    { requirement: "FedRAMP Moderate Authorization", capability: "In Progress (Q2 2026)", status: "partial" as const },
+    { requirement: "Cloud Migration Experience (3 contracts)", capability: "5 Relevant Contracts", status: "match" as const },
+    { requirement: "GSA Schedule 70", capability: "Not Held", status: "gap" as const },
+    { requirement: "DOE Past Performance", capability: "2 Active DOE Contracts", status: "match" as const },
   ],
-  gaps: [
-    { name: "FedRAMP Authorization", status: "warn", risk: "Medium", note: "Partner coverage available" },
-    { name: "GSA Schedule 70", status: "fail", risk: "High", note: "Requires teaming agreement" },
-    { name: "Past Performance", status: "pass", risk: "Low", note: "3 relevant contracts" },
-    { name: "Pricing Competitiveness", status: "warn", risk: "Medium", note: "Market analysis pending" },
-    { name: "Technical Capability", status: "pass", risk: "Low", note: "Core competency" },
-    { name: "Key Personnel", status: "pass", risk: "Low", note: "Team identified" },
-  ],
-  mitigationNote: "Primary risks can be mitigated through teaming with CyberShield Solutions (FedRAMP/GSA) and refined pricing strategy based on competitive analysis.",
-  partners: [
-    { name: "CyberShield Solutions", fit: "High", coverage: "FedRAMP Moderate + GSA Schedule 70" },
-    { name: "FedCloud Partners", fit: "Medium", coverage: "Additional DOE past performance" },
-  ],
-  decisionNotes: "Decision rationale: Strong strategic fit outweighs vehicle gaps given available teaming options. Recommend proceeding to capture phase with partner negotiations as priority action. Follow-up: Complete teaming agreement with CyberShield by Jan 30. Assumptions: Partner pricing will support competitive total evaluated price.",
-};
-
-const getStatusIcon = (status: string) => {
-  switch (status) {
-    case "pass":
-      return <CheckCircle2 className="h-5 w-5 text-success" />;
-    case "warn":
-      return <AlertTriangle className="h-5 w-5 text-warning" />;
-    case "fail":
-      return <XCircle className="h-5 w-5 text-destructive" />;
-    default:
-      return null;
-  }
-};
-
-const getRiskBadge = (risk: string) => {
-  switch (risk) {
-    case "Low":
-      return "bg-success/20 text-success border-success/30";
-    case "Medium":
-      return "bg-warning/20 text-warning border-warning/30";
-    case "High":
-      return "bg-destructive/20 text-destructive border-destructive/30";
-    default:
-      return "bg-muted text-muted-foreground";
-  }
 };
 
 export default function BidBrief() {
   const { opportunityId } = useParams();
-  const data = briefData; // Use demo data
+  const navigate = useNavigate();
+  const { company } = useCompany();
+  const { partners } = usePartners();
+  const { items: pipelineItems } = usePipeline();
 
-  const isUrgent = data.daysUntilDue < 30;
+  const data = opportunityId && briefDataById[opportunityId] 
+    ? briefDataById[opportunityId] 
+    : defaultBriefData;
+
+  // Get pipeline item for this opportunity
+  const pipelineItem = pipelineItems.find(p => p.id === opportunityId);
+  const pWin = pipelineItem?.pWin ?? data.pWin;
+
+  // Get recommended partners
+  const recommendedPartners = partners.slice(0, 2).map(p => ({
+    name: p.name,
+    reason: p.certifications.includes("FedRAMP") 
+      ? "Provides FedRAMP Moderate authorization coverage" 
+      : p.certifications.includes("GSA Schedule")
+        ? "Holds GSA Schedule 70 for vehicle access"
+        : `Brings ${p.socioEconomicStatuses[0]} certification`,
+    certifications: p.certifications.slice(0, 3),
+  }));
+
+  const handlePrint = () => {
+    window.print();
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case "match":
+        return <CheckCircle2 className="h-4 w-4 text-green-600" />;
+      case "partial":
+        return <AlertTriangle className="h-4 w-4 text-amber-500" />;
+      case "gap":
+        return <XCircle className="h-4 w-4 text-red-500" />;
+      default:
+        return null;
+    }
+  };
+
+  // Generate executive summary bullets based on company data
+  const executiveSummaryBullets = [
+    `Your primary NAICS (${company.primaryNaics}) ${company.primaryNaics === data.naics ? "matches" : "aligns with"} this solicitation's requirements.`,
+    company.socioEconomicStatuses.some(s => data.setAside.includes(s) || s === "8(a)")
+      ? `You qualify for this ${data.setAside} set-aside based on your ${company.socioEconomicStatuses.join(", ")} certification(s).`
+      : `Set-aside requirement (${data.setAside}) may require teaming partner support.`,
+    data.requirements.filter(r => r.status === "match").length >= 3
+      ? "Strong capability alignment with technical requirements reduces proposal risk."
+      : "Some capability gaps exist that should be addressed through teaming.",
+    data.requirements.some(r => r.status === "gap")
+      ? `Key risk: ${data.requirements.find(r => r.status === "gap")?.requirement} requires mitigation strategy.`
+      : "No critical gaps identified; proceed with confidence.",
+  ];
 
   return (
-    <div className="min-h-screen bg-background">
-      <AppTopNav />
-      
-      <main className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {/* Back Link */}
-        <Link 
-          to={`/opportunity/${opportunityId || "1"}`}
-          className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-4 transition-colors"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Opportunity
-        </Link>
+    <>
+      {/* Print styles */}
+      <style>{`
+        @media print {
+          .no-print { display: none !important; }
+          body { background: white !important; }
+          .print-container { 
+            max-width: 100% !important; 
+            padding: 0 !important;
+            margin: 0 !important;
+          }
+        }
+      `}</style>
 
-        {/* Page Header */}
-        <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 mb-6">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
-              Bid Brief
-            </h1>
-            <p className="text-lg text-muted-foreground">
-              {data.opportunity} • <span className="text-foreground">{data.agency}</span>
-            </p>
+      <div className="min-h-screen bg-white">
+        {/* Navigation - hidden on print */}
+        <header className="no-print border-b border-gray-200 bg-white sticky top-0 z-10">
+          <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
+            <button 
+              onClick={() => navigate(`/opportunity/${opportunityId || "cloud-infra-modernization"}`)}
+              className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to Opportunity
+            </button>
+            <Button 
+              onClick={handlePrint}
+              variant="outline"
+              className="border-gray-300 text-gray-700 hover:bg-gray-50"
+            >
+              <Printer className="h-4 w-4 mr-2" />
+              Print / Export PDF
+            </Button>
           </div>
-          
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-            {/* Match & Stage */}
-            <div className="flex items-center gap-3">
-              <div className="text-right">
-                <span className="text-2xl font-bold text-success">{data.match}%</span>
-                <div className="w-16 h-1.5 bg-[#334155] rounded-full mt-1">
-                  <div 
-                    className="h-full bg-success rounded-full"
-                    style={{ width: `${data.match}%` }}
-                  />
+        </header>
+
+        {/* Document Content */}
+        <main className="print-container max-w-4xl mx-auto px-6 py-10">
+          {/* Header */}
+          <section className="mb-10 pb-8 border-b border-gray-200">
+            <div className="flex items-start justify-between gap-6">
+              <div>
+                <p className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">Bid Brief</p>
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">{data.title}</h1>
+                <p className="text-lg text-gray-600">{data.agency}</p>
+                <p className="text-sm text-gray-500 mt-1">Solicitation: {data.solicitationNumber}</p>
+              </div>
+              <div className="text-right shrink-0">
+                <div className="inline-flex items-center gap-2 px-4 py-3 bg-gray-50 rounded-lg border border-gray-200">
+                  <span className="text-sm text-gray-600">Match Score</span>
+                  <span className="text-3xl font-bold text-green-600">{data.match}</span>
+                  <span className="text-xl text-gray-400">/100</span>
                 </div>
               </div>
-              <Badge className="bg-success/20 text-success border-success/30 text-sm px-3 py-1">
-                {data.stage}
-              </Badge>
             </div>
+          </section>
 
-            {/* Decision Buttons */}
-            <div className="flex gap-2 w-full sm:w-auto">
-              <Button className="flex-1 sm:flex-none bg-success hover:bg-success/90 text-white">
-                <CheckCircle2 className="h-4 w-4 mr-2" />
-                Mark as BID
-              </Button>
-              <Button variant="outline" className="flex-1 sm:flex-none border-destructive/50 text-destructive hover:bg-destructive/10">
-                <XCircle className="h-4 w-4 mr-2" />
-                Mark as NO-BID
-              </Button>
+          {/* Executive Summary */}
+          <section className="mb-10">
+            <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <FileText className="h-5 w-5 text-blue-600" />
+              Executive Summary
+            </h2>
+            <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+              <ul className="space-y-3">
+                {executiveSummaryBullets.map((bullet, idx) => (
+                  <li key={idx} className="flex items-start gap-3 text-gray-700">
+                    <span className="mt-2 h-1.5 w-1.5 rounded-full bg-blue-600 shrink-0" />
+                    <span>{bullet}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-4 text-xs text-gray-400 italic">
+                AI-generated summary (simulated)
+              </p>
             </div>
-          </div>
-        </div>
+          </section>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Main Content - 2 columns */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Section 1: Executive Summary */}
-            <Card className="bg-[#1a2540] border-[#334155]">
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2 text-lg text-foreground">
-                  <FileText className="h-5 w-5 text-primary" />
-                  Executive Summary
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-muted-foreground leading-relaxed">
-                  {data.summary}
-                </p>
-                
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-[#334155]">
-                  <div>
-                    <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1">
-                      <DollarSign className="h-4 w-4" />
-                      Est. Value
-                    </div>
-                    <p className="text-foreground font-semibold">{data.value}</p>
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1">
-                      <Calendar className="h-4 w-4" />
-                      Due Date
-                    </div>
-                    <p className={`font-semibold ${isUrgent ? "text-destructive" : "text-foreground"}`}>
-                      {data.dueDate}
-                    </p>
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1">
-                      <FileText className="h-4 w-4" />
-                      Contract Type
-                    </div>
-                    <p className="text-foreground font-semibold">{data.contractType}</p>
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1">
-                      <Target className="h-4 w-4" />
-                      Set-Aside
-                    </div>
-                    <p className="text-foreground font-semibold">{data.setAside}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Section 2: AI Bid Recommendation */}
-            <Card className="bg-[#1a2540] border-[#334155] shadow-lg shadow-primary/5">
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2 text-lg text-foreground">
-                  <Sparkles className="h-5 w-5 text-primary" />
-                  AI Bid Recommendation
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {/* Recommendation Badge */}
-                <div className="flex flex-wrap items-center gap-4">
-                  <Badge className="bg-warning/15 text-warning border-warning/30 text-base px-4 py-2">
-                    Recommended: {data.recommendation}
-                  </Badge>
-                </div>
-
-                {/* P(win) */}
-                <div className="flex flex-wrap gap-6 p-4 rounded-lg bg-[#2a334f]">
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">Base P(win)</p>
-                    <p className="text-2xl font-bold text-muted-foreground">{data.pWinBase}%</p>
-                  </div>
-                  <div className="flex items-center">
-                    <TrendingUp className="h-6 w-6 text-success mx-4" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">With Partner</p>
-                    <p className="text-2xl font-bold text-success">{data.pWinWithPartner}%</p>
-                  </div>
-                </div>
-
-                {/* Key Drivers */}
-                <div>
-                  <p className="text-sm font-medium text-foreground mb-2">Key Decision Drivers</p>
-                  <ul className="space-y-2">
-                    {data.keyDrivers.map((driver, index) => (
-                      <li key={index} className="flex items-start gap-2 text-sm text-muted-foreground">
-                        <span className="text-primary mt-1">•</span>
-                        {driver}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Section 3: Gaps & Risks Snapshot */}
-            <Card className="bg-[#1a2540] border-[#334155]">
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2 text-lg text-foreground">
-                  <Shield className="h-5 w-5 text-primary" />
-                  Gaps & Risks Snapshot
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {data.gaps.map((gap, index) => (
-                    <div 
-                      key={index}
-                      className="flex items-center justify-between p-3 rounded-lg bg-[#2a334f] border border-[#334155]"
-                    >
-                      <div className="flex items-center gap-3">
-                        {getStatusIcon(gap.status)}
-                        <div>
-                          <p className="text-sm font-medium text-foreground">{gap.name}</p>
-                          <p className="text-xs text-muted-foreground">{gap.note}</p>
+          {/* Why Us - Comparison Table */}
+          <section className="mb-10">
+            <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-blue-600" />
+              Why Us
+            </h2>
+            <div className="overflow-hidden rounded-lg border border-gray-200">
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-gray-50">
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">RFP Requirement</th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Our Capability</th>
+                    <th className="px-4 py-3 text-center text-sm font-semibold text-gray-900 w-24">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {data.requirements.map((req, idx) => (
+                    <tr key={idx} className={idx % 2 === 0 ? "bg-white" : "bg-gray-50/50"}>
+                      <td className="px-4 py-3 text-sm text-gray-700">{req.requirement}</td>
+                      <td className="px-4 py-3 text-sm text-gray-700">{req.capability}</td>
+                      <td className="px-4 py-3 text-center">
+                        <div className="flex items-center justify-center gap-1.5">
+                          {getStatusIcon(req.status)}
+                          <span className={`text-xs font-medium capitalize ${
+                            req.status === "match" ? "text-green-600" :
+                            req.status === "partial" ? "text-amber-600" : "text-red-600"
+                          }`}>
+                            {req.status}
+                          </span>
                         </div>
-                      </div>
-                      <Badge className={getRiskBadge(gap.risk)}>
-                        {gap.risk}
-                      </Badge>
-                    </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          {/* Proposed Team */}
+          <section className="mb-10">
+            <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <Users className="h-5 w-5 text-blue-600" />
+              Proposed Team
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Prime Contractor */}
+              <div className="rounded-lg border border-gray-200 p-5 bg-blue-50/30">
+                <div className="flex items-center gap-2 mb-2">
+                  <Building2 className="h-4 w-4 text-blue-600" />
+                  <span className="text-xs font-semibold uppercase tracking-wide text-blue-600">Prime</span>
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 mb-1">{company.legalBusinessName}</h3>
+                <p className="text-sm text-gray-600 mb-3">
+                  NAICS: {company.primaryNaics} • UEI: {company.uei.slice(-4)}
+                </p>
+                <div className="flex flex-wrap gap-1.5">
+                  {company.socioEconomicStatuses.map(status => (
+                    <Badge key={status} variant="outline" className="text-xs border-gray-300 text-gray-600">
+                      {status}
+                    </Badge>
                   ))}
                 </div>
+              </div>
 
-                <div className="p-3 rounded-lg bg-primary/5 border border-primary/20">
-                  <p className="text-sm text-muted-foreground">
-                    <span className="text-primary font-medium">Mitigation: </span>
-                    {data.mitigationNote}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Sidebar - 1 column */}
-          <div className="space-y-6">
-            {/* Section 4: Teaming Status */}
-            <Card className="bg-[#1a2540] border-[#334155]">
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2 text-lg text-foreground">
-                  <Users className="h-5 w-5 text-primary" />
-                  Teaming Status
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {data.partners.map((partner, index) => (
-                  <div 
-                    key={index}
-                    className="p-4 rounded-lg bg-[#2a334f] border border-[#334155]"
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <Building2 className="h-4 w-4 text-primary" />
-                        <span className="font-medium text-foreground">{partner.name}</span>
-                      </div>
-                      <Badge className={
-                        partner.fit === "High" 
-                          ? "bg-success/20 text-success border-success/30" 
-                          : "bg-warning/20 text-warning border-warning/30"
-                      }>
-                        {partner.fit} Fit
-                      </Badge>
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      Covers: {partner.coverage}
-                    </p>
+              {/* Teaming Partners */}
+              {recommendedPartners.map((partner, idx) => (
+                <div key={idx} className="rounded-lg border border-gray-200 p-5">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Building2 className="h-4 w-4 text-gray-500" />
+                    <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">Partner</span>
                   </div>
-                ))}
-
-                <Button 
-                  variant="outline" 
-                  className="w-full border-[#334155] hover:bg-[#2a334f] mt-2"
-                >
-                  Find More Partners
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Section 5: Decision Notes */}
-            <Card className="bg-[#1a2540] border-[#334155]">
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2 text-lg text-foreground">
-                  <FileText className="h-5 w-5 text-primary" />
-                  Decision Notes
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="p-4 rounded-lg bg-[#2a334f] border border-[#334155]">
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    {data.decisionNotes}
-                  </p>
+                  <h3 className="text-lg font-bold text-gray-900 mb-1">{partner.name}</h3>
+                  <p className="text-sm text-gray-600 mb-3">{partner.reason}</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {partner.certifications.map(cert => (
+                      <Badge key={cert} variant="outline" className="text-xs border-gray-300 text-gray-600">
+                        {cert}
+                      </Badge>
+                    ))}
+                  </div>
                 </div>
-                <Button 
-                  variant="ghost" 
-                  className="w-full mt-3 text-muted-foreground hover:text-foreground"
-                >
-                  Edit Notes
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </main>
-    </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Financial Snapshot */}
+          <section className="mb-10">
+            <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-blue-600" />
+              Financial Snapshot
+            </h2>
+            <div className="overflow-hidden rounded-lg border border-gray-200">
+              <table className="w-full">
+                <tbody className="divide-y divide-gray-200">
+                  <tr className="bg-white">
+                    <td className="px-4 py-4 text-sm font-medium text-gray-700 w-1/2">Estimated Contract Value</td>
+                    <td className="px-4 py-4 text-sm font-bold text-gray-900">{data.estValue}</td>
+                  </tr>
+                  <tr className="bg-gray-50/50">
+                    <td className="px-4 py-4 text-sm font-medium text-gray-700">Probability of Win (P(Win))</td>
+                    <td className="px-4 py-4 text-sm font-bold text-green-600">{pWin}%</td>
+                  </tr>
+                  <tr className="bg-white">
+                    <td className="px-4 py-4 text-sm font-medium text-gray-700">Expected Margin</td>
+                    <td className="px-4 py-4 text-sm font-bold text-gray-900">{data.expectedMargin}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          {/* Footer */}
+          <footer className="pt-6 border-t border-gray-200 text-center">
+            <p className="text-xs text-gray-400">
+              Generated by RFP Simplify • {new Date().toLocaleDateString("en-US", { 
+                year: "numeric", 
+                month: "long", 
+                day: "numeric" 
+              })}
+            </p>
+          </footer>
+        </main>
+      </div>
+    </>
   );
 }
