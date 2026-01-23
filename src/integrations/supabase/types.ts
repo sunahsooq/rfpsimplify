@@ -25,8 +25,8 @@ export type Database = {
           issuing_authority: string
           level: string | null
           name: string
-          status: string
-          type: string
+          status: Database["public"]["Enums"]["certification_status_enum"]
+          type: Database["public"]["Enums"]["certification_type_enum"]
           updated_at: string
           verification_url: string | null
         }
@@ -40,8 +40,8 @@ export type Database = {
           issuing_authority: string
           level?: string | null
           name: string
-          status?: string
-          type: string
+          status?: Database["public"]["Enums"]["certification_status_enum"]
+          type: Database["public"]["Enums"]["certification_type_enum"]
           updated_at?: string
           verification_url?: string | null
         }
@@ -55,8 +55,8 @@ export type Database = {
           issuing_authority?: string
           level?: string | null
           name?: string
-          status?: string
-          type?: string
+          status?: Database["public"]["Enums"]["certification_status_enum"]
+          type?: Database["public"]["Enums"]["certification_type_enum"]
           updated_at?: string
           verification_url?: string | null
         }
@@ -73,69 +73,69 @@ export type Database = {
       company_past_performance: {
         Row: {
           agency_or_client: string
-          client_type: string
+          client_type: Database["public"]["Enums"]["client_type_enum"]
           company_profile_id: string
           contract_name: string
           contract_number: string | null
-          contract_type: string
-          contract_value_range: string
+          contract_type: Database["public"]["Enums"]["contract_type_enum"]
+          contract_value_range: Database["public"]["Enums"]["contract_value_range_enum"]
           contract_vehicle: string | null
-          cpars_rating: string | null
+          cpars_rating: Database["public"]["Enums"]["cpars_rating_enum"] | null
           created_at: string
           id: string
           pop_end_date: string | null
           pop_start_date: string | null
           reference_contact: Json | null
-          role: string
+          role: Database["public"]["Enums"]["contract_role_enum"]
           scope_description: string | null
           scope_tags: string[]
-          status: string
+          status: Database["public"]["Enums"]["past_performance_status_enum"]
           sub_agency: string | null
           updated_at: string
           work_share_percentage: number | null
         }
         Insert: {
           agency_or_client: string
-          client_type: string
+          client_type: Database["public"]["Enums"]["client_type_enum"]
           company_profile_id: string
           contract_name: string
           contract_number?: string | null
-          contract_type: string
-          contract_value_range: string
+          contract_type: Database["public"]["Enums"]["contract_type_enum"]
+          contract_value_range: Database["public"]["Enums"]["contract_value_range_enum"]
           contract_vehicle?: string | null
-          cpars_rating?: string | null
+          cpars_rating?: Database["public"]["Enums"]["cpars_rating_enum"] | null
           created_at?: string
           id?: string
           pop_end_date?: string | null
           pop_start_date?: string | null
           reference_contact?: Json | null
-          role: string
+          role: Database["public"]["Enums"]["contract_role_enum"]
           scope_description?: string | null
           scope_tags?: string[]
-          status: string
+          status: Database["public"]["Enums"]["past_performance_status_enum"]
           sub_agency?: string | null
           updated_at?: string
           work_share_percentage?: number | null
         }
         Update: {
           agency_or_client?: string
-          client_type?: string
+          client_type?: Database["public"]["Enums"]["client_type_enum"]
           company_profile_id?: string
           contract_name?: string
           contract_number?: string | null
-          contract_type?: string
-          contract_value_range?: string
+          contract_type?: Database["public"]["Enums"]["contract_type_enum"]
+          contract_value_range?: Database["public"]["Enums"]["contract_value_range_enum"]
           contract_vehicle?: string | null
-          cpars_rating?: string | null
+          cpars_rating?: Database["public"]["Enums"]["cpars_rating_enum"] | null
           created_at?: string
           id?: string
           pop_end_date?: string | null
           pop_start_date?: string | null
           reference_contact?: Json | null
-          role?: string
+          role?: Database["public"]["Enums"]["contract_role_enum"]
           scope_description?: string | null
           scope_tags?: string[]
-          status?: string
+          status?: Database["public"]["Enums"]["past_performance_status_enum"]
           sub_agency?: string | null
           updated_at?: string
           work_share_percentage?: number | null
@@ -153,12 +153,12 @@ export type Database = {
       company_profiles: {
         Row: {
           advanced: Json | null
-          annual_revenue_range: string
+          annual_revenue_range: Database["public"]["Enums"]["annual_revenue_range_enum"]
           cage_code: string | null
           capabilities: Json
           created_at: string
           dba_name: string | null
-          employee_count_range: string
+          employee_count_range: Database["public"]["Enums"]["employee_count_range_enum"]
           headquarters: Json
           id: string
           legal_name: string
@@ -166,7 +166,7 @@ export type Database = {
           profile_completeness: number
           sam_expiration_date: string | null
           sam_last_synced: string | null
-          sam_status: string
+          sam_status: Database["public"]["Enums"]["sam_status_enum"]
           secondary_naics: string[]
           uei: string
           updated_at: string
@@ -176,12 +176,12 @@ export type Database = {
         }
         Insert: {
           advanced?: Json | null
-          annual_revenue_range?: string
+          annual_revenue_range?: Database["public"]["Enums"]["annual_revenue_range_enum"]
           cage_code?: string | null
           capabilities?: Json
           created_at?: string
           dba_name?: string | null
-          employee_count_range?: string
+          employee_count_range?: Database["public"]["Enums"]["employee_count_range_enum"]
           headquarters?: Json
           id?: string
           legal_name: string
@@ -189,7 +189,7 @@ export type Database = {
           profile_completeness?: number
           sam_expiration_date?: string | null
           sam_last_synced?: string | null
-          sam_status?: string
+          sam_status?: Database["public"]["Enums"]["sam_status_enum"]
           secondary_naics?: string[]
           uei: string
           updated_at?: string
@@ -199,12 +199,12 @@ export type Database = {
         }
         Update: {
           advanced?: Json | null
-          annual_revenue_range?: string
+          annual_revenue_range?: Database["public"]["Enums"]["annual_revenue_range_enum"]
           cage_code?: string | null
           capabilities?: Json
           created_at?: string
           dba_name?: string | null
-          employee_count_range?: string
+          employee_count_range?: Database["public"]["Enums"]["employee_count_range_enum"]
           headquarters?: Json
           id?: string
           legal_name?: string
@@ -212,7 +212,7 @@ export type Database = {
           profile_completeness?: number
           sam_expiration_date?: string | null
           sam_last_synced?: string | null
-          sam_status?: string
+          sam_status?: Database["public"]["Enums"]["sam_status_enum"]
           secondary_naics?: string[]
           uei?: string
           updated_at?: string
@@ -225,35 +225,41 @@ export type Database = {
       company_set_asides: {
         Row: {
           certification_number: string | null
-          certifying_agency: string | null
+          certifying_agency:
+            | Database["public"]["Enums"]["set_aside_agency_enum"]
+            | null
           company_profile_id: string
           created_at: string
           expiration_date: string | null
           id: string
-          status: string
-          type: string
+          status: Database["public"]["Enums"]["set_aside_status_enum"]
+          type: Database["public"]["Enums"]["set_aside_type_enum"]
           updated_at: string
         }
         Insert: {
           certification_number?: string | null
-          certifying_agency?: string | null
+          certifying_agency?:
+            | Database["public"]["Enums"]["set_aside_agency_enum"]
+            | null
           company_profile_id: string
           created_at?: string
           expiration_date?: string | null
           id?: string
-          status?: string
-          type: string
+          status?: Database["public"]["Enums"]["set_aside_status_enum"]
+          type: Database["public"]["Enums"]["set_aside_type_enum"]
           updated_at?: string
         }
         Update: {
           certification_number?: string | null
-          certifying_agency?: string | null
+          certifying_agency?:
+            | Database["public"]["Enums"]["set_aside_agency_enum"]
+            | null
           company_profile_id?: string
           created_at?: string
           expiration_date?: string | null
           id?: string
-          status?: string
-          type?: string
+          status?: Database["public"]["Enums"]["set_aside_status_enum"]
+          type?: Database["public"]["Enums"]["set_aside_type_enum"]
           updated_at?: string
         }
         Relationships: [
@@ -349,10 +355,61 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      recompute_profile_completeness: {
+        Args: { p_profile_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
-      [_ in never]: never
+      annual_revenue_range_enum:
+        | "<$1M"
+        | "$1-5M"
+        | "$5-25M"
+        | "$25-100M"
+        | "$100M+"
+      certification_status_enum: "Active" | "In Process" | "Expired" | "Pending"
+      certification_type_enum: "Security" | "Quality" | "Industry" | "Clearance"
+      client_type_enum: "Municipal" | "State" | "Federal" | "Commercial"
+      contract_role_enum: "Prime" | "Subcontractor" | "JV-Partner"
+      contract_type_enum:
+        | "IDIQ"
+        | "IDIQ-TO"
+        | "FFP"
+        | "T&M"
+        | "Cost-Plus"
+        | "BPA"
+        | "Other"
+      contract_value_range_enum: "<$1M" | "$1-5M" | "$5-25M" | "$25M+"
+      cpars_rating_enum:
+        | "Exceptional"
+        | "Very Good"
+        | "Satisfactory"
+        | "Marginal"
+        | "Unsatisfactory"
+      employee_count_range_enum:
+        | "1-10"
+        | "11-50"
+        | "51-200"
+        | "201-500"
+        | "500+"
+      past_performance_status_enum: "Active" | "Completed" | "Terminated"
+      sam_status_enum: "Active" | "Inactive" | "Pending"
+      set_aside_agency_enum: "SBA" | "VA" | "Self"
+      set_aside_status_enum:
+        | "Certified"
+        | "Self-Certified"
+        | "Pending"
+        | "Expired"
+        | "N/A"
+      set_aside_type_enum:
+        | "SB"
+        | "8a"
+        | "WOSB"
+        | "EDWOSB"
+        | "SDVOSB"
+        | "VOSB"
+        | "HUBZone"
+        | "SDB"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -479,6 +536,56 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      annual_revenue_range_enum: [
+        "<$1M",
+        "$1-5M",
+        "$5-25M",
+        "$25-100M",
+        "$100M+",
+      ],
+      certification_status_enum: ["Active", "In Process", "Expired", "Pending"],
+      certification_type_enum: ["Security", "Quality", "Industry", "Clearance"],
+      client_type_enum: ["Municipal", "State", "Federal", "Commercial"],
+      contract_role_enum: ["Prime", "Subcontractor", "JV-Partner"],
+      contract_type_enum: [
+        "IDIQ",
+        "IDIQ-TO",
+        "FFP",
+        "T&M",
+        "Cost-Plus",
+        "BPA",
+        "Other",
+      ],
+      contract_value_range_enum: ["<$1M", "$1-5M", "$5-25M", "$25M+"],
+      cpars_rating_enum: [
+        "Exceptional",
+        "Very Good",
+        "Satisfactory",
+        "Marginal",
+        "Unsatisfactory",
+      ],
+      employee_count_range_enum: ["1-10", "11-50", "51-200", "201-500", "500+"],
+      past_performance_status_enum: ["Active", "Completed", "Terminated"],
+      sam_status_enum: ["Active", "Inactive", "Pending"],
+      set_aside_agency_enum: ["SBA", "VA", "Self"],
+      set_aside_status_enum: [
+        "Certified",
+        "Self-Certified",
+        "Pending",
+        "Expired",
+        "N/A",
+      ],
+      set_aside_type_enum: [
+        "SB",
+        "8a",
+        "WOSB",
+        "EDWOSB",
+        "SDVOSB",
+        "VOSB",
+        "HUBZone",
+        "SDB",
+      ],
+    },
   },
 } as const
