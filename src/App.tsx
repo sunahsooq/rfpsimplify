@@ -14,14 +14,13 @@ import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import Opportunities from "./pages/Opportunities";
 import OpportunityDetail from "./pages/OpportunityDetail";
-import Pipeline from "./pages/Pipeline";
+import PipelineNew from "./pages/PipelineNew";
 import Company from "./pages/Company";
-import Settings from "./pages/Settings";
-import Partners from "./pages/Partners";
-import PartnerDiscovery from "./pages/PartnerDiscovery";
-import MyPartners from "./pages/MyPartners";
+import SettingsNew from "./pages/SettingsNew";
+import PartnerDiscoveryNew from "./pages/PartnerDiscoveryNew";
+import PartnerRequests from "./pages/PartnerRequests";
+import NotificationsNew from "./pages/NotificationsNew";
 import Marketplace from "./pages/Marketplace";
-import Notifications from "./pages/Notifications";
 import BidBrief from "./pages/BidBrief";
 import NotFound from "./pages/NotFound";
 
@@ -37,54 +36,51 @@ const App = () => (
               <Toaster />
               <Sonner />
               <BrowserRouter>
-            <Routes>
-            {/* Public routes */}
-            <Route path="/" element={<Index />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            
-            {/* Protected routes */}
-            <Route path="/dashboard" element={
-              <ProtectedRoute><Dashboard /></ProtectedRoute>
-            } />
-            <Route path="/opportunities" element={
-              <ProtectedRoute><Opportunities /></ProtectedRoute>
-            } />
-            <Route path="/opportunity/:id" element={
-              <ProtectedRoute><OpportunityDetail /></ProtectedRoute>
-            } />
-            <Route path="/pipeline" element={
-              <ProtectedRoute><Pipeline /></ProtectedRoute>
-            } />
-            <Route path="/company" element={
-              <ProtectedRoute><Company /></ProtectedRoute>
-            } />
-            <Route path="/settings" element={
-              <ProtectedRoute><Settings /></ProtectedRoute>
-            } />
-            <Route path="/partners" element={
-              <ProtectedRoute><Partners /></ProtectedRoute>
-            } />
-            <Route path="/partners/discover" element={
-              <ProtectedRoute><PartnerDiscovery /></ProtectedRoute>
-            } />
-            <Route path="/partners/my" element={
-              <ProtectedRoute><MyPartners /></ProtectedRoute>
-            } />
-            <Route path="/marketplace" element={
-              <ProtectedRoute><Marketplace /></ProtectedRoute>
-            } />
-            <Route path="/notifications" element={
-              <ProtectedRoute><Notifications /></ProtectedRoute>
-            } />
-            <Route path="/brief/:opportunityId" element={
-              <ProtectedRoute><BidBrief /></ProtectedRoute>
-            } />
-            
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
+                <Routes>
+                  {/* Public routes */}
+                  <Route path="/" element={<Index />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/signup" element={<Signup />} />
+
+                  {/* Protected routes */}
+                  <Route path="/dashboard" element={
+                    <ProtectedRoute><Dashboard /></ProtectedRoute>
+                  } />
+                  <Route path="/opportunities" element={
+                    <ProtectedRoute><Opportunities /></ProtectedRoute>
+                  } />
+                  <Route path="/opportunity/:id" element={
+                    <ProtectedRoute><OpportunityDetail /></ProtectedRoute>
+                  } />
+                  <Route path="/pipeline" element={
+                    <ProtectedRoute><PipelineNew /></ProtectedRoute>
+                  } />
+                  <Route path="/company" element={
+                    <ProtectedRoute><Company /></ProtectedRoute>
+                  } />
+                  <Route path="/settings" element={
+                    <ProtectedRoute><SettingsNew /></ProtectedRoute>
+                  } />
+                  <Route path="/partners/discover" element={
+                    <ProtectedRoute><PartnerDiscoveryNew /></ProtectedRoute>
+                  } />
+                  <Route path="/partners/requests" element={
+                    <ProtectedRoute><PartnerRequests /></ProtectedRoute>
+                  } />
+                  <Route path="/notifications" element={
+                    <ProtectedRoute><NotificationsNew /></ProtectedRoute>
+                  } />
+                  <Route path="/marketplace" element={
+                    <ProtectedRoute><Marketplace /></ProtectedRoute>
+                  } />
+                  <Route path="/brief/:opportunityId" element={
+                    <ProtectedRoute><BidBrief /></ProtectedRoute>
+                  } />
+
+                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </BrowserRouter>
             </PartnerProvider>
           </PipelineProvider>
         </CompanyProvider>
