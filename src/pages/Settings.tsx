@@ -1,40 +1,84 @@
+import { useState } from "react";
 import { AppTopNav } from "@/components/AppTopNav";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { User, Users, Plug, Shield, CheckCircle2, XCircle, LogOut, UserPlus, Key } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { 
+  User, 
+  Users, 
+  Plug, 
+  Shield, 
+  Bell,
+  CreditCard,
+  CheckCircle2, 
+  LogOut, 
+  UserPlus, 
+  Key,
+  Camera,
+  Smartphone,
+  Mail,
+  Info,
+  Clock,
+  FileText,
+  Handshake,
+  Target
+} from "lucide-react";
 
 const userData = {
-  name: "Sarah Williams",
-  email: "sarah.williams@acmefederal.com",
-  role: "Owner",
+  name: "Sarah Chen",
+  email: "sarah.chen@techgov.com",
+  phone: "(202) 555-0147",
+  title: "Capture Manager",
+  role: "Admin",
 };
 
 const teamMembers = [
-  { name: "Sarah Williams", email: "sarah.williams@acmefederal.com", role: "Owner" },
-  { name: "Michael Chen", email: "m.chen@acmefederal.com", role: "Admin" },
-  { name: "Jessica Rodriguez", email: "j.rodriguez@acmefederal.com", role: "Member" },
-  { name: "David Thompson", email: "d.thompson@acmefederal.com", role: "Member" },
+  { name: "Sarah Chen", email: "sarah.chen@techgov.com", role: "Admin" },
+  { name: "Michael Park", email: "m.park@techgov.com", role: "Member" },
+  { name: "Jessica Williams", email: "j.williams@techgov.com", role: "Member" },
 ];
 
 const integrations = [
-  { name: "SAM.gov", description: "Federal contract opportunities sync", connected: true, icon: "🏛️" },
-  { name: "Claude AI", description: "AI-powered analysis and recommendations", connected: true, icon: "🤖" },
-  { name: "Resend", description: "Email notifications and outreach", connected: true, icon: "📧" },
-  { name: "Slack", description: "Team notifications and alerts", connected: false, icon: "💬" },
+  { name: "SAM.gov", description: "Federal contract opportunities sync", connected: true, icon: "🏛️", lastSync: "2 hours ago" },
+  { name: "GovWin", description: "Intelligence and analytics platform", connected: false, icon: "📊" },
+  { name: "Microsoft 365", description: "Calendar and email integration", connected: false, icon: "📧" },
+  { name: "Google Workspace", description: "Calendar and email integration", connected: false, icon: "🔵" },
 ];
 
-const sessionInfo = {
-  lastLogin: "January 21, 2026 at 10:32 AM",
-  browser: "Chrome 120 on macOS",
-  ip: "192.168.1.xxx",
-  activeSessions: 2,
-};
-
 export default function Settings() {
+  const [activeSection, setActiveSection] = useState("profile");
+  
+  // Notification states
+  const [pushEnabled, setPushEnabled] = useState(true);
+  const [pushAmendments, setPushAmendments] = useState(true);
+  const [pushDeadlines, setPushDeadlines] = useState(true);
+  const [pushPartners, setPushPartners] = useState(true);
+  const [pushMatches, setPushMatches] = useState(false);
+  
+  const [emailAmendments, setEmailAmendments] = useState(true);
+  const [emailDeadlines, setEmailDeadlines] = useState(true);
+  const [emailPartners, setEmailPartners] = useState(true);
+  const [emailMatches, setEmailMatches] = useState(true);
+  const [emailWeekly, setEmailWeekly] = useState(true);
+  const [emailFrequency, setEmailFrequency] = useState("realtime");
+
+  const sidebarSections = [
+    { id: "account", label: "ACCOUNT", items: [
+      { id: "profile", label: "Profile", icon: User },
+      { id: "security", label: "Security", icon: Shield },
+      { id: "notifications", label: "Notifications", icon: Bell },
+    ]},
+    { id: "workspace", label: "WORKSPACE", items: [
+      { id: "team", label: "Team", icon: Users },
+      { id: "integrations", label: "Integrations", icon: Plug },
+    ]},
+    { id: "billing", label: "BILLING", items: [
+      { id: "subscription", label: "Subscription", icon: CreditCard },
+    ]},
+  ];
+
   return (
     <div className="min-h-screen bg-background">
       <AppTopNav />
@@ -43,268 +87,475 @@ export default function Settings() {
         {/* Page Header */}
         <div className="mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
-            Account & Team Settings
+            Settings
           </h1>
           <p className="text-muted-foreground">
-            Manage your profile, team members, and integrations
+            Manage your account, team, and preferences
           </p>
         </div>
 
-        <Tabs defaultValue="profile" className="space-y-6">
-          <TabsList className="bg-[#1a2540] border border-[#334155] p-1">
-            <TabsTrigger 
-              value="profile" 
-              className="data-[state=active]:bg-primary data-[state=active]:text-white"
-            >
-              <User className="h-4 w-4 mr-2" />
-              Profile
-            </TabsTrigger>
-            <TabsTrigger 
-              value="team"
-              className="data-[state=active]:bg-primary data-[state=active]:text-white"
-            >
-              <Users className="h-4 w-4 mr-2" />
-              Team
-            </TabsTrigger>
-            <TabsTrigger 
-              value="integrations"
-              className="data-[state=active]:bg-primary data-[state=active]:text-white"
-            >
-              <Plug className="h-4 w-4 mr-2" />
-              Integrations
-            </TabsTrigger>
-            <TabsTrigger 
-              value="security"
-              className="data-[state=active]:bg-primary data-[state=active]:text-white"
-            >
-              <Shield className="h-4 w-4 mr-2" />
-              Security
-            </TabsTrigger>
-          </TabsList>
-
-          {/* Profile Tab */}
-          <TabsContent value="profile">
-            <Card className="bg-[#1a2540] border-[#334155]">
-              <CardHeader>
-                <CardTitle className="text-lg text-foreground">Your Profile</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="h-16 w-16 rounded-full bg-gradient-to-br from-amber-500 to-yellow-400 flex items-center justify-center text-white text-xl font-bold">
-                    SW
-                  </div>
-                  <div>
-                    <h3 className="text-foreground font-medium">{userData.name}</h3>
-                    <Badge className="bg-primary/20 text-primary border-primary/30 mt-1">
-                      {userData.role}
-                    </Badge>
+        <div className="flex gap-8">
+          {/* Left Sidebar */}
+          <div className="w-[250px] flex-shrink-0">
+            <div className="space-y-6">
+              {sidebarSections.map((section) => (
+                <div key={section.id}>
+                  <p className="text-xs font-semibold text-muted-foreground mb-2 px-3">
+                    {section.label}
+                  </p>
+                  <div className="space-y-1">
+                    {section.items.map((item) => (
+                      <button
+                        key={item.id}
+                        onClick={() => setActiveSection(item.id)}
+                        className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                          activeSection === item.id
+                            ? "bg-primary text-primary-foreground"
+                            : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                        }`}
+                      >
+                        <item.icon className="h-4 w-4" />
+                        {item.label}
+                      </button>
+                    ))}
                   </div>
                 </div>
+              ))}
+            </div>
+          </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-sm text-muted-foreground">Full Name</label>
-                    <Input 
-                      defaultValue={userData.name} 
-                      className="bg-[#2a334f] border-[#334155] text-foreground"
-                    />
+          {/* Right Content */}
+          <div className="flex-1">
+            {/* Profile Section */}
+            {activeSection === "profile" && (
+              <Card className="bg-card border-border">
+                <CardHeader>
+                  <CardTitle className="text-lg text-foreground">Your Profile</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {/* Avatar */}
+                  <div className="flex items-center gap-4">
+                    <div className="relative">
+                      <div className="h-20 w-20 rounded-full bg-gradient-to-br from-amber-500 to-yellow-400 flex items-center justify-center text-white text-2xl font-bold">
+                        SC
+                      </div>
+                      <button className="absolute bottom-0 right-0 h-8 w-8 bg-primary rounded-full flex items-center justify-center text-white shadow-lg hover:bg-primary/90">
+                        <Camera className="h-4 w-4" />
+                      </button>
+                    </div>
+                    <div>
+                      <h3 className="text-foreground font-medium">{userData.name}</h3>
+                      <Badge className="bg-primary/20 text-primary border-primary/30 mt-1">
+                        {userData.role}
+                      </Badge>
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-sm text-muted-foreground">Email (Read-only)</label>
-                    <Input 
-                      defaultValue={userData.email} 
-                      readOnly
-                      className="bg-[#2a334f]/50 border-[#334155] text-muted-foreground cursor-not-allowed"
-                    />
+
+                  {/* Form Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-sm text-muted-foreground">Full Name</label>
+                      <Input 
+                        defaultValue={userData.name} 
+                        className="bg-muted border-border text-foreground"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm text-muted-foreground">Email</label>
+                      <Input 
+                        defaultValue={userData.email} 
+                        className="bg-muted border-border text-foreground"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm text-muted-foreground">Phone</label>
+                      <Input 
+                        defaultValue={userData.phone} 
+                        className="bg-muted border-border text-foreground"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm text-muted-foreground">Job Title</label>
+                      <Input 
+                        defaultValue={userData.title} 
+                        className="bg-muted border-border text-foreground"
+                      />
+                    </div>
                   </div>
-                </div>
 
-                <div className="pt-4 border-t border-[#334155]">
-                  <Button variant="outline" className="border-[#334155] hover:bg-[#2a334f]">
-                    <Key className="h-4 w-4 mr-2" />
-                    Change Password
-                  </Button>
-                </div>
+                  <div className="flex justify-end">
+                    <Button className="bg-gradient-to-r from-primary to-blue-400 hover:from-primary/90 hover:to-blue-400/90 text-white">
+                      Save Changes
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
-                <div className="flex justify-end">
-                  <Button className="bg-gradient-to-r from-primary to-blue-400 hover:from-primary/90 hover:to-blue-400/90 text-white">
-                    Save Profile
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+            {/* Security Section */}
+            {activeSection === "security" && (
+              <div className="space-y-6">
+                <Card className="bg-card border-border">
+                  <CardHeader>
+                    <CardTitle className="text-lg text-foreground">Password</CardTitle>
+                  </CardHeader>
+                  <CardContent className="flex items-center justify-between">
+                    <div>
+                      <p className="text-foreground font-mono">••••••••</p>
+                      <p className="text-sm text-muted-foreground">Last changed 30 days ago</p>
+                    </div>
+                    <Button variant="outline" className="border-border">
+                      <Key className="h-4 w-4 mr-2" />
+                      Change Password
+                    </Button>
+                  </CardContent>
+                </Card>
 
-          {/* Team Tab */}
-          <TabsContent value="team">
-            <Card className="bg-[#1a2540] border-[#334155]">
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle className="text-lg text-foreground">Team Members</CardTitle>
-                <Button className="bg-gradient-to-r from-primary to-blue-400 hover:from-primary/90 hover:to-blue-400/90 text-white">
-                  <UserPlus className="h-4 w-4 mr-2" />
-                  Invite Member
-                </Button>
-              </CardHeader>
-              <CardContent>
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="border-[#334155] hover:bg-transparent">
-                        <TableHead className="text-muted-foreground">Name</TableHead>
-                        <TableHead className="text-muted-foreground">Email</TableHead>
-                        <TableHead className="text-muted-foreground">Role</TableHead>
-                        <TableHead className="text-muted-foreground text-right">Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {teamMembers.map((member, index) => (
-                        <TableRow key={index} className="border-[#334155] hover:bg-[#2a334f]/50">
-                          <TableCell>
-                            <div className="flex items-center gap-3">
-                              <div className="h-8 w-8 rounded-full bg-gradient-to-br from-amber-500 to-yellow-400 flex items-center justify-center text-white text-xs font-bold">
-                                {member.name.split(' ').map(n => n[0]).join('')}
-                              </div>
-                              <span className="text-foreground font-medium">{member.name}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-muted-foreground">{member.email}</TableCell>
-                          <TableCell>
-                            <Badge 
-                              className={
-                                member.role === "Owner" 
-                                  ? "bg-amber-500/20 text-amber-400 border-amber-500/30"
-                                  : member.role === "Admin"
-                                  ? "bg-primary/20 text-primary border-primary/30"
-                                  : "bg-secondary text-secondary-foreground"
-                              }
-                            >
-                              {member.role}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="text-right">
-                            {member.role !== "Owner" && (
-                              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
-                                Edit
-                              </Button>
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+                <Card className="bg-card border-border">
+                  <CardHeader>
+                    <CardTitle className="text-lg text-foreground">Two-Factor Authentication</CardTitle>
+                  </CardHeader>
+                  <CardContent className="flex items-center justify-between">
+                    <div>
+                      <p className="text-muted-foreground">Add an extra layer of security</p>
+                      <p className="text-sm text-yellow-500">Not enabled</p>
+                    </div>
+                    <Switch />
+                  </CardContent>
+                </Card>
 
-          {/* Integrations Tab */}
-          <TabsContent value="integrations">
-            <Card className="bg-[#1a2540] border-[#334155]">
-              <CardHeader>
-                <CardTitle className="text-lg text-foreground">Connected Services</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {integrations.map((integration) => (
-                    <div 
-                      key={integration.name}
-                      className="p-4 rounded-lg bg-[#2a334f] border border-[#334155] flex items-center justify-between"
-                    >
+                <Card className="bg-card border-border">
+                  <CardHeader>
+                    <CardTitle className="text-lg text-foreground">Active Sessions</CardTitle>
+                  </CardHeader>
+                  <CardContent className="flex items-center justify-between">
+                    <div>
+                      <p className="text-foreground">2 active sessions</p>
+                      <p className="text-sm text-muted-foreground">Chrome on macOS, Safari on iPhone</p>
+                    </div>
+                    <Button variant="outline" className="border-destructive/50 text-destructive hover:bg-destructive/10">
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Log Out All
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {/* Notifications Section */}
+            {activeSection === "notifications" && (
+              <div className="space-y-6">
+                {/* Mobile Push Notifications */}
+                <Card className="bg-gradient-to-br from-purple-600 to-purple-700 border-0 text-white overflow-hidden relative">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <span className="text-2xl">{integration.icon}</span>
+                        <div className="h-10 w-10 bg-white/20 rounded-lg flex items-center justify-center">
+                          <Smartphone className="h-5 w-5" />
+                        </div>
                         <div>
-                          <h4 className="text-foreground font-medium">{integration.name}</h4>
-                          <p className="text-sm text-muted-foreground">{integration.description}</p>
+                          <CardTitle className="text-lg text-white">Mobile Push Notifications</CardTitle>
+                          <p className="text-purple-200 text-sm">Get instant alerts on your phone</p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        {integration.connected ? (
-                          <>
-                            <CheckCircle2 className="h-5 w-5 text-success" />
-                            <span className="text-sm text-success">Connected</span>
-                          </>
-                        ) : (
-                          <>
-                            <XCircle className="h-5 w-5 text-muted-foreground" />
-                            <Button variant="outline" size="sm" className="border-[#334155] hover:bg-[#3a4560]">
-                              Connect
-                            </Button>
-                          </>
+                      <div className="flex items-center gap-3">
+                        {pushEnabled && (
+                          <Badge className="bg-white/20 text-white border-0">Enabled</Badge>
+                        )}
+                        <Switch 
+                          checked={pushEnabled} 
+                          onCheckedChange={setPushEnabled}
+                          className="data-[state=checked]:bg-white data-[state=checked]:text-purple-600"
+                        />
+                      </div>
+                    </div>
+                  </CardHeader>
+                  {pushEnabled && (
+                    <CardContent>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="flex items-center justify-between p-3 bg-white/10 rounded-lg">
+                          <div className="flex items-center gap-2">
+                            <FileText className="h-4 w-4 text-purple-200" />
+                            <span className="text-sm">RFP Amendments</span>
+                          </div>
+                          <Switch 
+                            checked={pushAmendments} 
+                            onCheckedChange={setPushAmendments}
+                            className="scale-90"
+                          />
+                        </div>
+                        <div className="flex items-center justify-between p-3 bg-white/10 rounded-lg">
+                          <div className="flex items-center gap-2">
+                            <Clock className="h-4 w-4 text-purple-200" />
+                            <span className="text-sm">Deadline Reminders</span>
+                          </div>
+                          <Switch 
+                            checked={pushDeadlines} 
+                            onCheckedChange={setPushDeadlines}
+                            className="scale-90"
+                          />
+                        </div>
+                        <div className="flex items-center justify-between p-3 bg-white/10 rounded-lg">
+                          <div className="flex items-center gap-2">
+                            <Handshake className="h-4 w-4 text-purple-200" />
+                            <span className="text-sm">Partner Responses</span>
+                          </div>
+                          <Switch 
+                            checked={pushPartners} 
+                            onCheckedChange={setPushPartners}
+                            className="scale-90"
+                          />
+                        </div>
+                        <div className="flex items-center justify-between p-3 bg-white/10 rounded-lg">
+                          <div className="flex items-center gap-2">
+                            <Target className="h-4 w-4 text-purple-200" />
+                            <span className="text-sm">New Matches</span>
+                          </div>
+                          <Switch 
+                            checked={pushMatches} 
+                            onCheckedChange={setPushMatches}
+                            className="scale-90"
+                          />
+                        </div>
+                      </div>
+                      <div className="mt-4 flex items-center gap-2 text-purple-200 text-sm">
+                        <Info className="h-4 w-4" />
+                        <span>
+                          Download our app for{" "}
+                          <a href="#" className="underline hover:text-white">iOS</a> or{" "}
+                          <a href="#" className="underline hover:text-white">Android</a>
+                        </span>
+                      </div>
+                    </CardContent>
+                  )}
+                </Card>
+
+                {/* Email Notifications */}
+                <Card className="bg-card border-border">
+                  <CardHeader>
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                        <Mail className="h-5 w-5 text-blue-500" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-lg text-foreground">Email Notifications</CardTitle>
+                        <p className="text-muted-foreground text-sm">Manage your email preferences</p>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center justify-between py-3 border-b border-border">
+                      <div className="flex items-center gap-3">
+                        <span className="text-foreground">Amendment Alerts</span>
+                        {pushAmendments && (
+                          <Badge variant="outline" className="text-xs text-purple-500 border-purple-500/30">+PUSH</Badge>
                         )}
                       </div>
+                      <Switch checked={emailAmendments} onCheckedChange={setEmailAmendments} />
                     </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+                    <div className="flex items-center justify-between py-3 border-b border-border">
+                      <div className="flex items-center gap-3">
+                        <span className="text-foreground">Deadline Reminders</span>
+                        {pushDeadlines && (
+                          <Badge variant="outline" className="text-xs text-purple-500 border-purple-500/30">+PUSH</Badge>
+                        )}
+                      </div>
+                      <Switch checked={emailDeadlines} onCheckedChange={setEmailDeadlines} />
+                    </div>
+                    <div className="flex items-center justify-between py-3 border-b border-border">
+                      <div className="flex items-center gap-3">
+                        <span className="text-foreground">Partner Activity</span>
+                        {pushPartners && (
+                          <Badge variant="outline" className="text-xs text-purple-500 border-purple-500/30">+PUSH</Badge>
+                        )}
+                      </div>
+                      <Switch checked={emailPartners} onCheckedChange={setEmailPartners} />
+                    </div>
+                    <div className="flex items-center justify-between py-3 border-b border-border">
+                      <span className="text-foreground">New Opportunity Matches</span>
+                      <Switch checked={emailMatches} onCheckedChange={setEmailMatches} />
+                    </div>
+                    <div className="flex items-center justify-between py-3 border-b border-border">
+                      <span className="text-foreground">Weekly Summary</span>
+                      <Switch checked={emailWeekly} onCheckedChange={setEmailWeekly} />
+                    </div>
 
-          {/* Security Tab */}
-          <TabsContent value="security">
-            <div className="space-y-6">
-              <Card className="bg-[#1a2540] border-[#334155]">
-                <CardHeader>
-                  <CardTitle className="text-lg text-foreground">Session Information</CardTitle>
+                    {/* Email Digest Frequency */}
+                    <div className="pt-4">
+                      <p className="text-sm font-medium text-foreground mb-3">Email Digest Frequency</p>
+                      <div className="flex gap-2">
+                        {["realtime", "daily", "weekly"].map((freq) => (
+                          <button
+                            key={freq}
+                            onClick={() => setEmailFrequency(freq)}
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                              emailFrequency === freq
+                                ? "bg-primary text-white"
+                                : "bg-muted text-muted-foreground hover:bg-muted/80"
+                            }`}
+                          >
+                            {freq.charAt(0).toUpperCase() + freq.slice(1)}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {/* Team Section */}
+            {activeSection === "team" && (
+              <Card className="bg-card border-border">
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle className="text-lg text-foreground">Team Members</CardTitle>
+                  <Button className="bg-gradient-to-r from-primary to-blue-400 hover:from-primary/90 hover:to-blue-400/90 text-white">
+                    <UserPlus className="h-4 w-4 mr-2" />
+                    Invite Member
+                  </Button>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="p-4 rounded-lg bg-[#2a334f] border border-[#334155]">
-                        <p className="text-sm text-muted-foreground mb-1">Last Login</p>
-                        <p className="text-foreground font-medium">{sessionInfo.lastLogin}</p>
+                    {teamMembers.map((member, index) => (
+                      <div key={index} className="flex items-center justify-between p-4 bg-muted rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <div className="h-10 w-10 rounded-full bg-gradient-to-br from-amber-500 to-yellow-400 flex items-center justify-center text-white text-sm font-bold">
+                            {member.name.split(' ').map(n => n[0]).join('')}
+                          </div>
+                          <div>
+                            <p className="text-foreground font-medium">{member.name}</p>
+                            <p className="text-sm text-muted-foreground">{member.email}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <Badge 
+                            className={
+                              member.role === "Admin" 
+                                ? "bg-primary/20 text-primary border-primary/30"
+                                : "bg-secondary text-secondary-foreground"
+                            }
+                          >
+                            {member.role}
+                          </Badge>
+                          {member.role !== "Admin" && (
+                            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+                              Edit
+                            </Button>
+                          )}
+                        </div>
                       </div>
-                      <div className="p-4 rounded-lg bg-[#2a334f] border border-[#334155]">
-                        <p className="text-sm text-muted-foreground mb-1">Browser</p>
-                        <p className="text-foreground font-medium">{sessionInfo.browser}</p>
-                      </div>
-                      <div className="p-4 rounded-lg bg-[#2a334f] border border-[#334155]">
-                        <p className="text-sm text-muted-foreground mb-1">IP Address</p>
-                        <p className="text-foreground font-medium">{sessionInfo.ip}</p>
-                      </div>
-                      <div className="p-4 rounded-lg bg-[#2a334f] border border-[#334155]">
-                        <p className="text-sm text-muted-foreground mb-1">Active Sessions</p>
-                        <p className="text-foreground font-medium">{sessionInfo.activeSessions} devices</p>
-                      </div>
-                    </div>
+                    ))}
                   </div>
                 </CardContent>
               </Card>
+            )}
 
-              <Card className="bg-[#1a2540] border-[#334155]">
+            {/* Integrations Section */}
+            {activeSection === "integrations" && (
+              <Card className="bg-card border-border">
                 <CardHeader>
-                  <CardTitle className="text-lg text-foreground">Security Actions</CardTitle>
+                  <CardTitle className="text-lg text-foreground">Connected Services</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between p-4 rounded-lg bg-[#2a334f] border border-[#334155]">
-                      <div>
-                        <h4 className="text-foreground font-medium">Logout All Sessions</h4>
-                        <p className="text-sm text-muted-foreground">
-                          Sign out from all devices except this one
-                        </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {integrations.map((integration) => (
+                      <div 
+                        key={integration.name}
+                        className="p-4 rounded-xl bg-muted border border-border flex items-center justify-between"
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="text-2xl">{integration.icon}</span>
+                          <div>
+                            <h4 className="text-foreground font-medium">{integration.name}</h4>
+                            <p className="text-sm text-muted-foreground">{integration.description}</p>
+                          </div>
+                        </div>
+                        <div className="flex flex-col items-end gap-1">
+                          {integration.connected ? (
+                            <>
+                              <div className="flex items-center gap-2">
+                                <CheckCircle2 className="h-4 w-4 text-green-500" />
+                                <span className="text-sm text-green-500">Connected</span>
+                              </div>
+                              {integration.lastSync && (
+                                <span className="text-xs text-muted-foreground">
+                                  Last sync: {integration.lastSync}
+                                </span>
+                              )}
+                              <Button variant="outline" size="sm" className="mt-2 border-border">
+                                Sync Now
+                              </Button>
+                            </>
+                          ) : (
+                            <Button size="sm" className="bg-primary hover:bg-primary/90 text-white">
+                              Connect
+                            </Button>
+                          )}
+                        </div>
                       </div>
-                      <Button variant="outline" className="border-destructive/50 text-destructive hover:bg-destructive/10">
-                        <LogOut className="h-4 w-4 mr-2" />
-                        Logout All
-                      </Button>
-                    </div>
-                    <div className="flex items-center justify-between p-4 rounded-lg bg-[#2a334f] border border-[#334155]">
-                      <div>
-                        <h4 className="text-foreground font-medium">Two-Factor Authentication</h4>
-                        <p className="text-sm text-muted-foreground">
-                          Add an extra layer of security to your account
-                        </p>
-                      </div>
-                      <Button variant="outline" className="border-[#334155] hover:bg-[#3a4560]">
-                        Enable 2FA
-                      </Button>
-                    </div>
+                    ))}
                   </div>
                 </CardContent>
               </Card>
-            </div>
-          </TabsContent>
-        </Tabs>
+            )}
+
+            {/* Subscription Section */}
+            {activeSection === "subscription" && (
+              <div className="space-y-6">
+                <Card className="bg-gradient-to-br from-primary to-blue-500 border-0 text-white">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <Badge className="bg-white/20 text-white border-0 mb-2">Current Plan</Badge>
+                        <h2 className="text-2xl font-bold">Professional</h2>
+                        <p className="text-blue-100">$99/month • Billed annually</p>
+                      </div>
+                      <Button variant="outline" className="border-white/30 text-white hover:bg-white/10">
+                        Upgrade Plan
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-card border-border">
+                  <CardHeader>
+                    <CardTitle className="text-lg text-foreground">Usage This Month</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <div className="flex justify-between text-sm mb-2">
+                        <span className="text-muted-foreground">AI Analysis Credits</span>
+                        <span className="text-foreground">145 / 500</span>
+                      </div>
+                      <div className="h-2 bg-muted rounded-full overflow-hidden">
+                        <div className="h-full bg-primary rounded-full" style={{ width: "29%" }} />
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex justify-between text-sm mb-2">
+                        <span className="text-muted-foreground">Team Members</span>
+                        <span className="text-foreground">3 / 10</span>
+                      </div>
+                      <div className="h-2 bg-muted rounded-full overflow-hidden">
+                        <div className="h-full bg-green-500 rounded-full" style={{ width: "30%" }} />
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex justify-between text-sm mb-2">
+                        <span className="text-muted-foreground">Partner Invites</span>
+                        <span className="text-foreground">12 / 50</span>
+                      </div>
+                      <div className="h-2 bg-muted rounded-full overflow-hidden">
+                        <div className="h-full bg-amber-500 rounded-full" style={{ width: "24%" }} />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+          </div>
+        </div>
       </main>
     </div>
   );

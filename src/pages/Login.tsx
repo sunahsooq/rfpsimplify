@@ -231,7 +231,7 @@ const Login = () => {
             {/* Forgot Password Link */}
             <div className="text-right">
               <a
-                href="#"
+                href="/password-reset"
                 className="text-sm text-primary hover:text-primary/80 transition-colors"
               >
                 Forgot password?

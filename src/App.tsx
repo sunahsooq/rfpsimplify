@@ -23,6 +23,8 @@ import NotificationsNew from "./pages/NotificationsNew";
 import Marketplace from "./pages/Marketplace";
 import BidBrief from "./pages/BidBrief";
 import NotFound from "./pages/NotFound";
+import PasswordReset from "./pages/PasswordReset";
+import EmailVerified from "./pages/EmailVerified";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +43,8 @@ const App = () => (
                   <Route path="/" element={<Index />} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/signup" element={<Signup />} />
+                  <Route path="/password-reset" element={<PasswordReset />} />
+                  <Route path="/email-verified" element={<EmailVerified />} />
 
                   {/* Protected routes */}
                   <Route path="/dashboard" element={
