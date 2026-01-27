@@ -14,7 +14,7 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['DM Sans', 'system-ui', 'sans-serif'],
+        sans: ['Inter', 'system-ui', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -58,6 +58,20 @@ export default {
           qualified: "hsl(var(--stage-qualified))",
           pursuing: "hsl(var(--stage-pursuing))",
           submitted: "hsl(var(--stage-submitted))",
+          reviewing: "hsl(var(--stage-reviewing))",
+          preparing: "hsl(var(--stage-preparing))",
+          won: "hsl(var(--stage-won))",
+          lost: "hsl(var(--stage-lost))",
+        },
+        gold: {
+          DEFAULT: "hsl(var(--gold))",
+          foreground: "hsl(var(--gold-foreground))",
+        },
+        admin: {
+          bg: "hsl(var(--admin-bg))",
+          surface: "hsl(var(--admin-surface))",
+          border: "hsl(var(--admin-border))",
+          accent: "hsl(var(--admin-accent))",
         },
         urgent: {
           DEFAULT: "hsl(var(--urgent))",

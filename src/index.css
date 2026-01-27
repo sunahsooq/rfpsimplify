@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -17,6 +17,7 @@
 
     --primary: 217 91% 60%;
     --primary-foreground: 0 0% 100%;
+    --primary-dark: 224 76% 48%;
 
     --secondary: 220 42% 24%;
     --secondary-foreground: 210 40% 96%;
@@ -40,17 +41,26 @@
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Opportunity stage + urgency tokens (must match demo hex colors) */
-    /* #3b82f6 */
+    /* Gold accent */
+    --gold: 38 92% 50%;
+    --gold-foreground: 0 0% 0%;
+
+    /* Opportunity stage + urgency tokens */
     --stage-identified: 217 91% 60%;
-    /* #10b981 */
     --stage-qualified: 160 84% 39%;
-    /* #f59e0b */
     --stage-pursuing: 38 92% 50%;
-    /* #8b5cf6 */
     --stage-submitted: 258 90% 66%;
-    /* #ef4444 */
+    --stage-reviewing: 217 91% 60%;
+    --stage-preparing: 258 90% 66%;
+    --stage-won: 142 71% 45%;
+    --stage-lost: 215 16% 47%;
     --urgent: 0 84% 60%;
+
+    /* Admin (Dark Theme) */
+    --admin-bg: 222 47% 11%;
+    --admin-surface: 217 33% 17%;
+    --admin-border: 215 20% 25%;
+    --admin-accent: 263 70% 50%;
 
     --border: 217 91% 70% / 0.12;
     --input: 217 91% 70% / 0.12;
@@ -63,66 +73,12 @@
     --gradient-primary-hover: linear-gradient(135deg, hsl(217 91% 55%), hsl(217 91% 45%));
     --gradient-logo: linear-gradient(135deg, hsl(217 91% 60%), hsl(200 91% 50%));
     --gradient-gold: linear-gradient(135deg, hsl(36 93% 55%), hsl(48 100% 50%));
+    --gradient-blue: linear-gradient(135deg, hsl(224 76% 48%), hsl(217 91% 60%));
     
     /* Shadows */
-    --shadow-card: 0 4px 24px -4px rgba(0, 0, 0, 0.4);
+    --shadow-card: 0 8px 32px rgba(0,0,0,0.08);
     --shadow-glow: 0 0 40px rgba(59, 130, 246, 0.15);
-
-    --sidebar-background: 220 50% 9%;
-    --sidebar-foreground: 210 40% 96%;
-    --sidebar-primary: 217 91% 60%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 42% 24%;
-    --sidebar-accent-foreground: 210 40% 96%;
-    --sidebar-border: 217 91% 70% / 0.12;
-    --sidebar-ring: 217 91% 60%;
-  }
-
-  .dark {
-    --background: 220 50% 9%;
-    --foreground: 210 40% 96%;
-
-    --card: 220 42% 18%;
-    --card-foreground: 210 40% 96%;
-
-    --popover: 220 42% 18%;
-    --popover-foreground: 210 40% 96%;
-
-    --primary: 217 91% 60%;
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 220 42% 24%;
-    --secondary-foreground: 210 40% 96%;
-
-    --muted: 220 42% 24%;
-    --muted-foreground: 215 16% 47%;
-
-    --accent: 45 93% 56%;
-    --accent-foreground: 220 50% 9%;
-
-    /* Dashboard surfaces */
-    --nav: 222 44% 18%;
-
-    /* Status */
-    --warning: 24 95% 53%;
-    --warning-foreground: 0 0% 100%;
-
-    --success: 142 71% 45%;
-    --success-foreground: 0 0% 100%;
-
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
-
-    /* Opportunity stage + urgency tokens */
-    --stage-identified: 217 91% 60%;
-    --stage-qualified: 160 84% 39%;
-    --stage-pursuing: 38 92% 50%;
-    --stage-submitted: 258 90% 66%;
-    --urgent: 0 84% 60%;
-
-    --border: 217 91% 70% / 0.12;
-    --input: 217 91% 70% / 0.12;
-    --ring: 217 91% 60%;
+    --shadow-blue: 0 4px 16px rgba(30,64,175,0.35);
 
     --sidebar-background: 220 50% 9%;
     --sidebar-foreground: 210 40% 96%;
@@ -142,7 +98,7 @@
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Inter', system-ui, sans-serif;
   }
 }
 

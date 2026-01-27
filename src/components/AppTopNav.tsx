@@ -21,7 +21,8 @@ export function AppTopNav() {
     { label: "Dashboard", path: "/dashboard" },
     { label: "Opportunities", path: "/opportunities" },
     { label: "Pipeline", path: "/pipeline" },
-    { label: "Company", path: "/company" },
+    { label: "Marketplace", path: "/marketplace" },
+    { label: "CRM", path: "/crm" },
   ];
 
   const isActive = (path: string) => location.pathname === path;
@@ -86,8 +87,26 @@ export function AppTopNav() {
               >
                 Requests
               </DropdownMenuItem>
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={() => navigate("/partners")}
+              >
+                My Partners
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+
+          {/* Company Link */}
+          <button
+            onClick={() => navigate("/company")}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              isActive("/company")
+                ? "bg-primary/10 text-primary"
+                : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+            }`}
+          >
+            Company
+          </button>
         </nav>
 
         {/* Center - Search */}
@@ -142,13 +161,20 @@ export function AppTopNav() {
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="end"
-              className="w-44 border-border bg-popover text-popover-foreground shadow-card"
+              className="w-48 border-border bg-popover text-popover-foreground shadow-card"
             >
               <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/settings")}>
-                Profile
+                My Profile
+              </DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/company")}>
+                Company Profile
               </DropdownMenuItem>
               <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/settings")}>
                 Settings
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/admin/qa-queue")}>
+                Admin Panel
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem

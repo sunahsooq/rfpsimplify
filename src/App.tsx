@@ -25,6 +25,11 @@ import BidBrief from "./pages/BidBrief";
 import NotFound from "./pages/NotFound";
 import PasswordReset from "./pages/PasswordReset";
 import EmailVerified from "./pages/EmailVerified";
+import CRM from "./pages/CRM";
+import Recompetes from "./pages/Recompetes";
+import MyPartners from "./pages/MyPartners";
+import AdminQAQueue from "./pages/AdminQAQueue";
+import AdminRFPReview from "./pages/AdminRFPReview";
 
 const queryClient = new QueryClient();
 
@@ -59,6 +64,9 @@ const App = () => (
                   <Route path="/pipeline" element={
                     <ProtectedRoute><PipelineNew /></ProtectedRoute>
                   } />
+                  <Route path="/recompetes" element={
+                    <ProtectedRoute><Recompetes /></ProtectedRoute>
+                  } />
                   <Route path="/company" element={
                     <ProtectedRoute><Company /></ProtectedRoute>
                   } />
@@ -71,14 +79,28 @@ const App = () => (
                   <Route path="/partners/requests" element={
                     <ProtectedRoute><PartnerRequests /></ProtectedRoute>
                   } />
+                  <Route path="/partners" element={
+                    <ProtectedRoute><MyPartners /></ProtectedRoute>
+                  } />
                   <Route path="/notifications" element={
                     <ProtectedRoute><NotificationsNew /></ProtectedRoute>
                   } />
                   <Route path="/marketplace" element={
                     <ProtectedRoute><Marketplace /></ProtectedRoute>
                   } />
+                  <Route path="/crm" element={
+                    <ProtectedRoute><CRM /></ProtectedRoute>
+                  } />
                   <Route path="/brief/:opportunityId" element={
                     <ProtectedRoute><BidBrief /></ProtectedRoute>
+                  } />
+
+                  {/* Admin routes */}
+                  <Route path="/admin/qa-queue" element={
+                    <ProtectedRoute><AdminQAQueue /></ProtectedRoute>
+                  } />
+                  <Route path="/admin/rfp-review/:id" element={
+                    <ProtectedRoute><AdminRFPReview /></ProtectedRoute>
                   } />
 
                   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
