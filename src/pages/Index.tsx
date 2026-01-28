@@ -1,7 +1,8 @@
-import Login from "./Login";
+import { Navigate } from "react-router-dom";
 
+// Redirect root to login page
 const Index = () => {
-  return <Login />;
+  return <Navigate to="/login" replace />;
 };
 
 export default Index;

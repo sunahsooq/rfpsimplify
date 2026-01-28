@@ -570,3 +570,103 @@ export const sampleUser: User = {
   avatar: '',
   companyId: '1',
 };
+
+// Extended Opportunity data matching mega prompt specs
+export const extendedOpportunities = [
+  { id: 1, title: "Cloud Infrastructure Modernization Services", agency: "Department of Energy", solNum: "DE-SOL-0012847", matchScore: 87, dueIn: "45 days", value: "$5M - $10M", location: "Washington, DC", setAside: "Small Business", type: "FFP", vehicle: "OASIS+", certs: ["FedRAMP High", "CMMC L2"], isNew: true },
+  { id: 2, title: "Cybersecurity Operations Center Support", agency: "Department of Defense", solNum: "DOD-CYBER-2025-001", matchScore: 82, dueIn: "30 days", value: "$8M - $15M", location: "Arlington, VA", setAside: "8(a)", type: "T&M", vehicle: "STARS III", certs: ["CMMC L3", "ISO 27001"], isNew: true },
+  { id: 3, title: "Data Analytics Platform Development", agency: "Health & Human Services", solNum: "HHS-DA-2025-042", matchScore: 78, dueIn: "60 days", value: "$3M - $7M", location: "Remote", setAside: "WOSB", type: "FFP", vehicle: "CIO-SP4", certs: ["FedRAMP Moderate"], isNew: false },
+  { id: 4, title: "IT Service Management Modernization", agency: "General Services Administration", solNum: "GSA-ITSM-2025-018", matchScore: 74, dueIn: "21 days", value: "$2M - $4M", location: "Kansas City, MO", setAside: "Small Business", type: "FFP", vehicle: "MAS", certs: ["ISO 20000"], isNew: false },
+  { id: 5, title: "Enterprise Network Operations", agency: "Department of State", solNum: "DOS-NET-2025-033", matchScore: 71, dueIn: "52 days", value: "$10M - $20M", location: "Washington, DC", setAside: "SDVOSB", type: "CPFF", vehicle: "Alliant 2", certs: ["Secret Clearance", "CMMC L2"], isNew: false },
+];
+
+// Extended Partner data matching mega prompt specs
+export const extendedPartners = [
+  { id: 1, name: "CyberShield Solutions", initials: "CS", location: "Reston, VA", employees: 85, revenue: "$12M", fitScore: 92, fills: ["FedRAMP High (30%)", "CMMC Level 2 (20%)", "3 Cyber FTEs (5%)"], certs: ["FedRAMP High", "CMMC L2", "ISO 27001"], winRate: 68 },
+  { id: 2, name: "CloudFirst Federal", initials: "CF", location: "Arlington, VA", employees: 120, revenue: "$28M", fitScore: 78, fills: ["CMMC Level 2 (20%)", "AWS GovCloud (10%)"], certs: ["CMMC L2", "AWS Gov"], winRate: 52 },
+  { id: 3, name: "DataTech Federal", initials: "DT", location: "Bethesda, MD", employees: 45, revenue: "$6M", fitScore: 71, fills: ["FedRAMP Moderate (15%)", "DOE Past Performance (10%)"], certs: ["FedRAMP Mod", "SOC 2"], winRate: 45 },
+  { id: 4, name: "SecureNet Systems", initials: "SN", location: "McLean, VA", employees: 150, revenue: "$22M", fitScore: 68, fills: ["FedRAMP High (30%)", "Cleared Staff (5%)"], certs: ["FedRAMP High", "Secret"], winRate: 58 },
+  { id: 5, name: "GovCloud Partners", initials: "GP", location: "Herndon, VA", employees: 65, revenue: "$9M", fitScore: 65, fills: ["AWS GovCloud (10%)", "Azure Gov (10%)"], certs: ["AWS", "Azure"], winRate: 42 },
+  { id: 6, name: "FedSecure Inc", initials: "FS", location: "Columbia, MD", employees: 95, revenue: "$15M", fitScore: 62, fills: ["CMMC Level 2 (20%)", "GSA Schedule"], certs: ["CMMC L2", "GSA"], winRate: 55 },
+];
+
+// Extended Pipeline items matching mega prompt specs
+export const extendedPipelineItems = [
+  { id: 1, opportunity: "Cloud Infrastructure Modernization", agency: "DOE", stage: "Pursuing" as const, value: "$8M", dueDate: "Feb 15", matchScore: 87, partners: ["CS", "CF"] },
+  { id: 2, opportunity: "Cybersecurity Operations Center", agency: "DoD", stage: "Preparing" as const, value: "$12M", dueDate: "Jan 30", matchScore: 82, partners: ["CS"] },
+  { id: 3, opportunity: "Data Analytics Platform", agency: "HHS", stage: "Reviewing" as const, value: "$5M", dueDate: "Mar 20", matchScore: 78, partners: [] },
+  { id: 4, opportunity: "Network Modernization", agency: "State", stage: "Submitted" as const, value: "$15M", dueDate: "Jan 10", matchScore: 74, partners: ["SN", "GP"] },
+  { id: 5, opportunity: "Cloud Migration Services", agency: "VA", stage: "Won" as const, value: "$4M", dueDate: "Dec 15", matchScore: 85, partners: ["CF"] },
+];
+
+// Dashboard stats data
+export const dashboardStats = {
+  activeOpportunities: 47,
+  dueThisWeek: 3,
+  pipelineValue: "$45.2M",
+  avgMatchScore: "76%",
+  winRate: "34%",
+};
+
+// Partner relationship types for My Partners
+export interface PartnerRelationship {
+  id: string;
+  partnerId: string;
+  partnerName: string;
+  initials: string;
+  location: string;
+  status: 'active' | 'pending' | 'past';
+  teamingAgreementStatus: 'signed' | 'pending' | 'expired' | 'none';
+  activeBidsTogether: number;
+  lastCollaboration?: string;
+  winsTogether: number;
+  certifications: string[];
+}
+
+export const samplePartnerRelationships: PartnerRelationship[] = [
+  { id: '1', partnerId: '1', partnerName: 'CyberShield Solutions', initials: 'CS', location: 'Reston, VA', status: 'active', teamingAgreementStatus: 'signed', activeBidsTogether: 2, lastCollaboration: 'DOE Cloud Migration', winsTogether: 2, certifications: ['FedRAMP High', 'CMMC L2'] },
+  { id: '2', partnerId: '2', partnerName: 'DataTech Federal', initials: 'DT', location: 'Arlington, VA', status: 'active', teamingAgreementStatus: 'signed', activeBidsTogether: 1, lastCollaboration: 'HHS Analytics', winsTogether: 1, certifications: ['8(a)', 'HUBZone'] },
+  { id: '3', partnerId: '4', partnerName: 'GovCloud Partners', initials: 'GP', location: 'Herndon, VA', status: 'pending', teamingAgreementStatus: 'pending', activeBidsTogether: 0, winsTogether: 0, certifications: ['AWS GovCloud', 'Azure Gov'] },
+  { id: '4', partnerId: '3', partnerName: 'FedSecure Analytics', initials: 'FA', location: 'McLean, VA', status: 'past', teamingAgreementStatus: 'expired', activeBidsTogether: 0, lastCollaboration: 'VA IT Support', winsTogether: 0, certifications: ['GSA Schedule', 'Top Secret'] },
+];
+
+// Admin QA Queue items
+export interface QAQueueItem {
+  id: string;
+  rfpTitle: string;
+  solicitationId: string;
+  source: 'SAM.gov' | 'GovWin' | 'Manual';
+  agency: string;
+  confidence: number;
+  priority: 'urgent' | 'normal';
+  parsedAt: string;
+  status: 'pending' | 'in_review' | 'approved' | 'flagged';
+}
+
+export const sampleQAQueueItems: QAQueueItem[] = [
+  { id: '1', rfpTitle: 'Cloud Infrastructure Modernization Services', solicitationId: 'DE-SOL-0012847', source: 'SAM.gov', agency: 'DOE', confidence: 92, priority: 'normal', parsedAt: '2 hours ago', status: 'pending' },
+  { id: '2', rfpTitle: 'Cybersecurity Assessment Program', solicitationId: 'DHS-CYBER-2025-003', source: 'SAM.gov', agency: 'DHS', confidence: 67, priority: 'urgent', parsedAt: '45 min ago', status: 'flagged' },
+  { id: '3', rfpTitle: 'Enterprise Data Analytics Platform', solicitationId: 'HHS-EDA-2025-011', source: 'GovWin', agency: 'HHS', confidence: 85, priority: 'normal', parsedAt: '3 hours ago', status: 'pending' },
+  { id: '4', rfpTitle: 'Network Operations Support', solicitationId: 'VA-NET-2025-022', source: 'Manual', agency: 'VA', confidence: 78, priority: 'normal', parsedAt: '1 day ago', status: 'in_review' },
+  { id: '5', rfpTitle: 'IT Modernization Services', solicitationId: 'GSA-ITM-2025-015', source: 'SAM.gov', agency: 'GSA', confidence: 95, priority: 'normal', parsedAt: '30 min ago', status: 'pending' },
+];
+
+// Recompete tracking data
+export interface RecompeteItem {
+  id: string;
+  contractName: string;
+  agency: string;
+  incumbent: string;
+  incumbentYears: number;
+  value: string;
+  expiresIn: number; // days
+  rewinRate: number;
+  yourFit: number;
+}
+
+export const sampleRecompetes: RecompeteItem[] = [
+  { id: '1', contractName: 'DOE Cloud Management Services', agency: 'DOE', incumbent: 'ABC Systems', incumbentYears: 5, value: '$18.5M', expiresIn: 89, rewinRate: 72, yourFit: 78 },
+  { id: '2', contractName: 'VA Enterprise IT Support', agency: 'VA', incumbent: 'TechPrime LLC', incumbentYears: 3, value: '$12.2M', expiresIn: 45, rewinRate: 65, yourFit: 85 },
+  { id: '3', contractName: 'DHS Border Security Analytics', agency: 'DHS', incumbent: 'SecureData Inc', incumbentYears: 7, value: '$25.0M', expiresIn: 120, rewinRate: 80, yourFit: 62 },
+  { id: '4', contractName: 'HHS Data Platform Management', agency: 'HHS', incumbent: 'HealthTech Solutions', incumbentYears: 4, value: '$8.5M', expiresIn: 180, rewinRate: 68, yourFit: 71 },
+];
