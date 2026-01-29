@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams, useSearchParams, useNavigate } from "react-router-dom";
-import { Plus, Check, FileText, Loader2 } from "lucide-react";
+import { Plus, Check, FileText, Loader2, Video } from "lucide-react";
 import { AppTopNav } from "@/components/AppTopNav";
 import { Button } from "@/components/ui/button";
 import { OpportunityOverviewTab } from "@/components/opportunity/OpportunityOverviewTab";
@@ -9,17 +9,27 @@ import { OpportunityAiPanel } from "@/components/opportunity/OpportunityAiPanel"
 import { OpportunityGapsRisksTab } from "@/components/opportunity/OpportunityGapsRisksTab";
 import { OpportunityTeamingPartnersTab } from "@/components/opportunity/OpportunityTeamingPartnersTab";
 import { OpportunityCaptureDecisionPanel } from "@/components/opportunity/OpportunityCaptureDecisionPanel";
+import { OpportunityCompetitiveTab } from "@/components/opportunity/OpportunityCompetitiveTab";
+import { OpportunityPricingTab } from "@/components/opportunity/OpportunityPricingTab";
+import { OpportunityAmendmentsTab } from "@/components/opportunity/OpportunityAmendmentsTab";
+import { OpportunityIncumbentTab } from "@/components/opportunity/OpportunityIncumbentTab";
+import { OpportunityTrackerTab } from "@/components/opportunity/OpportunityTrackerTab";
+import { AiVideoBriefingModal } from "@/components/opportunity/AiVideoBriefingModal";
 import { usePipeline } from "@/contexts/PipelineContext";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
 const tabs = [
   { label: "Overview", key: "overview" },
+  { label: "Gap Analysis", key: "gaps-risks" },
+  { label: "Competitive", key: "competitive" },
+  { label: "Pricing Intel", key: "pricing" },
   { label: "Requirements", key: "requirements" },
-  { label: "Gaps & Risks", key: "gaps-risks" },
-  { label: "Teaming Partners", key: "teaming-partners" },
-  { label: "Compliance Matrix", key: "compliance-matrix" },
-  { label: "AI Recommendations", key: "ai-recommendations" },
+  { label: "Amendments", key: "amendments" },
+  { label: "Q&A Analysis", key: "qa-analysis" },
+  { label: "Incumbent", key: "incumbent" },
+  { label: "Go/No-Go", key: "go-no-go" },
+  { label: "Tracker", key: "tracker" },
 ] as const;
 
 type TabKey = (typeof tabs)[number]["key"];
@@ -156,6 +166,7 @@ export default function OpportunityDetail() {
   const navigate = useNavigate();
   const { addToPipeline, isInPipeline } = usePipeline();
   const [isGeneratingBrief, setIsGeneratingBrief] = useState(false);
+  const [showVideoBriefing, setShowVideoBriefing] = useState(false);
   const [dbOpp, setDbOpp] = useState<DbOpportunity | null>(null);
 
   useEffect(() => {
@@ -344,6 +355,13 @@ export default function OpportunityDetail() {
                 </>
               )}
             </Button>
+            <Button
+              onClick={() => setShowVideoBriefing(true)}
+              className="bg-gradient-to-r from-purple-600 to-purple-400 text-white shadow-card hover:scale-[1.02]"
+            >
+              <Video className="mr-1.5 h-4 w-4" />
+              Watch AI Briefing
+            </Button>
           </div>
         </section>
 
@@ -412,18 +430,22 @@ export default function OpportunityDetail() {
                     complianceRequirements={dbOpp?.requirements?.compliance_requirements}
                     evaluationCriteria={dbOpp?.evaluation_criteria}
                   />
-                ) : activeTabLabel === "Gaps & Risks" ? (
+                ) : activeTabLabel === "Gap Analysis" ? (
                   <OpportunityGapsRisksTab matchAnalysis={dbOpp?.match_analysis} />
-                ) : activeTabLabel === "Teaming Partners" ? (
-                  <OpportunityTeamingPartnersTab gaps={dbOpp?.match_analysis?.gaps} />
+                ) : activeTabLabel === "Competitive" ? (
+                  <OpportunityCompetitiveTab />
+                ) : activeTabLabel === "Pricing Intel" ? (
+                  <OpportunityPricingTab />
+                ) : activeTabLabel === "Amendments" ? (
+                  <OpportunityAmendmentsTab />
+                ) : activeTabLabel === "Incumbent" ? (
+                  <OpportunityIncumbentTab />
+                ) : activeTabLabel === "Tracker" ? (
+                  <OpportunityTrackerTab />
+                ) : activeTabLabel === "Go/No-Go" ? (
+                  <OpportunityCaptureDecisionPanel />
                 ) : (
-                  <div className="rounded-lg border border-[#334155] bg-background/5 p-6">
-                    <p className="text-base font-semibold text-foreground">{activeTabLabel}</p>
-                    <p className="mt-2 text-sm text-muted-foreground">
-                      Content for this tab is coming soon. This section will include detailed information
-                      relevant to {activeTabLabel.toLowerCase()} for this opportunity.
-                    </p>
-                  </div>
+                  <OpportunityTeamingPartnersTab gaps={dbOpp?.match_analysis?.gaps} />
                 )}
               </div>
 
@@ -444,6 +466,21 @@ export default function OpportunityDetail() {
           </div>
         </section>
       </main>
+      
+      {/* AI Video Briefing Modal */}
+      <AiVideoBriefingModal
+        open={showVideoBriefing}
+        onOpenChange={setShowVideoBriefing}
+        opportunity={{
+          title: data.title,
+          agency: data.agency,
+          value: data.estValue,
+          dueDate: data.due,
+          setAside: data.setAside,
+          location: "Washington, DC",
+          certs: [],
+        }}
+      />
     </div>
   );
 }
