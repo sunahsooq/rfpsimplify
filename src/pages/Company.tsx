@@ -1,14 +1,28 @@
+import { useState, useEffect } from "react";
 import { AppTopNav } from "@/components/AppTopNav";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Building2, Lightbulb, ShieldCheck, Briefcase } from "lucide-react";
 import { useCompanyProfile } from "@/hooks/useCompanyProfile";
+import { useCompany } from "@/contexts/CompanyContext";
+import { Skeleton } from "@/components/ui/skeleton";
+
+// Profile components
+import { ProfileCompletenessCard } from "@/components/company/ProfileCompletenessCard";
+import { ProfileSidebar, type ProfileSection } from "@/components/company/ProfileSidebar";
 import { IdentityTab } from "@/components/company/IdentityTab";
 import { CapabilitiesTab } from "@/components/company/CapabilitiesTab";
 import { CertificationsTab } from "@/components/company/CertificationsTab";
 import { PastPerformanceTab } from "@/components/company/PastPerformanceTab";
-import { Skeleton } from "@/components/ui/skeleton";
-import { useCompany } from "@/contexts/CompanyContext";
-import { useEffect } from "react";
+
+// New section components
+import { PlacesOfPerformanceSection } from "@/components/company/sections/PlacesOfPerformanceSection";
+import { NAICSCodesSection } from "@/components/company/sections/NAICSCodesSection";
+import { PSCCodesSection } from "@/components/company/sections/PSCCodesSection";
+import { ContractVehiclesSection } from "@/components/company/sections/ContractVehiclesSection";
+import { SecurityClearancesSection } from "@/components/company/sections/SecurityClearancesSection";
+import { AgencyExperienceSection } from "@/components/company/sections/AgencyExperienceSection";
+import { KeyPersonnelSection } from "@/components/company/sections/KeyPersonnelSection";
+import { TeamingPreferencesSection } from "@/components/company/sections/TeamingPreferencesSection";
+import { LaborCategoriesSection } from "@/components/company/sections/LaborCategoriesSection";
+import { KeywordsSection } from "@/components/company/sections/KeywordsSection";
 
 export default function Company() {
   const {
@@ -27,6 +41,17 @@ export default function Company() {
   } = useCompanyProfile();
 
   const { updateCompany } = useCompany();
+  const [activeSection, setActiveSection] = useState<ProfileSection>("company-info");
+
+  // Track incomplete sections
+  const incompleteSections: ProfileSection[] = [];
+  if (!profile?.headquarters) incompleteSections.push("places-of-performance");
+  // Add more logic as needed for other sections
+
+  // Calculate profile completeness
+  const sectionsTotal = 14;
+  const sectionsComplete = profile ? Math.max(5, Math.floor((profile.profile_completeness / 100) * sectionsTotal)) : 0;
+  const completeness = profile?.profile_completeness ?? 35;
 
   // Sync DB profile to shared context so Dashboard/Opportunity pages reflect latest data
   useEffect(() => {
@@ -78,6 +103,79 @@ export default function Company() {
     );
   }
 
+  const renderSection = () => {
+    switch (activeSection) {
+      case "company-info":
+        return (
+          <IdentityTab
+            profile={profile}
+            setAsides={setAsides}
+            onSaveProfile={upsertProfile}
+            onSaveSetAside={upsertSetAside}
+            onDeleteSetAside={deleteSetAside}
+          />
+        );
+      case "places-of-performance":
+        return (
+          <PlacesOfPerformanceSection
+            selectedStates={[]}
+            onSave={(states) => console.log("Save states:", states)}
+          />
+        );
+      case "naics-codes":
+        return (
+          <NAICSCodesSection
+            primaryNaics={profile?.primary_naics ?? ""}
+            secondaryNaics={profile?.secondary_naics ?? []}
+            onSave={(primary, secondary) => upsertProfile({ primary_naics: primary, secondary_naics: secondary } as any)}
+          />
+        );
+      case "psc-codes":
+        return <PSCCodesSection />;
+      case "certifications":
+        return (
+          <CertificationsTab
+            profileId={profile?.id}
+            certifications={certifications}
+            onSave={upsertCertification}
+            onDelete={deleteCertification}
+          />
+        );
+      case "past-performance":
+        return (
+          <PastPerformanceTab
+            profileId={profile?.id}
+            pastPerformance={pastPerformance}
+            onSave={upsertPastPerformance}
+            onDelete={deletePastPerformance}
+          />
+        );
+      case "agency-experience":
+        return (
+          <AgencyExperienceSection
+            selectedAgencies={[]}
+            onSave={(agencies) => console.log("Save agencies:", agencies)}
+          />
+        );
+      case "key-personnel":
+        return <KeyPersonnelSection />;
+      case "technical-capabilities":
+        return <CapabilitiesTab profile={profile} onSave={handleSaveCapabilities} />;
+      case "contract-vehicles":
+        return <ContractVehiclesSection />;
+      case "security-clearances":
+        return <SecurityClearancesSection />;
+      case "teaming-preferences":
+        return <TeamingPreferencesSection />;
+      case "labor-categories":
+        return <LaborCategoriesSection />;
+      case "keywords":
+        return <KeywordsSection />;
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <AppTopNav />
@@ -88,58 +186,38 @@ export default function Company() {
           <p className="text-muted-foreground">Manage your GovCon identity for opportunity matching and gap analysis</p>
         </div>
 
-        <Tabs defaultValue="identity" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-flex">
-            <TabsTrigger value="identity" className="gap-2">
-              <Building2 className="h-4 w-4 hidden sm:block" />
-              Identity
-            </TabsTrigger>
-            <TabsTrigger value="capabilities" className="gap-2">
-              <Lightbulb className="h-4 w-4 hidden sm:block" />
-              Capabilities
-            </TabsTrigger>
-            <TabsTrigger value="certifications" className="gap-2">
-              <ShieldCheck className="h-4 w-4 hidden sm:block" />
-              Certifications
-            </TabsTrigger>
-            <TabsTrigger value="pastperformance" className="gap-2">
-              <Briefcase className="h-4 w-4 hidden sm:block" />
-              Past Performance
-            </TabsTrigger>
-          </TabsList>
+        {/* Profile Completeness Card */}
+        <div className="mb-6">
+          <ProfileCompletenessCard
+            completeness={completeness}
+            sectionsComplete={sectionsComplete}
+            sectionsTotal={sectionsTotal}
+          />
+        </div>
 
-          <TabsContent value="identity">
-            <IdentityTab
-              profile={profile}
-              setAsides={setAsides}
-              onSaveProfile={upsertProfile}
-              onSaveSetAside={upsertSetAside}
-              onDeleteSetAside={deleteSetAside}
-            />
-          </TabsContent>
+        {/* Two Column Layout with Sidebar */}
+        <div className="flex gap-6">
+          {/* Left Sidebar */}
+          <ProfileSidebar
+            activeSection={activeSection}
+            onSectionChange={setActiveSection}
+            incompleteSections={incompleteSections}
+          />
 
-          <TabsContent value="capabilities">
-            <CapabilitiesTab profile={profile} onSave={handleSaveCapabilities} />
-          </TabsContent>
+          {/* Right Content Area */}
+          <div className="flex-1 min-w-0">
+            {renderSection()}
+          </div>
+        </div>
 
-          <TabsContent value="certifications">
-            <CertificationsTab
-              profileId={profile?.id}
-              certifications={certifications}
-              onSave={upsertCertification}
-              onDelete={deleteCertification}
-            />
-          </TabsContent>
-
-          <TabsContent value="pastperformance">
-            <PastPerformanceTab
-              profileId={profile?.id}
-              pastPerformance={pastPerformance}
-              onSave={upsertPastPerformance}
-              onDelete={deletePastPerformance}
-            />
-          </TabsContent>
-        </Tabs>
+        {/* Info Box */}
+        <div className="mt-8 p-4 rounded-xl bg-primary/5 border border-primary/10">
+          <p className="text-sm text-muted-foreground">
+            💡 <strong className="text-foreground">How This Data Powers Matching:</strong> Your profile is used for Match Scores 
+            (comparing RFPs against your capabilities), Gap Analysis (identifying what you're missing), Partner Discovery 
+            (finding companies that fill YOUR gaps), and AI Recommendations. A complete profile = better results.
+          </p>
+        </div>
       </main>
     </div>
   );
