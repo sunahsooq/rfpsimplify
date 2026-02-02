@@ -1,78 +1,85 @@
 import { useNavigate } from "react-router-dom";
-import { CheckCircle, Building2, Award, Search, ArrowRight } from "lucide-react";
+import { CheckCircle, Building2, Award, Search, ArrowRight, Link2, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Logo from "@/components/ui/Logo";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function EmailVerified() {
   const navigate = useNavigate();
-  const userEmail = "sarah.chen@techsolutions.com"; // Replace with actual user email from auth
+  const { user } = useAuth();
+  const userEmail = user?.email || "sarah.chen@techsolutions.com";
 
   const nextSteps = [
     {
-      icon: Building2,
+      icon: Link2,
       title: "Connect SAM.gov",
-      description: "Import your company registration data automatically",
+      description: "Auto-import your company data",
     },
     {
-      icon: Award,
+      icon: Shield,
       title: "Add Certifications",
-      description: "Highlight your 8(a), WOSB, HUBZone, and other certs",
+      description: "8(a), WOSB, SDVOSB, HUBZone",
     },
     {
       icon: Search,
       title: "Discover Opportunities",
-      description: "Find matching contracts from SAM.gov and more",
+      description: "Get matched to federal RFPs",
     },
   ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#1e3a8a] via-[#3b82f6] to-[#60a5fa] flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Decorative floating elements */}
+      {/* Decorative floating confetti elements */}
       <div className="absolute top-20 left-10 w-32 h-32 bg-white/10 rounded-full blur-xl animate-pulse" />
       <div className="absolute bottom-20 right-10 w-48 h-48 bg-white/10 rounded-full blur-xl animate-pulse delay-1000" />
-      <div className="absolute top-1/3 right-1/4 w-24 h-24 bg-white/5 rounded-full blur-lg" />
-      <div className="absolute bottom-1/3 left-1/4 w-20 h-20 bg-white/5 rounded-full blur-lg" />
+      <div className="absolute top-1/4 right-1/3 w-3 h-3 bg-amber-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
+      <div className="absolute top-1/3 left-1/4 w-2 h-2 bg-green-400 rounded-full animate-bounce" style={{ animationDelay: '0.5s' }} />
+      <div className="absolute bottom-1/4 right-1/4 w-4 h-4 bg-blue-300 rounded-full animate-bounce" style={{ animationDelay: '0.8s' }} />
+      <div className="absolute top-2/3 left-1/3 w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '1.1s' }} />
 
-      <div className="w-full max-w-md relative z-10">
+      <div className="w-full max-w-lg relative z-10">
         {/* Logo */}
         <div className="text-center mb-8 flex justify-center">
           <Logo size="lg" />
         </div>
 
         {/* Card */}
-        <div className="bg-white rounded-[28px] shadow-2xl p-8">
-          {/* Success Icon */}
+        <div className="bg-white rounded-[28px] shadow-2xl p-10">
+          {/* Success Icon with animation */}
           <div className="flex justify-center mb-6">
-            <div className="w-24 h-24 bg-gradient-to-br from-[#16a34a] to-[#22c55e] rounded-full flex items-center justify-center shadow-lg">
-              <CheckCircle className="h-14 w-14 text-white" />
+            <div className="w-20 h-20 bg-gradient-to-br from-[#16a34a] to-[#22c55e] rounded-full flex items-center justify-center shadow-lg animate-[pulse_2s_ease-in-out_infinite]">
+              <CheckCircle className="h-12 w-12 text-white" />
             </div>
           </div>
 
           {/* Heading */}
-          <h1 className="text-3xl font-bold text-center text-gray-900 mb-2">
+          <h1 className="text-[28px] font-extrabold text-center text-slate-900 mb-2">
             Email Verified!
           </h1>
-          <p className="text-center text-gray-500 mb-8">
-            {userEmail}
+          <p className="text-center text-slate-500 mb-8">
+            Your email <span className="font-medium text-slate-700">{userEmail}</span> has been successfully verified. You're all set to start using rfpSimplify.
           </p>
 
           {/* What's Next Section */}
-          <div className="mb-8">
-            <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">
-              What's Next
-            </h2>
-            <div className="space-y-4">
+          <div className="bg-slate-50 rounded-2xl p-5 mb-8">
+            <div className="flex items-center gap-2 mb-4">
+              <ArrowRight className="h-4 w-4 text-slate-500" />
+              <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                What's Next
+              </h2>
+            </div>
+            <div className="space-y-3">
               {nextSteps.map((step, index) => (
                 <div
                   key={index}
-                  className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
+                  className="flex items-center gap-4"
                 >
-                  <div className="w-10 h-10 bg-gradient-to-br from-[#1e40af] to-[#3b82f6] rounded-lg flex items-center justify-center flex-shrink-0">
-                    <step.icon className="h-5 w-5 text-white" />
+                  <div className="w-9 h-9 bg-gradient-to-br from-[#1e40af] to-[#3b82f6] rounded-lg flex items-center justify-center flex-shrink-0">
+                    <step.icon className="h-4 w-4 text-white" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900">{step.title}</h3>
-                    <p className="text-sm text-gray-500">{step.description}</p>
+                    <h3 className="font-semibold text-slate-900 text-sm">{step.title}</h3>
+                    <p className="text-xs text-slate-500">{step.description}</p>
                   </div>
                 </div>
               ))}
@@ -81,8 +88,8 @@ export default function EmailVerified() {
 
           {/* CTA Buttons */}
           <Button
-            onClick={() => navigate("/company")}
-            className="w-full h-12 bg-gradient-to-r from-[#f59e0b] to-[#fbbf24] hover:from-[#d97706] hover:to-[#f59e0b] text-white rounded-xl font-semibold shadow-lg mb-4"
+            onClick={() => navigate("/onboarding")}
+            className="w-full h-14 bg-gradient-to-r from-[#f59e0b] to-[#fbbf24] hover:from-[#d97706] hover:to-[#f59e0b] text-white rounded-xl font-semibold shadow-lg text-base"
           >
             Get Started
             <ArrowRight className="h-5 w-5 ml-2" />
@@ -90,15 +97,18 @@ export default function EmailVerified() {
 
           <button
             onClick={() => navigate("/dashboard")}
-            className="w-full text-center text-gray-500 hover:text-gray-700 text-sm transition-colors"
+            className="w-full text-center text-slate-500 hover:text-slate-700 text-sm transition-colors mt-4"
           >
-            skip to dashboard →
+            or <span className="underline">skip to dashboard</span>
           </button>
         </div>
 
         {/* Footer */}
         <p className="text-center text-white/70 text-sm mt-8">
-          Welcome to the GovCon community
+          Need help?{" "}
+          <a href="#" className="text-amber-300 hover:text-amber-200 font-medium">
+            Contact Support
+          </a>
         </p>
       </div>
     </div>
