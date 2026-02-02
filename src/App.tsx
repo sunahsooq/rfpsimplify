@@ -30,6 +30,11 @@ import Recompetes from "./pages/Recompetes";
 import MyPartners from "./pages/MyPartners";
 import AdminQAQueue from "./pages/AdminQAQueue";
 import AdminRFPReview from "./pages/AdminRFPReview";
+import PartnerInvitation from "./pages/PartnerInvitation";
+import PartnerRequestsInbox from "./pages/PartnerRequestsInbox";
+import PartnerConversation from "./pages/PartnerConversation";
+import BidBriefShareable from "./pages/BidBriefShareable";
+import OnboardingWizard from "./pages/OnboardingWizard";
 
 const queryClient = new QueryClient();
 
@@ -49,7 +54,10 @@ const App = () => (
                   <Route path="/login" element={<Login />} />
                   <Route path="/signup" element={<Signup />} />
                   <Route path="/password-reset" element={<PasswordReset />} />
+                  <Route path="/forgot-password" element={<PasswordReset />} />
                   <Route path="/email-verified" element={<EmailVerified />} />
+                  <Route path="/invitation/:inviteId" element={<PartnerInvitation />} />
+                  <Route path="/onboarding" element={<OnboardingWizard />} />
 
                   {/* Protected routes */}
                   <Route path="/dashboard" element={
@@ -93,6 +101,15 @@ const App = () => (
                   } />
                   <Route path="/brief/:opportunityId" element={
                     <ProtectedRoute><BidBrief /></ProtectedRoute>
+                  } />
+                  <Route path="/opportunities/:id/bid-brief" element={
+                    <ProtectedRoute><BidBriefShareable /></ProtectedRoute>
+                  } />
+                  <Route path="/partner-requests" element={
+                    <ProtectedRoute><PartnerRequestsInbox /></ProtectedRoute>
+                  } />
+                  <Route path="/partner-requests/:requestId/conversation" element={
+                    <ProtectedRoute><PartnerConversation /></ProtectedRoute>
                   } />
 
                   {/* Admin routes */}

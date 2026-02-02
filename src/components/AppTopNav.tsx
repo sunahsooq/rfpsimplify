@@ -26,7 +26,7 @@ export function AppTopNav() {
   ];
 
   const isActive = (path: string) => location.pathname === path;
-  const isPartnersActive = location.pathname.startsWith("/partners");
+  const isPartnersActive = location.pathname.startsWith("/partners") || location.pathname.startsWith("/partner-requests");
 
   const handleLogout = async () => {
     await signOut();
@@ -83,7 +83,7 @@ export function AppTopNav() {
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="cursor-pointer"
-                onClick={() => navigate("/partners/requests")}
+                onClick={() => navigate("/partner-requests")}
               >
                 Requests
               </DropdownMenuItem>
