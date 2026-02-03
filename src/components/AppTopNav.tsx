@@ -83,6 +83,12 @@ export function AppTopNav() {
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="cursor-pointer"
+                onClick={() => navigate("/partner-search")}
+              >
+                🏛️ SBA Search
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="cursor-pointer"
                 onClick={() => navigate("/partner-requests")}
               >
                 Requests

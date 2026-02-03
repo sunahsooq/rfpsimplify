@@ -35,6 +35,7 @@ import PartnerRequestsInbox from "./pages/PartnerRequestsInbox";
 import PartnerConversation from "./pages/PartnerConversation";
 import BidBriefShareable from "./pages/BidBriefShareable";
 import OnboardingWizard from "./pages/OnboardingWizard";
+import SBAPartnerSearch from "./pages/SBAPartnerSearch";
 
 const queryClient = new QueryClient();
 
@@ -110,6 +111,12 @@ const App = () => (
                   } />
                   <Route path="/partner-requests/:requestId/conversation" element={
                     <ProtectedRoute><PartnerConversation /></ProtectedRoute>
+                  } />
+                  <Route path="/partner-search" element={
+                    <ProtectedRoute><SBAPartnerSearch /></ProtectedRoute>
+                  } />
+                  <Route path="/sba-partners" element={
+                    <ProtectedRoute><SBAPartnerSearch /></ProtectedRoute>
                   } />
 
                   {/* Admin routes */}
