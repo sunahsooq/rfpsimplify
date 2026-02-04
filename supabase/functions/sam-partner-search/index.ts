@@ -17,7 +17,7 @@ interface SearchParams {
 serve(async (req) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return new Response('ok', { headers: corsHeaders });
   }
 
   try {
@@ -28,12 +28,13 @@ serve(async (req) => {
 
     const { searchParams }: { searchParams: SearchParams } = await req.json();
     
-    // Build query parameters
+    // Build query parameters - SAM.gov API limits to 10 records per request
+    // Valid includeSections: entityRegistration, coreData, assertions, pointsOfContact, repsAndCerts
     const params = new URLSearchParams();
     params.append('api_key', SAM_API_KEY);
     params.append('registrationStatus', 'A');
-    params.append('includeSections', 'entityRegistration,coreData,assertions,certifications,pointsOfContact');
-    params.append('size', '25');
+    params.append('includeSections', 'entityRegistration,coreData,assertions,pointsOfContact');
+    params.append('size', '10');
     
     // Add search parameters
     if (searchParams.legalBusinessName) {
@@ -45,7 +46,7 @@ serve(async (req) => {
     }
     
     if (searchParams.physicalAddressStateCode) {
-      params.append('physicalAddressStateCode', searchParams.physicalAddressStateCode);
+      params.append('physicalAddressProvinceOrStateCode', searchParams.physicalAddressStateCode);
     }
     
     if (searchParams.naicsCode) {
@@ -105,7 +106,8 @@ serve(async (req) => {
           zipCode: entity.coreData?.physicalAddress?.zipCode || '',
         },
         website: entity.coreData?.entityInformation?.entityURL || '',
-        sbaBusinessTypeList: entity.certifications?.dnbCertifications?.sbaBusinessTypeList || [],
+        // SBA business types are under coreData.businessTypes.sbaBusinessTypeList
+        sbaBusinessTypeList: entity.coreData?.businessTypes?.sbaBusinessTypeList || [],
         naicsCodeList: entity.assertions?.naicsCode || [],
         governmentBusinessPOC: entity.pointsOfContact?.governmentBusinessPOC || null,
         electronicBusinessPOC: entity.pointsOfContact?.electronicBusinessPOC || null,

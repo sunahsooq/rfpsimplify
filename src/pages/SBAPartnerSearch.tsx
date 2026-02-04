@@ -313,10 +313,10 @@ export default function SBAPartnerSearch() {
               <p className="text-white font-medium">
                 Found {results.totalRecords.toLocaleString()} Partners
               </p>
-              {results.totalRecords > 25 && (
+              {results.totalRecords > 10 && (
                 <div className="flex items-center gap-2 text-white">
                   <span className="text-sm">
-                    Showing {currentPage * 25 + 1}-{Math.min((currentPage + 1) * 25, results.totalRecords)} of {results.totalRecords}
+                    Showing {currentPage * 10 + 1}-{Math.min((currentPage + 1) * 10, results.totalRecords)} of {results.totalRecords}
                   </span>
                   <Button
                     variant="outline"
@@ -331,7 +331,7 @@ export default function SBAPartnerSearch() {
                     variant="outline"
                     size="sm"
                     onClick={() => handleSearch(currentPage + 1)}
-                    disabled={(currentPage + 1) * 25 >= results.totalRecords || loading}
+                    disabled={(currentPage + 1) * 10 >= results.totalRecords || loading}
                     className="bg-white/20 border-white/30 text-white hover:bg-white/30"
                   >
                     <ChevronRight className="h-4 w-4" />
