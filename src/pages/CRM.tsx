@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "sonner";
 import { AppTopNav } from "@/components/AppTopNav";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -73,7 +74,11 @@ export default function CRM() {
               <option>Last 30 days</option>
               <option>Last 90 days</option>
             </select>
-            <Button variant="outline" className="border-border">
+            <Button 
+              variant="outline" 
+              className="border-border"
+              onClick={() => toast.success("Report exported to CSV")}
+            >
               <Download className="h-4 w-4 mr-2" />
               Export Report
             </Button>
@@ -265,7 +270,12 @@ export default function CRM() {
                           </p>
                         </div>
                       </div>
-                      <Button size="sm" variant="outline" className="border-primary text-primary hover:bg-primary/10">
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="border-primary text-primary hover:bg-primary/10"
+                        onClick={() => toast.success(`Re-engagement email sent to ${user.name}`)}
+                      >
                         Re-engage
                       </Button>
                     </div>

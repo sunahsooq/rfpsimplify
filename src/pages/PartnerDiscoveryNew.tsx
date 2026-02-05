@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { EmailOutreachModal } from "@/components/partner/EmailOutreachModal";
 import {
@@ -78,10 +79,41 @@ export default function PartnerDiscoveryNew() {
     setAside: true,
     companySize: true,
   });
+  
+  // Active filters state
+  const [activeFilters, setActiveFilters] = useState<Record<string, Set<string>>>({
+    capabilities: new Set(),
+    certifications: new Set(),
+    setAside: new Set(),
+    companySize: new Set(),
+  });
 
   const toggleSection = (section: string) => {
     setExpandedSections((prev) => ({ ...prev, [section]: !prev[section] }));
   };
+  
+  const toggleFilter = (section: string, option: string) => {
+    setActiveFilters((prev) => {
+      const newSet = new Set(prev[section]);
+      if (newSet.has(option)) {
+        newSet.delete(option);
+      } else {
+        newSet.add(option);
+      }
+      return { ...prev, [section]: newSet };
+    });
+  };
+  
+  const clearAllFilters = () => {
+    setActiveFilters({
+      capabilities: new Set(),
+      certifications: new Set(),
+      setAside: new Set(),
+      companySize: new Set(),
+    });
+  };
+  
+  const hasActiveFilters = Object.values(activeFilters).some(s => s.size > 0);
 
   const togglePartnerSelection = (partner: Partner) => {
     setSelectedPartners((prev) => 
@@ -95,10 +127,62 @@ export default function PartnerDiscoveryNew() {
     setSelectedPartners([]);
   };
 
-  const filteredPartners = partners.filter((p) =>
-    p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    p.capabilities.some((c) => c.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  const filteredPartners = partners.filter((p) => {
+    // Search filter
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      const matchesSearch = p.name.toLowerCase().includes(q) ||
+        p.capabilities.some((c) => c.toLowerCase().includes(q));
+      if (!matchesSearch) return false;
+    }
+    
+    // Capabilities filter
+    if (activeFilters.capabilities.size > 0) {
+      const hasCapability = p.capabilities.some(cap => 
+        Array.from(activeFilters.capabilities).some(f => cap.toLowerCase().includes(f.toLowerCase()))
+      );
+      if (!hasCapability) return false;
+    }
+    
+    // Certifications filter
+    if (activeFilters.certifications.size > 0) {
+      const hasCert = p.certifications.some(cert => {
+        const certName = cert.name.toLowerCase();
+        return Array.from(activeFilters.certifications).some(f => {
+          const filterLower = f.toLowerCase();
+          if (filterLower.includes("fedramp")) return certName.includes("fedramp");
+          if (filterLower.includes("cmmc")) return certName.includes("cmmc");
+          if (filterLower.includes("iso")) return certName.includes("iso");
+          if (filterLower.includes("soc")) return certName.includes("soc");
+          return false;
+        });
+      });
+      if (!hasCert) return false;
+    }
+    
+    // Set-aside filter
+    if (activeFilters.setAside.size > 0) {
+      const hasSetAside = p.setAsides?.some(sa => 
+        Array.from(activeFilters.setAside).some(f => sa.toLowerCase().includes(f.toLowerCase()))
+      );
+      if (!hasSetAside) return false;
+    }
+    
+    // Company size filter
+    if (activeFilters.companySize.size > 0) {
+      const employeeStr = p.employees || "";
+      const hasSize = Array.from(activeFilters.companySize).some(f => {
+        if (f === "1-50 employees") return employeeStr.includes("30-50") || employeeStr.includes("40-60") || employeeStr.includes("50-75");
+        if (f === "51-200 employees") return employeeStr.includes("75-100") || employeeStr.includes("100-150") || employeeStr.includes("150-200");
+        if (f === "201-500 employees") return employeeStr.includes("200-300");
+        if (f === "500+ employees") return false;
+        return false;
+      });
+      if (!hasSize) return false;
+    }
+    
+    return true;
+  });
 
   return (
     <div className="min-h-screen bg-background">
@@ -120,8 +204,14 @@ export default function PartnerDiscoveryNew() {
                 {expandedSections[key] && (
                   <div className="space-y-2 mt-2">
                     {options.map((option) => (
-                      <label key={option} className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer hover:text-foreground">
-                        <Checkbox />
+                      <label 
+                        key={option} 
+                        className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer hover:text-foreground"
+                      >
+                        <Checkbox 
+                          checked={activeFilters[key]?.has(option)}
+                          onCheckedChange={() => toggleFilter(key, option)}
+                        />
                         {option}
                       </label>
                     ))}
@@ -129,7 +219,13 @@ export default function PartnerDiscoveryNew() {
                 )}
               </div>
             ))}
-            <button className="text-sm text-primary hover:underline mt-4">Clear All Filters</button>
+            <button 
+              className={`text-sm mt-4 ${hasActiveFilters ? 'text-primary hover:underline' : 'text-muted-foreground cursor-not-allowed'}`}
+              onClick={clearAllFilters}
+              disabled={!hasActiveFilters}
+            >
+              Clear All Filters {hasActiveFilters && `(${Object.values(activeFilters).reduce((sum, s) => sum + s.size, 0)})`}
+            </button>
           </ScrollArea>
         </aside>
 
@@ -253,17 +349,28 @@ export default function PartnerDiscoveryNew() {
                   
                   <div className="flex gap-2">
                     <Button variant="outline" size="sm" className="flex-1 border-border" onClick={() => setSelectedPartner(partner)}>View Profile</Button>
-                    <Button size="sm" className="flex-1 gradient-primary text-primary-foreground">Invite to Team</Button>
+                    <Button 
+                      size="sm" 
+                      className="flex-1 gradient-primary text-primary-foreground"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toast.success(`Teaming request sent to ${partner.name}`);
+                      }}
+                    >
+                      Invite to Team
+                    </Button>
                   </div>
                 </Card>
               );
             })}
           </div>
           
-          {/* Load More */}
-          <div className="flex justify-center mt-6">
-            <Button variant="outline" className="border-border">Load More Partners</Button>
-          </div>
+          {/* Load More - hidden when all partners shown */}
+          {filteredPartners.length >= partners.length && (
+            <div className="flex justify-center mt-6">
+              <p className="text-sm text-muted-foreground">Showing all {filteredPartners.length} matching partners</p>
+            </div>
+          )}
         </main>
 
         {/* Right Detail Panel */}
