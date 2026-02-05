@@ -238,8 +238,46 @@ export default function Opportunities() {
     });
   }, [dbRows]);
 
-  // Visual-only filters (no logic). We still compute a stable list for rendering.
-  const rows = useMemo(() => [...dbAsCards, ...opportunities], [dbAsCards]);
+  // Apply filters
+  const rows = useMemo(() => {
+    const all = [...dbAsCards, ...opportunities];
+    return all.filter((o) => {
+      // Search filter
+      if (search.trim()) {
+        const q = search.toLowerCase();
+        const matchesSearch = o.title.toLowerCase().includes(q) || 
+          o.agency.toLowerCase().includes(q) ||
+          o.tags.some(t => t.toLowerCase().includes(q));
+        if (!matchesSearch) return false;
+      }
+      // Agency filter
+      if (agency && agency !== "all" && o.agency !== agency) return false;
+      // Due date filter
+      if (dueDate && dueDate !== "all") {
+        const dueMs = Date.parse(o.due);
+        const now = Date.now();
+        if (!Number.isFinite(dueMs)) return dueDate === "past" ? false : true;
+        const daysAway = (dueMs - now) / (1000 * 60 * 60 * 24);
+        if (dueDate === "7" && daysAway > 7) return false;
+        if (dueDate === "30" && daysAway > 30) return false;
+        if (dueDate === "60" && daysAway > 60) return false;
+        if (dueDate === "past" && daysAway >= 0) return false;
+      }
+      // Match % filter
+      if (match && match !== "all" && typeof o.match === "number") {
+        if (match === "90" && o.match < 90) return false;
+        if (match === "75" && (o.match < 75 || o.match >= 90)) return false;
+        if (match === "60" && (o.match < 60 || o.match >= 75)) return false;
+        if (match === "below60" && o.match >= 60) return false;
+      }
+      // Set-aside filter
+      if (setAside && setAside !== "all") {
+        const hasSetAside = o.tags.some(t => t.toLowerCase().includes(setAside.toLowerCase()));
+        if (!hasSetAside) return false;
+      }
+      return true;
+    });
+  }, [dbAsCards, search, agency, dueDate, match, setAside]);
 
   return (
     <div className="min-h-screen w-full bg-background">
@@ -377,15 +415,25 @@ export default function Opportunities() {
             </div>
           </div>
 
-          <p className="mt-3 text-xs text-muted-foreground">Filters are visual-only in this demo</p>
+          <p className="mt-3 text-xs text-muted-foreground">Showing {rows.length} opportunities</p>
         </section>
 
         {/* Opportunities List */}
         <section>
           {rows.length === 0 ? (
-            <Card className="flex flex-col items-center justify-center rounded-xl border border-border bg-[#1a2540] p-12 text-center shadow-card">
+            <Card className="flex flex-col items-center justify-center rounded-xl border border-border bg-card p-12 text-center shadow-card">
               <p className="mb-6 text-lg text-muted-foreground">No opportunities match your filters yet.</p>
-              <Button variant="outline" className="w-full border-primary text-primary hover:bg-primary/10 sm:w-auto">
+              <Button 
+                variant="outline" 
+                className="w-full border-primary text-primary hover:bg-primary/10 sm:w-auto"
+                onClick={() => {
+                  setSearch("");
+                  setAgency(undefined);
+                  setDueDate(undefined);
+                  setMatch(undefined);
+                  setSetAside(undefined);
+                }}
+              >
                 Clear Filters
               </Button>
             </Card>
